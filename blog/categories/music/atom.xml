@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Music | Bertuz]]></title>
+  <link href="http://bertuz.github.io/blog/categories/music/atom.xml" rel="self"/>
+  <link href="http://bertuz.github.io/"/>
+  <updated>2014-03-23T05:21:14+01:00</updated>
+  <id>http://bertuz.github.io/</id>
+  <author>
+    <name><![CDATA[Matteo Bertamini]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Optimus Alive, Here I Come!]]></title>
+    <link href="http://bertuz.github.io/blog/2014/03/23/optimus-alive/"/>
+    <updated>2014-03-23T05:19:09+01:00</updated>
+    <id>http://bertuz.github.io/blog/2014/03/23/optimus-alive</id>
+    <content type="html"><![CDATA[<p>So, as my first post attempt (pant!) I&rsquo;ll share with you all the official playlist of the Optimus Alive: one of the biggest muscal events in Portugal that will take place in July. I&rsquo;ll see you there :&ndash;)
+<style>.bt-video-container iframe,.bt-video-container object,.bt-video-container embed{position:absolute;top:0;left:0;width:100%;height:100%;margin-top:0}</style>
+<div class="bt-video-container" style="position:relative;padding-bottom:75.00%;padding-top:30px;height:0;overflow:hidden"><iframe width="480" height="360" src="http://www.youtube.com/embed/<a?rel=0" frameborder="0" allowfullscreen></iframe></div></p>
+]]></content>
+  </entry>
+  
+</feed>
