@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Bertuz]]></title>
+  <link href="http://bertuz.github.io/atom.xml" rel="self"/>
+  <link href="http://bertuz.github.io/"/>
+  <updated>2014-03-23T02:13:49+01:00</updated>
+  <id>http://bertuz.github.io/</id>
+  <author>
+    <name><![CDATA[Matteo Bertamini]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+</feed>
