@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Music | Bertuz]]></title>
   <link href="http://bertuz.github.io/blog/categories/music/atom.xml" rel="self"/>
   <link href="http://bertuz.github.io/"/>
-  <updated>2014-03-25T02:22:10+01:00</updated>
+  <updated>2014-03-25T02:37:34+01:00</updated>
   <id>http://bertuz.github.io/</id>
   <author>
     <name><![CDATA[Matteo Bertamini]]></name>
@@ -22,45 +22,6 @@
 
 <iframe width="560" height="315" src="//www.youtube.com/embed/B9dSYgd5Elk?list=PLR3JpU7khsm4kNmZoKFIjJJEw_5XEL5_H" frameborder="0" allowfullscreen></iframe>
 
-
-<p><div class='bogus-wrapper'><notextile><!-- -*- html -*- -->
-
-<div class="imgpopup screen">
-  <div class="caption">Click the image for a larger view.</div>
-  <a href='javascript:void(0)' style="text-decoration: none" id="image-4">
-    <img src="/hireme/comeAlongEvt.png"
-         width="697" height="569"
-         alt="Click me."/>
-  </a>
-  <div id="image-dialog-4" style="display:none">
-    <img src="/hireme/comeAlongEvt.png"
-         width="1394" height="1138"/>
-    <br clear="all"/>
-  </div>
-</div>
-<script type="text/javascript">
-  jQuery(document).ready(function() {
-    jQuery("#image-dialog-4").hide();
-    jQuery("#image-dialog-4").dialog({
-      autoOpen:  false,
-      modal:     true,
-      draggable: false,
-      minWidth:  1434,
-      minHeight: 1178,
-      title:     "My Big Image",
-      show:      'scale',
-      hide:      'scale'
-    });
-
-    jQuery("#image-4").click(function() {
-      jQuery("#image-dialog-4").dialog('open');
-    });
-
-  });
-</script>
-<div class="illustration print">
-  <img src="/hireme/comeAlongEvt.png" width="1394" height="1138"/>
-</div></notextile></div></p>
 ]]></content>
   </entry>
   
