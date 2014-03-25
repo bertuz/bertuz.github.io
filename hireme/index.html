@@ -60,7 +60,7 @@
         <li><a href="./cv.pdf" target="_blank">Italian version</a></li>
       </ul>
     </div>
-    <a class="btn btn-primary btn-lg" href="#portfolio">My portfolio</a>
+    <a class="btn btn-primary btn-lg portfolio" href=".">My portfolio</a>
   </p>
   <p class="shrHireMe"><div class="sharing">
   
@@ -207,6 +207,23 @@ The data gathered will be presented to the municipality of Modena in order to ac
       </div>      
     </div>
 </div>
+
+
+
+
+<script>
+    $(document).ready(
+        function() {
+            $("a.portfolio").click(
+                function(e){
+                    var target_offset = $("a[name='portfolio']").offset();
+                    var target_top = target_offset.top;
+                    
+                    e.preventDefault();
+                    $("html, body").animate({scrollTop:target_top}, "slow");
+                });
+        });
+</script>
 
 
       
