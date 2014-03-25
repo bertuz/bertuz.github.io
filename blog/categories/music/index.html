@@ -65,6 +65,45 @@
 <iframe width="560" height="315" src="//www.youtube.com/embed/B9dSYgd5Elk?list=PLR3JpU7khsm4kNmZoKFIjJJEw_5XEL5_H" frameborder="0" allowfullscreen></iframe>
 
 
+<p><div class='bogus-wrapper'><notextile><!-- -*- html -*- -->
+
+<div class="imgpopup screen">
+  <div class="caption">Click the image for a larger view.</div>
+  <a href='javascript:void(0)' style="text-decoration: none" id="image-3">
+    <img src="/hireme/comeAlongEvt.png"
+         width="697" height="569"
+         alt="Click me."/>
+  </a>
+  <div id="image-dialog-3" style="display:none">
+    <img src="/hireme/comeAlongEvt.png"
+         width="1394" height="1138"/>
+    <br clear="all"/>
+  </div>
+</div>
+<script type="text/javascript">
+  jQuery(document).ready(function() {
+    jQuery("#image-dialog-3").hide();
+    jQuery("#image-dialog-3").dialog({
+      autoOpen:  false,
+      modal:     true,
+      draggable: false,
+      minWidth:  1434,
+      minHeight: 1178,
+      title:     "My Big Image",
+      show:      'scale',
+      hide:      'scale'
+    });
+
+    jQuery("#image-3").click(function() {
+      jQuery("#image-dialog-3").dialog('open');
+    });
+
+  });
+</script>
+<div class="illustration print">
+  <img src="/hireme/comeAlongEvt.png" width="1394" height="1138"/>
+</div></notextile></div></p>
+
   </p>
   <span class="meta">
     written 

@@ -70,6 +70,55 @@
 
 
 
+<!-- -*- html -*- -->
+
+
+
+
+<div class="imgpopup screen">
+  <div class="caption">Click the image for a larger view.</div>
+  <a href='javascript:void(0)' style="text-decoration: none" id="image-1">
+    <img src="/hireme/comeAlongEvt.png"
+         width="697" height="569"
+         alt="Click me."/>
+  </a>
+  <div id="image-dialog-1" style="display:none">
+    <img src="/hireme/comeAlongEvt.png"
+         width="1394" height="1138"/>
+    <br clear="all"/>
+  </div>
+</div>
+
+
+<script type="text/javascript">
+  jQuery(document).ready(function() {
+    jQuery("#image-dialog-1").hide();
+    jQuery("#image-dialog-1").dialog({
+      autoOpen:  false,
+      modal:     true,
+      draggable: false,
+      minWidth:  1434,
+      minHeight: 1178,
+      title:     "My Big Image",
+      show:      'scale',
+      hide:      'scale'
+    });
+
+    jQuery("#image-1").click(function() {
+      jQuery("#image-dialog-1").dialog('open');
+    });
+
+  });
+</script>
+
+
+<div class="illustration print">
+  <img src="/hireme/comeAlongEvt.png" width="1394" height="1138"/>
+</div>
+
+
+
+
   </p>
   <span class="meta">
     written 
