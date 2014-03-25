@@ -162,14 +162,49 @@ The data gathered will be presented to the municipality of Modena in order to ac
             I&#8217;ve designed and developed two web front ends of a social platform that aims to encourage the attendance to cultural events. The platform exploits new means of communication and new marketing techniques studied by the department of Information Engineering and Computer Science of the University of Trento.
         </p>
         <p style="text-align: center;">
-            
+            <div class="imgpopup screen">
+  <div class="caption">Click the image for a larger view.</div>
+  <a href='javascript:void(0)' style="text-decoration: none" id="image-1">
+    <img src="/hireme/comeAlongEvt.png"
+         width="139" height="114"
+         alt="Click me."/>
+  </a>
+  <div id="image-dialog-1" style="display:none">
+    <img src="/hireme/comeAlongEvt.png"
+         width="1394" height="1138"/>
+    <br clear="all"/>
+  </div>
+</div>
+<script type="text/javascript">
+  jQuery(document).ready(function() {
+    jQuery("#image-dialog-1").hide();
+    jQuery("#image-dialog-1").dialog({
+      autoOpen:  false,
+      modal:     true,
+      draggable: false,
+      minWidth:  1434,
+      minHeight: 1178,
+      title:     "My Big Image",
+      show:      'scale',
+      hide:      'scale'
+    });
+
+    jQuery("#image-1").click(function() {
+      jQuery("#image-dialog-1").dialog('open');
+    });
+
+  });
+</script>
+<div class="illustration print">
+  <img src="/hireme/comeAlongEvt.png" width="1394" height="1138"/>
+</div>
         </p>
       </div>      
     </div>
 </div>
 
 
-<p>prova?</p>
+
 
 <div class="page-header">
   <h2>MWAAT <small>The Mobile Web Accessibility Tool</small></h2>
