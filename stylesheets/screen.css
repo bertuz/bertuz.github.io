@@ -1,13 +1,11 @@
 /*
 Syntax error: Undefined mixin 'centered'.
-        on line 87 of /Users/bertuz/Sites/gitBlog/sass/custom/_styles.scss, in `centered'
-        from line 87 of /Users/bertuz/Sites/gitBlog/sass/custom/_styles.scss
-        from line 9 of /Users/bertuz/Sites/gitBlog/sass/screen.scss
+        on line 15 of /Users/bertuz/Sites/gitBlog/sass/screen.scss, in `centered'
+        from line 15 of /Users/bertuz/Sites/gitBlog/sass/screen.scss
 
 Backtrace:
-/Users/bertuz/Sites/gitBlog/sass/custom/_styles.scss:87:in `centered'
-/Users/bertuz/Sites/gitBlog/sass/custom/_styles.scss:87
-/Users/bertuz/Sites/gitBlog/sass/screen.scss:9
+/Users/bertuz/Sites/gitBlog/sass/screen.scss:15:in `centered'
+/Users/bertuz/Sites/gitBlog/sass/screen.scss:15
 /Users/bertuz/.rbenv/versions/1.9.3-p194/lib/ruby/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/perform.rb:253:in `visit_mixin'
 /Users/bertuz/.rbenv/versions/1.9.3-p194/lib/ruby/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/base.rb:37:in `visit'
 /Users/bertuz/.rbenv/versions/1.9.3-p194/lib/ruby/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/perform.rb:100:in `visit'
@@ -19,11 +17,6 @@ Backtrace:
 /Users/bertuz/.rbenv/versions/1.9.3-p194/lib/ruby/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/perform.rb:108:in `visit_children'
 /Users/bertuz/.rbenv/versions/1.9.3-p194/lib/ruby/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/base.rb:37:in `block in visit'
 /Users/bertuz/.rbenv/versions/1.9.3-p194/lib/ruby/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/perform.rb:320:in `visit_rule'
-/Users/bertuz/.rbenv/versions/1.9.3-p194/lib/ruby/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/base.rb:37:in `visit'
-/Users/bertuz/.rbenv/versions/1.9.3-p194/lib/ruby/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/perform.rb:100:in `visit'
-/Users/bertuz/.rbenv/versions/1.9.3-p194/lib/ruby/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/perform.rb:227:in `block in visit_import'
-/Users/bertuz/.rbenv/versions/1.9.3-p194/lib/ruby/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/perform.rb:227:in `map'
-/Users/bertuz/.rbenv/versions/1.9.3-p194/lib/ruby/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/perform.rb:227:in `visit_import'
 /Users/bertuz/.rbenv/versions/1.9.3-p194/lib/ruby/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/base.rb:37:in `visit'
 /Users/bertuz/.rbenv/versions/1.9.3-p194/lib/ruby/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/perform.rb:100:in `visit'
 /Users/bertuz/.rbenv/versions/1.9.3-p194/lib/ruby/gems/1.9.1/gems/sass-3.2.9/lib/sass/tree/visitors/base.rb:53:in `block in visit_children'
@@ -65,4 +58,4 @@ Backtrace:
 body:before {
   white-space: pre;
   font-family: monospace;
-  content: "Syntax error: Undefined mixin 'centered'.\A         on line 87 of /Users/bertuz/Sites/gitBlog/sass/custom/_styles.scss, in `centered'\A         from line 87 of /Users/bertuz/Sites/gitBlog/sass/custom/_styles.scss\A         from line 9 of /Users/bertuz/Sites/gitBlog/sass/screen.scss"; }
+  content: "Syntax error: Undefined mixin 'centered'.\A         on line 15 of /Users/bertuz/Sites/gitBlog/sass/screen.scss, in `centered'\A         from line 15 of /Users/bertuz/Sites/gitBlog/sass/screen.scss"; }
