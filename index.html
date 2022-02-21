@@ -13,7 +13,9 @@
         body {
             margin: 0;
             padding: 0;
+            background-color: #EBAB26;
         }
+
         .content {
             display: flex;
 
@@ -31,10 +33,12 @@
         }
         .dx {
             flex-grow: 1;
-            background-color: #EBAB26;
             display: flex;
-            justify-content: center;
-            align-items: center;
+            flex-direction: column;
+            flex-wrap: nowrap;
+            align-items: stretch;
+            justify-content: flex-start;
+            overflow-y: scroll;
         }
 
         @media (max-width: 600px) {
@@ -45,9 +49,6 @@
 
         @media only screen
         and (max-device-width: 600px) {
-            body {
-                background-color: #EBAB26;
-            }
             .sx {
                 display: none;
             }
@@ -58,7 +59,7 @@
 
 <body>
 <div class="content">
-    <div class="sx">
+    <aside class="sx">
         <svg  width="250px" height="250px">
             <style>
                 @import url(style-logo.css);
@@ -66,15 +67,30 @@
 
             <use  href="logo.svg#svg5" />
         </svg>
-    </div>
-    <div class="dx">
-        <div>
+    </aside>
+    <main class="dx">
+        <article style="            text-align: center; background-color: #EBAB26;height: 80vh; flex-shrink: 0; display: flex; flex-direction: column; justify-content: center;">
             <h1 style="font-family: 'Comfortaa', cursive;font-family: 'Indie Flower', cursive;">Matteo Bertamini</h1>
             <p style="text-align: center;font-family: 'Alegreya', serif;text-transform: uppercase;">
                 Fullstack Developer
             </p>
-        </div>
-    </div>
+        </article>
+        <article style="height: 70vh; background-color: #CFC3B6; flex-shrink: 0; padding: 20px;">
+            <p style="font-family: 'Alegreya', serif; font-size: 1.2em;">
+            Hi! My presentation will be placed here, one day :P
+            </p>
+        </article>
+        <article style="height: 70vh; background-color: #DDF4C8; flex-shrink: 0; padding: 20px;">
+            <p style="font-family: 'Alegreya', serif; font-size: 1.2em;">
+                Come near, ladies and gentlemen!
+            </p>
+        </article>
+        <footer style="background-color: #EBAB26; flex-shrink: 0; text-align: center">
+            <p style="text-align: center;font-family: 'Alegreya', serif;text-transform: uppercase;">
+                Matteo Bertamini 2022
+            </p>
+        </footer>
+    </main>
 </div>
 </body>
 </html>
