@@ -9,7 +9,7 @@ type Props = {
 
 const ArticleList:FC<Props> = ({articles}) => {
     return(<div className={articleStyles.grid}>
-        {articles.map((article: any) => <ArticleItem article={article}/>)}
+        {articles.map((article: any) => <ArticleItem key={article.id} article={article}/>)}
     </div>);
 };
 
