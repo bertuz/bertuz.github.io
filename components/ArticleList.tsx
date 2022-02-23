@@ -8,13 +8,11 @@ type Props = {
 };
 
 const ArticleList:FC<Props> = ({articles}) => {
-    console.log('======----====---===-');
     return(<div className={articleStyles.grid}>
-        {articles.map((article: any) => {
-            console.log(article);
-            return(<ArticleItem key={article.id}  article={{body: '', id: '', title: ''}}/>);})}
-
-    </div>);
+        {articles.map((article: any) =>
+            (<ArticleItem key={article.id}  article={article}/>))
+        }
+    </div>)
 };
 
 export default ArticleList;
