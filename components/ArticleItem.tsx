@@ -6,7 +6,8 @@ type Props = {
     article: any
 };
 
-const ArticleItem:FC<Props> = ({article: any}) => {
+const ArticleItem:FC<Props> = ({article}) => {
+
     // @ts-ignore
     const {body, id, title} = article;
     return(<Link href='/article/[id]' as={`/article/${id}`}>

@@ -26,10 +26,10 @@ export const getStaticPaths = async() => {
     const res = await fetch(`https://jsonplaceholder.typicode.com/posts`);
 
     const articles:any = await res.json();
-console.log('here!');
+
 
     const ids:any = articles.map((article: { id: any; }) => article.id);
-    console.log(ids);
+
     const paths = ids.map((id: { toString: () => any; }) => ({params: {id: id.toString()}}))
 
     return {
@@ -39,7 +39,6 @@ console.log('here!');
 };
 
 export const getStaticProps = async (context: any) => {
-    console.log(context);
     const res = await fetch(`https://jsonplaceholder.typicode.com/posts/${context.params.id}`);
 
     const article = await res.json();

@@ -4,10 +4,10 @@ import {FC} from "react";
 import ArticleList from "../components/ArticleList";
 
 type Props = {
-    articles: Object
+    articles: any
 };
 const Home: FC<Props> = ({articles}) => {
-    console.log(articles);
+
     
   return (
 
