@@ -4,7 +4,7 @@ import Link from 'next/link';
 import {useRouter} from "next/router";
 
 type Props = {
-    article: Object
+    article: any
 };
 
 const Article:FC<Props> = ({article}) => {
@@ -25,12 +25,12 @@ const Article:FC<Props> = ({article}) => {
 export const getStaticPaths = async() => {
     const res = await fetch(`https://jsonplaceholder.typicode.com/posts`);
 
-    const articles = await res.json();
+    const articles:any = await res.json();
 console.log('here!');
 
-    const ids = articles.map(article => article.id);
+    const ids:any = articles.map((article: { id: any; }) => article.id);
     console.log(ids);
-    const paths = ids.map((id) => ({params: {id: id.toString()}}))
+    const paths = ids.map((id: { toString: () => any; }) => ({params: {id: id.toString()}}))
 
     return {
         paths,
@@ -38,7 +38,7 @@ console.log('here!');
     }
 };
 
-export const getStaticProps = async (context) => {
+export const getStaticProps = async (context: any) => {
     console.log(context);
     const res = await fetch(`https://jsonplaceholder.typicode.com/posts/${context.params.id}`);
 
