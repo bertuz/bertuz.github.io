@@ -4,12 +4,12 @@ import Link from 'next/link';
 import ArticleItem from "./ArticleItem";
 
 type Props = {
-    articles: Object
+    articles: any
 };
 
 const ArticleList:FC<Props> = ({articles}) => {
     return(<div className={articleStyles.grid}>
-        {articles.map(article => <ArticleItem article={article}/>)}
+        {articles.map((article: any) => <ArticleItem article={article}/>)}
     </div>);
 };
 
