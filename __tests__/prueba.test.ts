@@ -1,8 +1,8 @@
 import puppeteer from "puppeteer";
 import {toMatchImageSnapshot} from 'jest-image-snapshot';
 
+let browser: any;
 describe("App.js", () => {
-    let browser;
     let page: any;
 
     beforeAll(async () => {
@@ -14,6 +14,10 @@ describe("App.js", () => {
         page = await browser.newPage();
 
 
+    });
+
+    afterAll(async () => {
+        await browser.close();
     });
 
 
