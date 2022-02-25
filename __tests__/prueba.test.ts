@@ -3,7 +3,7 @@ import {toMatchImageSnapshot} from 'jest-image-snapshot';
 
 describe("App.js", () => {
     let browser;
-    let page;
+    let page: any;
 
     beforeAll(async () => {
 
@@ -17,8 +17,8 @@ describe("App.js", () => {
     });
 
     it('should be titled "Google"', async () => {
-        await page.goto('http://localhost:14560/about');
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await page.goto('http://localhost:14568/about');
+
         // await expect(page.title()).resolves.toMatch('Hola');
         // await expect(page.getByText('Welcome to my page')).toBeTruthy();
 
