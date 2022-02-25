@@ -9,7 +9,7 @@ describe("App.js", () => {
 
         expect.extend({ toMatchImageSnapshot });
 
-        jest.setTimeout(1000000)
+        // jest.setTimeout(100000)
         browser = await puppeteer.launch();
         page = await browser.newPage();
 
