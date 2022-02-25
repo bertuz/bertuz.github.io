@@ -2,7 +2,7 @@ const PORT = 14568;
 
 module.exports = {
     launch: {
-        headless: process.env.CI === 'false',
+        headless: true,
     },
     browserContext: process.env.INCOGNITO ? 'incognito' : 'default',
     server: {
