@@ -16,7 +16,7 @@ const Home: FC<Props> = ({articles}) => {
             <title>Hola</title>
             <meta name="keywords" content="web development, programming"/>
         </Head>
-      <h1>Welcome to my page!</h1>
+      <h1 data-testid="t1">Welcome to my page!</h1>
         <ArticleList articles={articles}/>
     </div>
   )
