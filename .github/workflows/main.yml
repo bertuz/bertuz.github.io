@@ -25,6 +25,7 @@ jobs:
           node-version: 12
       - run: npm install -g yarn
       - run: ls -al
+      - run: pwd
       - run: yarn install
       - run: yarn install --dev
       - run: yarn build
