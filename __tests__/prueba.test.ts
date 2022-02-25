@@ -22,7 +22,7 @@ describe("App.js", () => {
         // await expect(page.title()).resolves.toMatch('Hola');
         // await expect(page.getByText('Welcome to my page')).toBeTruthy();
 
-        await expect(await page.screenshot()).toMatchImageSnapshot({allowSizeMismatch: true, failureThreshold: 0.7});
+        await expect(await page.screenshot()).toMatchImageSnapshot({allowSizeMismatch: true, failureThreshold: 0.7, updatePassedSnapshot: true, failureThresholdType: 'percent'});
     });
 
 
