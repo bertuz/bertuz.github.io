@@ -31,3 +31,5 @@ jobs:
           path: testres.json
       - name: 🍏 The job has succeeded
         if: ${{ success() }}
+        run: echo "🍏 This job's status is ${{ job.status }}."
+      - run: echo "🍏 This job's status is ${{ job.status }}."
