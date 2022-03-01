@@ -32,4 +32,5 @@ jobs:
       - name: 🍏 The job has succeeded
         if: ${{ success() }}
         run: echo "🍏 This job's status is ${{ job.status }}."
-      - run: echo "🍏 This job's status is ${{ job.status }}."
+      - name: Job status
+        run: echo "🍏 This job's status is ${{ job.status }}."
