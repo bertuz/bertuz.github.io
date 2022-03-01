@@ -30,6 +30,3 @@ jobs:
           name: code-coverage-report
           path: testres.json
       - run: echo "🍏 This job's status is ${{ job.status }}.
-
-          - name: Next Pages
-            uses: anorcle/next-pages@v1.0
