@@ -29,4 +29,5 @@ jobs:
         with:
           name: code-coverage-report
           path: testres.json
-      - run: echo "🍏 This job's status is ${{ job.status }}."
+      - name: 🍏 The job has succeeded
+        if: ${{ success() }}
