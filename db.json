@@ -1,0 +1,44 @@
+{
+  "dashboard": {
+    "likes": 43,
+    "followers": 56,
+    "following": 234
+  },
+  "news": [
+    {
+      "id": "1",
+      "title": "title news",
+      "description": "lorem",
+      "category": "sports"
+    },
+    {
+      "id": "2",
+      "title": "second title news",
+      "description": "secibd lorem",
+      "category": "politics"
+    },
+    {
+      "id": "3",
+      "title": "second title news",
+      "description": "secibd lorem",
+      "category": "politics"
+    }
+  ],
+  "events": [
+    {
+      "id": "id1",
+      "title": "an event",
+      "category": "sport"
+    },
+    {
+      "id": "id3",
+      "title": "anOTHER sport event",
+      "category": "sport"
+    },
+    {
+      "id": "id2",
+      "title": "another event",
+      "category": "nonsport"
+    }
+  ]
+}
