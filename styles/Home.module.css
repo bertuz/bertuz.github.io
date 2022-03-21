@@ -73,7 +73,7 @@ and (max-device-width: 600px) {
   }
 }
 
-.presentation-image {
+#presentation-image {
   animation-duration: 3s;
   border: 1px solid black;
   animation-name: nodface;
