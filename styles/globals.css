@@ -1,0 +1,15 @@
+@font-face {
+  font-family: "Alegreya";
+  src: url("/fonts/alegreya.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Indie Flower";
+  src: url("/fonts/indie-flower.woff2") format("woff2");
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #EBAB26;
+}
