@@ -20,6 +20,7 @@ const Home: NextPage = () => {
             justifyContent: "center",
           }}
         >
+
           <h1
             style={{
               fontSize: "2rem",
