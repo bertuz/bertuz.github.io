@@ -1,19 +1,12 @@
 import type { NextPage } from "next";
-import Logo from "../assets/test.svg";
 import myStyles from "../styles/Home.module.css";
 
 const Home: NextPage = () => {
-  // @ts-ignore
+
   return (
     <div className={myStyles.content}>
       <aside className={myStyles.sx}>
-        <svg
-          id="presentation-image"
-          width="250px"
-          height="250px"
-        >
-          <Logo id="testsmile" />
-        </svg>
+          <img src="/smiley-face.svg" className={myStyles.sideSmileyFace}/>
       </aside>
       <main className={myStyles.dx}>
         <article
@@ -47,11 +40,11 @@ const Home: NextPage = () => {
             Fullstack Developer
           </p>
         </article>
-        {/*<article style="height: 70vh; background-color: #CFC3B6; flex-shrink: 0; padding: 20px;">*/}
-        {/*    <p style="font-family: 'Alegreya', serif; font-size: 1.2em;">*/}
-        {/*        Hi! My presentation will be placed here, one day :P*/}
-        {/*    </p>*/}
-        {/*</article>*/}
+        <article style={{height: '70vh', backgroundColor: '#CFC3B6', flexShrink: 0, padding: '20px'}}>
+            <p style={{fontFamily: "'Alegreya', serif", fontSize: '1.2em'}}>
+                Hi! My presentation will be placed here, one day :P
+            </p>
+        </article>
         {/*<article style="height: 70vh; background-color: #DDF4C8; flex-shrink: 0; padding: 20px;">*/}
         {/*    <p style="font-family: 'Alegreya', serif; font-size: 1.2em;">*/}
         {/*        Come near, ladies and gentlemen!*/}
