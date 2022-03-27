@@ -16,12 +16,12 @@ body {
   background-color: #EBAB26;
 }
 
-/*@media only screen*/
-/*and (min-width: 600px) {*/
-/*  body {*/
-/*    background-image: url('/background.svg');*/
-/*    background-position-x: right;*/
-/*    background-size: calc(100% - 8px) auto;*/
-/*    background-repeat: repeat-y;*/
-/*  }*/
-/*}*/
+@media only screen
+and (min-width: 810px) {
+  body {
+    background-image: url('/background.svg');
+    background-position-x: right;
+    background-size: 100% auto;
+    background-repeat: repeat-y;
+  }
+}

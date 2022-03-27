@@ -1,26 +1,30 @@
-
-.container {
-  font-family: "Alegreya", sans-serif;
-}
-
-
 .content {
-  display: flex;
-
-  height: calc(100vh);
   width: 100%;
+  height: calc(100vh);
   margin:0;
   padding: 0;
+  display: flex;
 }
-.sx {
-  flex-grow: 1;
+
+.decorativeDescription {
+  z-index: 0;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 50vw;
+  flex-grow: 0;
+  flex-shrink: 0;
   background-color: #C9A2EB;
   display: flex;
   justify-content: center;
   align-items: center;
 }
+
 .dx {
-  flex-grow: 1;
+  padding-left: 50%;
+  z-index: 1;
+  width: 50%;
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
@@ -29,16 +33,25 @@
   overflow-y: scroll;
 }
 
-@media (max-width: 600px) {
-  .sx {
+@media (max-width: 809px) {
+  .decorativeDescription {
     display: none;
+  }
+
+  .dx {
+    padding-left: 0;
+    width: 100%;
   }
 }
 
-@media only screen
-and (max-device-width: 600px) {
-  .sx {
+@media only screen and (max-device-width: 809px) {
+  .decorativeDescription {
     display: none;
+  }
+
+  .dx {
+    padding-left: 0;
+    width: 100%;
   }
 }
 
@@ -46,4 +59,68 @@ and (max-device-width: 600px) {
 .sideSmileyFace {
   width: 250px;
   height: 250px;
+}
+
+
+.cardSection {
+  text-align: center;
+  background-color: #EBAB26;
+  height: 80vh;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.nameTitle {
+  font-size: 2rem;
+  line-height: 1rem;
+  font-family: 'Indie Flower', cursive;
+}
+
+.jobDescription {
+  margin: 0;
+  text-align: center;
+  font-family: 'Alegreya', serif;;
+  text-transform: uppercase;
+}
+
+.presentationSection {
+  background-color: #CFC3B6;
+  flex-shrink: 0;
+  padding: 25px;
+  font-family: 'Alegreya', serif;
+  font-size: 1.2em;
+}
+
+.presentationDescription {
+  text-align: justify;
+  text-justify: inter-word;
+}
+
+.footer {
+  background-color: #EBAB26;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.footerContent {
+  text-align: center;font-family: 'Alegreya', serif;text-transform: uppercase;
+}
+
+.mac {
+  position: absolute;
+  display: block;
+  top: 50vh;
+  width: 250px;
+  transition: all 0.2s ease-in-out;
+}
+
+.macShow {
+  /*padding-right: 0;*/
+}
+
+.macHide {
+  margin-left: -100vw;
+  padding-top: 50vh;
 }
