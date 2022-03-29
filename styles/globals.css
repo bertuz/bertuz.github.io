@@ -13,15 +13,11 @@
 body {
   margin: 0;
   padding: 0;
-  background-color: #EBAB26;
+  background-color: #C9A2EB;
 }
 
-@media only screen
-and (min-width: 810px) {
-  body {
-    background-image: url('/background.svg');
-    background-position-x: right;
-    background-size: 100% auto;
-    background-repeat: repeat-y;
+@media (max-width: 809px) {
+  body{
+    background-color: #EBAB26;
   }
 }

@@ -1,36 +1,19 @@
-.content {
-  width: 100%;
-  height: calc(100vh);
-  margin:0;
-  padding: 0;
-  display: flex;
-}
-
 .decorativeDescription {
-  z-index: 0;
   position: fixed;
-  top: 0;
   bottom: 0;
   left: 0;
+  top: 0;
   width: 50vw;
-  flex-grow: 0;
-  flex-shrink: 0;
   background-color: #C9A2EB;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.dx {
-  padding-left: 50%;
-  z-index: 1;
-  width: 50%;
-  display: flex;
-  flex-direction: column;
-  flex-wrap: nowrap;
-  align-items: stretch;
-  justify-content: flex-start;
-  overflow-y: scroll;
+.content {
+  padding: 0;
+  margin:0;
+  padding-left: 50vw;
 }
 
 @media (max-width: 809px) {
@@ -38,38 +21,29 @@
     display: none;
   }
 
-  .dx {
+  .content {
     padding-left: 0;
-    width: 100%;
   }
 }
-
-@media only screen and (max-device-width: 809px) {
-  .decorativeDescription {
-    display: none;
-  }
-
-  .dx {
-    padding-left: 0;
-    width: 100%;
-  }
-}
-
 
 .sideSmileyFace {
   width: 250px;
   height: 250px;
 }
 
-
 .cardSection {
-  text-align: center;
-  background-color: #EBAB26;
   height: 80vh;
-  flex-shrink: 0;
+  text-align: center;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  background-color: #EBAB26;
+}
+
+@media (max-width: 809px) {
+  .cardSection {
+    height: 35vh;
+  }
 }
 
 .nameTitle {
@@ -86,9 +60,8 @@
 }
 
 .presentationSection {
+  padding: 24px;
   background-color: #CFC3B6;
-  flex-shrink: 0;
-  padding: 25px;
   font-family: 'Alegreya', serif;
   font-size: 1.2em;
 }
@@ -99,13 +72,13 @@
 }
 
 .footer {
+  display: block;
   background-color: #EBAB26;
-  flex-shrink: 0;
-  text-align: center;
 }
 
 .footerContent {
-  text-align: center;font-family: 'Alegreya', serif;text-transform: uppercase;
+  text-align: center;
+  font-family: 'Alegreya', serif;text-transform: uppercase;
 }
 
 .mac {
@@ -123,4 +96,9 @@
 .macHide {
   margin-left: -100vw;
   padding-top: 50vh;
+}
+
+.footerContent {
+  margin: 0;
+  padding: 24px;
 }
