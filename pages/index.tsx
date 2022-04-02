@@ -1,13 +1,104 @@
-import type { NextPage } from 'next';
-import classes from '../styles/Home.module.css';
+import colors from '../assets/styles/colors';
+
+import breakpoints from '../assets/styles/breakpoints';
+
 import { useEffect, useState } from 'react';
+import { css } from '@emotion/react';
+
+import type { NextPage } from 'next';
+
+// todo adopt csslint when available https://github.com/emotion-js/emotion/issues/2695
+const useClasses = (showMac: boolean) => ({
+  decorativeDescription: css({
+    position: 'fixed',
+    bottom: 0,
+    left: 0,
+    top: 0,
+    width: '50vw',
+    backgroundColor: colors.pastelViolet,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    [breakpoints.tablet]: {
+      display: 'none',
+    },
+  }),
+  sideSmileyFace: css({ width: 250, height: 250 }),
+  mac: css({
+    position: 'absolute',
+    display: 'block',
+    top: '50vh',
+    width: '250px',
+    transition: 'all 0.2s ease-in-out',
+    marginLeft: showMac ? undefined : '-100vw',
+    paddingTop: showMac ? undefined : '50vh',
+  }),
+  cardSection: css({
+    height: '80vh',
+    textAlign: 'center',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    backgroundColor: colors.senape,
+    [breakpoints.tablet]: {
+      height: '35vh',
+    },
+  }),
+  nameTitle: css({
+    fontSize: '2rem',
+    lineheight: '1rem',
+    fontFamily: "'Indie Flower', cursive",
+  }),
+  jobDescription: css({
+    margin: 0,
+    textAlign: 'center',
+    fontFamily: "'Alegreya', serif",
+    textTransform: 'uppercase',
+  }),
+  presentationSection: css({
+    padding: 24,
+    backgroundColor: colors.mountainGrey,
+    fontFamily: "'Alegreya', serif",
+    fontSize: '1.2em',
+  }),
+  presentationDescription: css({
+    textAlign: 'justify',
+    textjustify: 'inter-word',
+  }),
+  footer: css({
+    display: 'block',
+    backgroundColor: colors.senape,
+  }),
+  footerContent: css({
+    textAlign: 'center',
+    fontFamily: "'Alegreya', serif",
+    textTransform: 'uppercase',
+    margin: 0,
+    padding: 24,
+  }),
+  content: css({
+    padding: 0,
+    margin: 0,
+    paddingLeft: '50vw',
+    [breakpoints.tablet]: {
+      paddingLeft: 0,
+    },
+  }),
+});
 
 const Home: NextPage = () => {
-  const [scroll, setScroll] = useState(0);
+  const [showMac, setShowMac] = useState(false);
+  // todo use memo so as to not recalculate for each render
+  const classes = useClasses(showMac);
 
   useEffect(() => {
     function updatePosition() {
-      setScroll(window.scrollY ?? 0);
+      if (window.scrollY ?? 0 > 200) {
+        setShowMac(true);
+        return;
+      }
+
+      setShowMac(false);
     }
 
     window.addEventListener('scroll', updatePosition);
@@ -18,37 +109,29 @@ const Home: NextPage = () => {
 
   return (
     <>
-      <aside className={classes.decorativeDescription} role="presentation">
+      <aside css={classes.decorativeDescription} role="presentation">
         <img
-          src="/smiley-face.svg"
-          className={classes.sideSmileyFace}
+          src="smiley-face.svg"
+          css={classes.sideSmileyFace}
           alt="Presentation logo"
           role="presentation"
         />
-        <img
-          src="/mac.svg"
-          alt="mac"
-          role="presentation"
-          className={[
-            classes.mac,
-            scroll > 200 ? classes.macShow : classes.macHide,
-          ].join(' ')}
-        />
+        <img src="mac.svg" css={classes.mac} alt="mac" role="presentation" />
       </aside>
-      <main className={classes.content}>
-        <article className={classes.cardSection}>
-          <h1 className={classes.nameTitle}>Matteo Bertamini</h1>
-          <p className={classes.jobDescription}>Fullstack Developer</p>
+      <main css={classes.content}>
+        <article css={classes.cardSection}>
+          <h1 css={classes.nameTitle}>Matteo Bertamini</h1>
+          <p css={classes.jobDescription}>Fullstack Developer</p>
         </article>
-        <article className={classes.presentationSection}>
+        <article css={classes.presentationSection}>
           <h2>Toolbox</h2>
-          <p className={classes.presentationDescription}>
+          <p css={classes.presentationDescription}>
             I like the idea of a developer as an artisan who loves and cares its
             product the most. <br />
             Pushed by that mindset, I constantly grow and cover different
             expertises.
           </p>
-          <p className={classes.presentationDescription}>
+          <p css={classes.presentationDescription}>
             With that in mind, this is what I currently have in my toolbox 🧑🏽‍💻:
           </p>
           <ul>
@@ -80,8 +163,8 @@ const Home: NextPage = () => {
             </li>
           </ul>
         </article>
-        <div className={classes.footer}>
-          <p className={classes.footerContent}>Matteo Bertamini 2022</p>
+        <div css={classes.footer}>
+          <p css={classes.footerContent}>Matteo Bertamini 2022</p>
         </div>
         {/*<article style="height: 70vh; background-color: #DDF4C8; flex-shrink: 0; padding: 20px;">*/}
         {/*    <p style="font-family: 'Alegreya', serif; font-size: 1.2em;">*/}

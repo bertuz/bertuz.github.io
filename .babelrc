@@ -3,9 +3,12 @@
     [
       "next/babel",
       {
-        "@babel/preset-react": { "throwIfNamespace": false }
+        "preset-react": {
+          "runtime": "automatic",
+          "importSource": "@emotion/react"
+        }
       }
     ]
   ],
-  "plugins": []
+  "plugins": ["@emotion/babel-plugin"]
 }

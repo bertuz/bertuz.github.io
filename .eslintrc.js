@@ -9,7 +9,7 @@ module.exports = {
   extends: [
     'eslint:recommended',
     'next/core-web-vitals',
-    'prettier/@typescript-eslint',
+    'prettier',
     'plugin:prettier/recommended',
   ],
   overrides: [
@@ -28,6 +28,8 @@ module.exports = {
         'plugin:react/recommended',
         'plugin:react-hooks/recommended',
         'plugin:jsx-a11y/recommended',
+        'plugin:import/recommended',
+        'plugin:import/typescript',
       ],
       rules: {
         'react/prop-types': 'off',
@@ -41,8 +43,30 @@ module.exports = {
             allowConciseArrowFunctionExpressionsStartingWithVoid: true,
           },
         ],
+        '@typescript-eslint/consistent-type-imports': [
+          'error',
+          { prefer: 'type-imports', disallowTypeAnnotations: true },
+        ],
+
+        'import/order': [
+          'error',
+          {
+            groups: [
+              'index',
+              'sibling',
+              'parent',
+              'internal',
+              'external',
+              'builtin',
+              'object',
+              'type',
+            ],
+            'newlines-between': 'always-and-inside-groups',
+          },
+        ],
+
         'prettier/prettier': ['error', {}, { usePrettierrc: true }],
       },
     },
   ],
-}
+};
