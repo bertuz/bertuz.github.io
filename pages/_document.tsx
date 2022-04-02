@@ -40,7 +40,7 @@ export default function Document() {
           name="description"
           content="Matteo Bertamini's web page, fullstack developer. Living between Madrid and Italy."
         />
-        <link rel="icon" href="/public/logo.ico" type="image/x-icon" />
+        <link rel="icon" href="/logo.ico" type="image/x-icon" />
       </Head>
       <Global styles={[globalStyles, fontStyles]} />
       <body>
