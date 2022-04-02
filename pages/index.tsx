@@ -112,12 +112,12 @@ const Home: NextPage = () => {
       <aside css={classes.decorativeDescription} role="presentation">
         {/* todo https://stackoverflow.com/questions/71719915/how-to-make-next-js-load-images-from-public-source-with-default-img-element */}
         <img
-          src="/public/smiley-face.svg"
+          src="/smiley-face.svg"
           css={classes.sideSmileyFace}
           alt="Presentation logo"
           role="presentation"
         />
-        <img src="mac.svg" css={classes.mac} alt="mac" role="presentation" />
+        <img src="/mac.svg" css={classes.mac} alt="mac" role="presentation" />
       </aside>
       <main css={classes.content}>
         <article css={classes.cardSection}>
