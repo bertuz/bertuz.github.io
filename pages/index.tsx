@@ -35,7 +35,7 @@ const useClasses = (showMac: boolean) => ({
   }),
   cardSection: css({
     height: '80vh',
-    minHeight: 170,
+    minHeight: 230,
     textAlign: 'center',
     display: 'flex',
     flexDirection: 'column',
@@ -64,10 +64,10 @@ const useClasses = (showMac: boolean) => ({
     fontFamily: "'Alegreya', serif",
     fontSize: '1.2em',
   }),
-  cardSectioinPresentationLogo: css({
+  cardSectionPresentationLogo: css({
     display: 'none',
     width: '2.5rem',
-    height: '3rem',
+    height: '3.4rem',
     [breakpoints.tablet]: {
       display: 'inline',
     },
@@ -135,7 +135,7 @@ const Home: NextPage = () => {
           <div>
             <img
               src="/smiley-face.svg"
-              css={classes.cardSectioinPresentationLogo}
+              css={classes.cardSectionPresentationLogo}
               alt="Presentation logo"
               role="presentation"
             />
