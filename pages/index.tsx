@@ -35,10 +35,12 @@ const useClasses = (showMac: boolean) => ({
   }),
   cardSection: css({
     height: '80vh',
+    minHeight: 170,
     textAlign: 'center',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
+    overflow: '',
     backgroundColor: colors.senape,
     [breakpoints.tablet]: {
       height: '35vh',
@@ -46,8 +48,9 @@ const useClasses = (showMac: boolean) => ({
   }),
   nameTitle: css({
     fontSize: '2rem',
-    lineheight: '1rem',
+    lineHeight: '1rem',
     fontFamily: "'Indie Flower', cursive",
+    margin: '1.5rem 0',
   }),
   jobDescription: css({
     margin: 0,
@@ -60,6 +63,14 @@ const useClasses = (showMac: boolean) => ({
     backgroundColor: colors.mountainGrey,
     fontFamily: "'Alegreya', serif",
     fontSize: '1.2em',
+  }),
+  cardSectioinPresentationLogo: css({
+    display: 'none',
+    width: '2.5rem',
+    height: '3rem',
+    [breakpoints.tablet]: {
+      display: 'inline',
+    },
   }),
   presentationDescription: css({
     textAlign: 'justify',
@@ -121,6 +132,14 @@ const Home: NextPage = () => {
       </aside>
       <main css={classes.content}>
         <article css={classes.cardSection}>
+          <div>
+            <img
+              src="/smiley-face.svg"
+              css={classes.cardSectioinPresentationLogo}
+              alt="Presentation logo"
+              role="presentation"
+            />
+          </div>
           <h1 css={classes.nameTitle}>Matteo Bertamini</h1>
           <p css={classes.jobDescription}>Fullstack Developer</p>
         </article>
