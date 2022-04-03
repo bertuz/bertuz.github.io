@@ -104,7 +104,7 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     function updatePosition() {
-      if (window.scrollY ?? 0 > 200) {
+      if ((window.scrollY ?? 0) > 200) {
         setShowMac(true);
         return;
       }
