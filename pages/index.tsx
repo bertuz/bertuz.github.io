@@ -2,6 +2,8 @@ import colors from '../assets/styles/colors';
 
 import breakpoints from '../assets/styles/breakpoints';
 
+import { dimensionInRem } from '../assets/styles/dimensions';
+
 import { useEffect, useState } from 'react';
 import { css } from '@emotion/react';
 
@@ -11,31 +13,47 @@ import type { NextPage } from 'next';
 
 // todo adopt csslint when available https://github.com/emotion-js/emotion/issues/2695
 const useClasses = (showMac: boolean) => ({
-  decorativeDescription: css({
+  asideColumn: css({
     position: 'fixed',
     bottom: 0,
     left: 0,
     top: 0,
     width: '50vw',
     backgroundColor: colors.pastelViolet,
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    [breakpoints.tablet]: {
+    [breakpoints.maxMobile]: {
       display: 'none',
     },
   }),
-  sideSmileyFace: css({ width: 250, height: 250 }),
-  mac: css({
+  centralScene: css({
     position: 'absolute',
-    display: 'block',
-    top: '50vh',
-    width: '250px',
+    width: showMac ? '35%' : '45%',
+    height: showMac ? '35%' : '45%',
+    left: showMac ? '33%' : '25%',
+    top: '35%',
     transition: 'all 0.2s ease-in-out',
-    marginLeft: showMac ? undefined : '-100vw',
-    paddingTop: showMac ? undefined : '50vh',
+    '& > div': {
+      position: 'relative',
+    },
   }),
-  cardSection: css({
+  smileyFace: {
+    width: '100%',
+  },
+  laptop: css({
+    position: 'absolute',
+    width: '100%',
+    bottom: showMac ? 0 : '-60vh',
+    left: showMac ? 0 : '-100%',
+    transition: 'all 0.2s ease-in-out',
+  }),
+  mainContent: css({
+    padding: 0,
+    margin: 0,
+    paddingLeft: '50vw',
+    [breakpoints.maxMobile]: {
+      paddingLeft: 0,
+    },
+  }),
+  presentationCard: css({
     height: '80vh',
     minHeight: 230,
     textAlign: 'center',
@@ -44,39 +62,41 @@ const useClasses = (showMac: boolean) => ({
     justifyContent: 'center',
     overflow: '',
     backgroundColor: colors.senape,
-    [breakpoints.tablet]: {
+    [breakpoints.maxMobile]: {
       height: '35vh',
     },
   }),
-  nameTitle: css({
-    fontSize: '2rem',
-    lineHeight: '1rem',
-    fontFamily: "'Indie Flower', cursive",
-    margin: '1.5rem 0',
-  }),
-  jobDescription: css({
-    margin: 0,
-    textAlign: 'center',
-    fontFamily: "'Alegreya', serif",
-    textTransform: 'uppercase',
-  }),
-  presentationSection: css({
-    padding: 24,
-    backgroundColor: colors.mountainGrey,
-    fontFamily: "'Alegreya', serif",
-    fontSize: '1.2em',
-  }),
-  cardSectionPresentationLogo: css({
+  presentationCardLogo: css({
     display: 'none',
     width: '2.5rem',
     height: '3.4rem',
-    [breakpoints.tablet]: {
+    [breakpoints.maxMobile]: {
       display: 'inline',
     },
   }),
+  nameTitle: css({
+    fontFamily: "'Indie Flower', cursive",
+  }),
+  jobDescription: css({
+    fontSize: dimensionInRem(1),
+    margin: 0,
+    textAlign: 'center',
+    fontFamily: "'Alegreya SC', serif",
+  }),
+  descriptionCard: css({
+    padding: 24,
+    backgroundColor: colors.mountainGrey,
+    fontFamily: "'Alegreya', serif",
+  }),
   presentationDescription: css({
     textAlign: 'justify',
+    hyphens: 'auto',
     textjustify: 'inter-word',
+  }),
+  workCard: css({
+    backgroundColor: colors.sugarPaperBlue,
+    padding: 24,
+    fontFamily: "'Alegreya', serif",
   }),
   footer: css({
     display: 'block',
@@ -89,60 +109,50 @@ const useClasses = (showMac: boolean) => ({
     margin: 0,
     padding: 24,
   }),
-  content: css({
-    padding: 0,
-    margin: 0,
-    paddingLeft: '50vw',
-    [breakpoints.tablet]: {
-      paddingLeft: 0,
-    },
-  }),
-  cvSection: css({
-    backgroundColor: '#C9B17D',
-    padding: 24,
-    fontFamily: "'Alegreya', serif",
-    fontSize: '1.2em',
-  }),
-  button: css({
-    appearance: 'button',
-    backgroundColor: 'transparent',
-    backgroundImage: 'linear-gradient(to bottom, #BDA675, #96845D)',
-    border: '0 solid #e5e7eb',
-    borderRadius: '.5rem',
-    boxSizing: 'border-box',
-    color: '#482307',
-
-    columnGap: '1rem',
-    cursor: 'pointer',
-    display: 'inline-block',
-    // font-family: ui-sans-serif,system-ui,-apple-system,system-ui,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
-    fontSize: '100%',
-    // font-weight: 700;
-    // line-height: 24px;
-    margin: 0,
-    outline: '2px solid transparent',
-    padding: '0.7rem 1.2rem',
-    textAlign: 'center',
-    textTransform: 'none',
-    transition: 'all .1s cubic-bezier(.4, 0, .2, 1)',
-    userSelect: 'none',
-    touchAction: 'manipulation',
-    boxShadow:
-      '-6px 8px 10px rgba(81,41,10,0.1),0px 2px 2px rgba(81,41,10,0.2)',
-    '&:focus': {
-      boxShadow:
-        'rgba(72, 35, 7, .46) 0 0 0 4px, -6px 8px 10px rgba(81,41,10,0.1), 0px 2px 2px rgba(81,41,10,0.2)',
-    },
-    '&:active': {
-      boxShadow:
-        'rgba(72, 35, 7, .46) 0 0 0 4px, -6px 8px 10px rgba(81,41,10,0.1), 0px 2px 2px rgba(81,41,10,0.2)',
-      backgroundImage: 'linear-gradient(to bottom, #AD996C, #96845D)',
-    },
-  }),
+  button: css(`align-self: center;
+background-color: #A3BEC4;
+background-image: none;
+background-position: 0 90%;
+background-repeat: repeat no-repeat;
+background-size: 4px 3px;
+border-radius: 15px 225px 255px 15px 15px 255px 225px 15px;
+border-style: solid;
+border-width: 2px;
+box-shadow: rgba(0, 0, 0, .2) 5px 11px 16px 0px;
+box-sizing: border-box;
+color: #41403e;
+cursor: pointer;
+display: inline-block;
+font-size: 1rem;
+font-family: Alegreya-Sans;
+line-height: 23px;
+outline: none;
+padding: .45rem 2rem;
+text-decoration: none;
+transition: all 235ms ease-in-out;
+border-bottom-left-radius: 15px 255px;
+border-bottom-right-radius: 225px 15px;
+border-top-left-radius: 255px 15px;
+border-top-right-radius: 15px 225px;
+user-select: none;
+-webkit-user-select: none;
+touch-action: manipulation;
+font-weight: bold;
+:focus {
+  box-shadow: rgba(0, 0, 0, .3) 2px 8px 4px -6px;
+}
+:active {
+  box-shadow: rgba(0, 0, 0, .3) 2px 8px 4px -6px;
+}
+:hover {
+transform: translate3d(0, 2px, 0);
+}
+`),
 });
 
 const Home: NextPage = () => {
   const [showMac, setShowMac] = useState(false);
+
   // todo use memo so as to not recalculate for each render
   const classes = useClasses(showMac);
 
@@ -164,22 +174,31 @@ const Home: NextPage = () => {
 
   return (
     <>
-      <aside css={classes.decorativeDescription} role="presentation">
+      <aside css={classes.asideColumn} role="presentation">
         {/* todo https://stackoverflow.com/questions/71719915/how-to-make-next-js-load-images-from-public-source-with-default-img-element */}
-        <img
-          src="/smiley-face.svg"
-          css={classes.sideSmileyFace}
-          alt="Presentation logo"
-          role="presentation"
-        />
-        <img src="/mac.svg" css={classes.mac} alt="mac" role="presentation" />
+        <div css={classes.centralScene}>
+          <div>
+            <img
+              css={classes.smileyFace}
+              src="/smiley-face.svg"
+              alt="Presentation logo"
+              role="presentation"
+            />
+            <img
+              css={classes.laptop}
+              src="/mac.svg"
+              alt="mac"
+              role="presentation"
+            />
+          </div>
+        </div>
       </aside>
-      <main css={classes.content}>
-        <article css={classes.cardSection}>
+      <main css={classes.mainContent}>
+        <article css={classes.presentationCard}>
           <div>
             <img
               src="/smiley-face.svg"
-              css={classes.cardSectionPresentationLogo}
+              css={classes.presentationCardLogo}
               alt="Presentation logo"
               role="presentation"
             />
@@ -187,7 +206,7 @@ const Home: NextPage = () => {
           <h1 css={classes.nameTitle}>Matteo Bertamini</h1>
           <p css={classes.jobDescription}>Fullstack Developer</p>
         </article>
-        <article css={classes.presentationSection}>
+        <article css={classes.descriptionCard}>
           <h2>Toolbox</h2>
           <p css={classes.presentationDescription}>
             I like the idea of a developer as an artisan who loves and cares its
@@ -227,13 +246,50 @@ const Home: NextPage = () => {
             </li>
           </ul>
         </article>
-        <article css={classes.cvSection}>
+        <article css={classes.workCard}>
           <h2>Work Experience</h2>
-          <p>
-            <Link href=".">
-              <a css={classes.button}>Download CV</a>
-            </Link>
-          </p>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+            }}
+          >
+            <div
+              style={{
+                flex: '0 0 auto',
+                paddingRight: '1rem',
+                textAlign: 'right',
+                fontFamily: 'Alegreya-Sans',
+              }}
+            >
+              Telefónica
+              <br />
+              2017 - Present
+            </div>
+            <div
+              style={{
+                flex: '1 1 300px',
+              }}
+            >
+              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquid
+              architecto consequuntur ea et exercitationem fuga libero minima
+              nisi nulla odio, odit pariatur, totam ut, voluptatibus voluptatum.
+              Dolorum excepturi hic nobis?
+              <ul>
+                <li>bla</li>
+                <li>bla</li>
+                <li>bla</li>
+                <li>bla</li>
+                <li>bla</li>
+                <li>bla</li>
+                <li>bla</li>
+              </ul>
+            </div>
+          </div>
+        </article>
+        <article css={classes.descriptionCard}>
+          <h2>Contacts</h2>
         </article>
         <div css={classes.footer}>
           <p css={classes.footerContent}>Matteo Bertamini 2022</p>

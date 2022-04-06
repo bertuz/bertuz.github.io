@@ -2,14 +2,42 @@ import colors from '../assets/styles/colors';
 
 import breakpoints from '../assets/styles/breakpoints';
 
+import { dimensionInRem, PITCH_IN_PX } from 'assets/styles/dimensions';
+
 import { css, Global } from '@emotion/react';
 import { Html, Head, Main, NextScript } from 'next/document';
 
 const fontStyles = css(`
 @font-face {
   font-family: "Alegreya";
-  src: url("/fonts/alegreya.woff") format("woff");
+  src: url("/fonts/Alegreya-Regular.woff2") format("woff2");
   font-display: swap;
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Alegreya SC";
+  src: url("/fonts/AlegreyaSC-Regular.woff2") format("woff2");
+  font-display: swap;
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Alegreya-Sans";
+  src: url("/fonts/AlegreyaSans-Regular.woff2") format("woff2");
+  font-display: swap;
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Alegreya-Sans";
+  src: url("/fonts/AlegreyaSans-Bold.woff2") format("woff2");
+  font-display: swap;
+  font-weight: bold;
+  font-style: normal;
 }
 
 @font-face {
@@ -17,16 +45,38 @@ const fontStyles = css(`
   src: url("/fonts/indie-flower.woff2") format("woff2");
   font-display: swap;
 }
+@font-face {
+  font-family: "Roboto";
+  src: url("/fonts/Roboto-Medium.ttf") format("ttf");
+  font-display: swap;
+}
 `);
 
 const globalStyles = css({
+  html: {
+    fontSize: PITCH_IN_PX,
+  },
   body: {
+    fontSize: dimensionInRem(0),
     margin: 0,
     padding: 0,
     backgroundColor: colors.pastelViolet,
-    [breakpoints.tablet]: {
+    [breakpoints.maxMobile]: {
       backgroundColor: colors.senape,
     },
+  },
+  p: {
+    fontSize: dimensionInRem(0),
+  },
+  h1: {
+    fontSize: dimensionInRem(3),
+    lineHeight: '2rem',
+    margin: 0,
+  },
+  h2: {
+    margin: 0,
+    fontSize: dimensionInRem(2),
+    lineHeight: '1.5rem',
   },
 });
 
