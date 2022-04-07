@@ -18,7 +18,7 @@
   <sodipodi:namedview
      id="namedview120"
      pagecolor="#ffffff"
-     bordercolor="#41403e"
+     bordercolor="#FFFFFF"
      borderopacity="1.0"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0.0"
@@ -91,7 +91,7 @@
      inkpad:layerName="Layer 2"
      transform="translate(-327.20839,-603.32765)">
     <path
-       stroke="#41403e"
+       stroke="#FFFFFF"
        stroke-width="2.9827"
        d="m 347.821,604.819 c 0.027,0.852 0.044,1.503 0.044,1.762 0,8.949 0.39,17.9 0.39,26.878 0,0.92 0.389,9.681 0.389,4.285"
        fill="#000000"
@@ -101,7 +101,7 @@
        stroke-linejoin="round"
        id="path92" />
     <path
-       stroke="#41403e"
+       stroke="#FFFFFF"
        stroke-width="2.9827"
        d="m 342.412,627.616 c 0,-0.948 -1.36,-3.403 -1.948,-4.285 -2.427,-3.64 5.114,13.344 6.622,16.36 0.136,0.273 1.822,3.882 1.948,3.506 1.501,-4.504 8.18,-23.481 8.18,-22.203"
        fill="#000000"
@@ -111,7 +111,7 @@
        stroke-linejoin="round"
        id="path94" />
     <path
-       stroke="#41403e"
+       stroke="#FFFFFF"
        stroke-width="2.9827"
        d="m 330.726,635.796 c 0,0 -4.545,13.634 0,13.634 7.089,0 31.226,3.442 36.616,-1.948 2.577,-2.577 0.779,-10.907 0.779,-10.907"
        fill="#000000"

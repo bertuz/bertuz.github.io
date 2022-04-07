@@ -4,7 +4,11 @@ import breakpoints from '../assets/styles/breakpoints';
 
 import { dimensionInRem } from '../assets/styles/dimensions';
 
-import { useEffect, useState } from 'react';
+import Button from '../components/button';
+
+import CVExperienceItem from '../components/CVExperienceItem';
+
+import { useEffect, useMemo, useState } from 'react';
 import { css } from '@emotion/react';
 
 import Link from 'next/link';
@@ -12,7 +16,7 @@ import Link from 'next/link';
 import type { NextPage } from 'next';
 
 // todo adopt csslint when available https://github.com/emotion-js/emotion/issues/2695
-const useClasses = (showMac: boolean) => ({
+const getClasses = (showMac: boolean) => ({
   asideColumn: css({
     position: 'fixed',
     bottom: 0,
@@ -90,18 +94,44 @@ const useClasses = (showMac: boolean) => ({
   }),
   presentationDescription: css({
     textAlign: 'justify',
-    hyphens: 'auto',
     textjustify: 'inter-word',
+    hyphens: 'auto',
   }),
   workCard: css({
     backgroundColor: colors.sugarPaperBlue,
     padding: 24,
     fontFamily: "'Alegreya', serif",
   }),
+  downloadCV: css({ marginBottom: 0 }),
+  cvExperienceItem: css({
+    paddingTop: '1rem',
+    display: 'flex',
+    flexWrap: 'wrap',
+    textAlign: 'justify',
+    textjustify: 'inter-word',
+    hyphens: 'auto',
+  }),
+  cvExperienceItemHeader: css({
+    flex: '0 0 150px',
+    paddingRight: '1rem',
+    textAlign: 'right',
+    fontFamily: 'Alegreya-Sans SC',
+    ['@media (max-width: 1235px)']: {
+      textAlign: 'left',
+    },
+  }),
+  cvExperienceCompany: css({ fontSize: dimensionInRem(1) }),
   footer: css({
     display: 'block',
     backgroundColor: colors.senape,
   }),
+  cvExperienceDescription: css({
+    flex: '1 0 400px',
+    '& > div': {
+      maxWidth: 614,
+    },
+  }),
+
   footerContent: css({
     textAlign: 'center',
     fontFamily: "'Alegreya', serif",
@@ -109,52 +139,13 @@ const useClasses = (showMac: boolean) => ({
     margin: 0,
     padding: 24,
   }),
-  button: css(`align-self: center;
-background-color: #A3BEC4;
-background-image: none;
-background-position: 0 90%;
-background-repeat: repeat no-repeat;
-background-size: 4px 3px;
-border-radius: 15px 225px 255px 15px 15px 255px 225px 15px;
-border-style: solid;
-border-width: 2px;
-box-shadow: rgba(0, 0, 0, .2) 5px 11px 16px 0px;
-box-sizing: border-box;
-color: #41403e;
-cursor: pointer;
-display: inline-block;
-font-size: 1rem;
-font-family: Alegreya-Sans;
-line-height: 23px;
-outline: none;
-padding: .45rem 2rem;
-text-decoration: none;
-transition: all 235ms ease-in-out;
-border-bottom-left-radius: 15px 255px;
-border-bottom-right-radius: 225px 15px;
-border-top-left-radius: 255px 15px;
-border-top-right-radius: 15px 225px;
-user-select: none;
--webkit-user-select: none;
-touch-action: manipulation;
-font-weight: bold;
-:focus {
-  box-shadow: rgba(0, 0, 0, .3) 2px 8px 4px -6px;
-}
-:active {
-  box-shadow: rgba(0, 0, 0, .3) 2px 8px 4px -6px;
-}
-:hover {
-transform: translate3d(0, 2px, 0);
-}
-`),
 });
 
 const Home: NextPage = () => {
   const [showMac, setShowMac] = useState(false);
-
-  // todo use memo so as to not recalculate for each render
-  const classes = useClasses(showMac);
+  const classes = useMemo(() => {
+    return getClasses(showMac);
+  }, [showMac]);
 
   useEffect(() => {
     function updatePosition() {
@@ -248,49 +239,44 @@ const Home: NextPage = () => {
         </article>
         <article css={classes.workCard}>
           <h2>Work Experience</h2>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              flexWrap: 'wrap',
-            }}
+          <p css={classes.downloadCV}>
+            <CVExperienceItem commpanyName="" experienceDates="">
+              <Link href="api/cv" prefetch>
+                <a role="link" download="Curriculum-Matteo-Bertamini.pdf">
+                  <Button caption="Download CV" iconPath="/download.svg" />
+                </a>
+              </Link>
+            </CVExperienceItem>
+          </p>
+          <CVExperienceItem
+            commpanyName="Telefónica"
+            experienceDates="2017 - Present"
           >
-            <div
-              style={{
-                flex: '0 0 auto',
-                paddingRight: '1rem',
-                textAlign: 'right',
-                fontFamily: 'Alegreya-Sans',
-              }}
-            >
-              Telefónica
-              <br />
-              2017 - Present
-            </div>
-            <div
-              style={{
-                flex: '1 1 300px',
-              }}
-            >
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquid
-              architecto consequuntur ea et exercitationem fuga libero minima
-              nisi nulla odio, odit pariatur, totam ut, voluptatibus voluptatum.
-              Dolorum excepturi hic nobis?
-              <ul>
-                <li>bla</li>
-                <li>bla</li>
-                <li>bla</li>
-                <li>bla</li>
-                <li>bla</li>
-                <li>bla</li>
-                <li>bla</li>
-              </ul>
-            </div>
-          </div>
+            I&apos;m part of a multidisciplinary team that aims to fully
+            digitalize the customer care experience, from solving technical
+            issues remotely to support{' '}
+            <Link href="https://www.movistar.es/citaprevia" prefetch={false}>
+              <a target="_blank" rel="noreferrer">
+                their visit
+              </a>
+            </Link>{' '}
+            in physical shops. Our work is visible on Vivo Brasil, Movistar
+            (worldwide), O2 (worldwide) and Tuenti&apos;s apps.
+            <ul>
+              <li>Frontend: Typescript, React, Next.JS, Jest (and more!)</li>
+              <li>Backend: Kotlin and Node, PHP8 and Java8 on legacy</li>
+              <li>Kubernetes for our 52 environment 🤪</li>
+              <li>
+                We work in CI/CD, depending on the environment/product we are
+              </li>
+              <li>Clean architectures</li>
+              <li>DDD: evangelizing the adoption</li>
+            </ul>
+          </CVExperienceItem>
         </article>
-        <article css={classes.descriptionCard}>
-          <h2>Contacts</h2>
-        </article>
+        {/*<article css={classes.descriptionCard}>*/}
+        {/*  <h2>Contacts</h2>*/}
+        {/*</article>*/}
         <div css={classes.footer}>
           <p css={classes.footerContent}>Matteo Bertamini 2022</p>
         </div>

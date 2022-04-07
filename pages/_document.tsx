@@ -41,6 +41,14 @@ const fontStyles = css(`
 }
 
 @font-face {
+  font-family: "Alegreya-Sans SC";
+  src: url("/fonts/AlegreyaSansSC-Regular.woff2") format("woff2");
+  font-display: swap;
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
   font-family: "Indie Flower";
   src: url("/fonts/indie-flower.woff2") format("woff2");
   font-display: swap;
@@ -55,6 +63,7 @@ const fontStyles = css(`
 const globalStyles = css({
   html: {
     fontSize: PITCH_IN_PX,
+    color: '#333',
   },
   body: {
     fontSize: dimensionInRem(0),
