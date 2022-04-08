@@ -61,17 +61,17 @@ type CVExperienceItemProperties = {
 };
 
 // type CVExperienceItemProperties = { color: string };
-
-const nclasses = () => {
-  return {
-    classTest: css({
-      color: 'red',
-    }),
-    back: css({
-      backgroundColor: 'white',
-    }),
-  };
-};
+//
+// const nclasses = () => {
+//   return {
+//     classTest: css({
+//       color: 'red',
+//     }),
+//     back: css({
+//       backgroundColor: 'white',
+//     }),
+//   };
+// };
 
 const CVExperienceItem = ({
   headerInfo,
