@@ -101,36 +101,10 @@ const getClasses = (showMac: boolean) => ({
     padding: 24,
     fontFamily: "'Alegreya', serif",
   }),
-  downloadCV: css({ marginBottom: 0 }),
-  cvExperienceItem: css({
-    paddingTop: '1rem',
-    display: 'flex',
-    flexWrap: 'wrap',
-    textAlign: 'justify',
-    textjustify: 'inter-word',
-    hyphens: 'auto',
-  }),
-  cvExperienceItemHeader: css({
-    flex: '0 0 150px',
-    paddingRight: '1rem',
-    textAlign: 'right',
-    fontFamily: 'Alegreya-Sans SC',
-    ['@media (max-width: 1235px)']: {
-      textAlign: 'left',
-    },
-  }),
-  cvExperienceCompany: css({ fontSize: dimensionInRem(1) }),
   footer: css({
     display: 'block',
     backgroundColor: colors.senape,
   }),
-  cvExperienceDescription: css({
-    flex: '1 0 400px',
-    '& > div': {
-      maxWidth: 614,
-    },
-  }),
-
   footerContent: css({
     textAlign: 'center',
     fontFamily: "'Alegreya', serif",
@@ -239,7 +213,7 @@ const Home: NextPage = () => {
         <article css={classes.workCard}>
           <h2>Work Experience</h2>
           <CVExperienceItem>
-            <Link href="api/cv" prefetch>
+            <Link href="/api/cv" prefetch>
               <a role="link" download="Curriculum-Matteo-Bertamini.pdf">
                 <Button caption="Download CV" iconPath="/download.svg" />
               </a>
@@ -264,7 +238,7 @@ const Home: NextPage = () => {
             <ul>
               <li>Frontend: Typescript, React, Next.JS, Jest (and more!)</li>
               <li>Backend: Kotlin and Node, PHP8 and Java8 on legacy</li>
-              <li>Kubernetes for our 52 environment 🤪</li>
+              <li>Kubernetes for our 52 environments 🤪</li>
               <li>We work in CI/CD, depending on the environment/product</li>
               <li>Clean architectures</li>
               <li>DDD: evangelizing the adoption</li>

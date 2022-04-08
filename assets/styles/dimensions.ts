@@ -17,4 +17,4 @@ const dimensionRatio = (i: number) => {
 };
 
 export const dimensionInRem = (dimension: number) =>
-  `${dimensionRatio(dimension)}rem`;
+  `${dimensionRatio(dimension).toFixed(5)}rem`;

@@ -11,48 +11,53 @@ type ButtonProperties = {
   iconPath?: string;
 };
 
-const Button = ({ caption, iconPath }: ButtonProperties) => {
-  return (
-    <span
-      css={css({
-        display: 'inline-block',
-        boxSizing: 'border-box',
-        border: `0px solid ${colors.almostBlack}`,
-        borderBottom: `3px solid ${colors.almostBlack}`,
-        borderTop: '3px solid transparent',
-        backgroundColor: colors.grey,
-        color: colors.almostWhite,
-        fontFamily: 'Alegreya-Sans',
-        fontSize: dimensionInRem(-1),
-        borderRadius: dimensionInRem(-8),
-        padding: `0.2rem 0.5rem`,
-        '&:hover': {
-          cursor: 'pointer',
-        },
+const getClasses = () => {
+  return {
+    wrapper: css({
+      display: 'inline-block',
+      boxSizing: 'border-box',
+      border: `0px solid ${colors.almostBlack}`,
+      borderBottom: `3px solid ${colors.almostBlack}`,
+      borderTop: '3px solid transparent',
+      backgroundColor: colors.grey,
+      color: colors.almostWhite,
+      fontFamily: 'Alegreya-Sans',
+      fontSize: dimensionInRem(-1),
+      borderRadius: dimensionInRem(-8),
+      padding: `0.2rem 0.5rem`,
+      '&:hover': {
+        cursor: 'pointer',
+      },
+      '&:active': {
+        border: `0px solid ${colors.totalBlack}`,
+        borderTop: `3px solid ${colors.totalBlack}`,
+        borderBottom: '3px solid transparent',
+        paddingTop: '0.3rem',
+        paddingBottom: '0.1rem',
+        backgroundColor: colors.darkerGrey,
+      },
+      [breakpoints.maxMobile]: {
+        fontSize: dimensionInRem(0),
+        padding: `0.3rem 0.6rem`,
         '&:active': {
-          border: `0px solid ${colors.totalBlack}`,
-          borderTop: `3px solid ${colors.totalBlack}`,
-          borderBottom: '3px solid transparent',
-          paddingTop: '0.3rem',
-          paddingBottom: '0.1rem',
-          backgroundColor: colors.darkerGrey,
+          paddingTop: '0.4rem',
+          paddingBottom: '0.2rem',
         },
-        [breakpoints.maxMobile]: {
-          fontSize: dimensionInRem(0),
-          padding: `0.3rem 0.6rem`,
-          '&:active': {
-            paddingTop: '0.4rem',
-            paddingBottom: '0.2rem',
-          },
-        },
-      })}
-    >
+      },
+    }),
+  };
+};
+
+const Button = ({ caption, iconPath }: ButtonProperties) => {
+  const classes = getClasses();
+  return (
+    <span css={css(classes.wrapper)}>
       {iconPath && (
         <img
           alt="download"
           role="presentation"
           src={iconPath}
-          style={{
+          css={css({
             height: dimensionInRem(-1),
             paddingRight: '0.3rem',
             display: 'inline-block',
@@ -60,7 +65,7 @@ const Button = ({ caption, iconPath }: ButtonProperties) => {
             [breakpoints.maxMobile]: {
               height: dimensionInRem(0),
             },
-          }}
+          })}
         />
       )}
       {caption}

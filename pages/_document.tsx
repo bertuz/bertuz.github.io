@@ -63,7 +63,10 @@ const fontStyles = css(`
 const globalStyles = css({
   html: {
     fontSize: PITCH_IN_PX,
-    color: '#333',
+    color: colors.almostBlack,
+  },
+  a: {
+    color: colors.almostBlack,
   },
   body: {
     fontSize: dimensionInRem(0),
