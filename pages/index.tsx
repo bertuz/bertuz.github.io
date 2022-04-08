@@ -238,17 +238,6 @@ const Home: NextPage = () => {
         </article>
         <article css={classes.workCard}>
           <h2>Work Experience</h2>
-          {/*<Test color="blue" />*/}
-          {/*<Test color="pink" />*/}
-          {/*<p css={classes.downloadCV}>*/}
-          {/*<CVExperienceItem />*/}
-          {/*<CVExperienceItem*/}
-          {/*  headerInfo={{*/}
-          {/*    companyName: 'Telefónica',*/}
-          {/*    experienceDates: '2017 - Present',*/}
-          {/*  }}*/}
-          {/*/>*/}
-
           <CVExperienceItem>
             <Link href="api/cv" prefetch>
               <a role="link" download="Curriculum-Matteo-Bertamini.pdf">
@@ -256,7 +245,6 @@ const Home: NextPage = () => {
               </a>
             </Link>
           </CVExperienceItem>
-          {/*</p>*/}
           <CVExperienceItem
             headerInfo={{
               companyName: 'Telefónica',
@@ -277,9 +265,7 @@ const Home: NextPage = () => {
               <li>Frontend: Typescript, React, Next.JS, Jest (and more!)</li>
               <li>Backend: Kotlin and Node, PHP8 and Java8 on legacy</li>
               <li>Kubernetes for our 52 environment 🤪</li>
-              <li>
-                We work in CI/CD, depending on the environment/product we are
-              </li>
+              <li>We work in CI/CD, depending on the environment/product</li>
               <li>Clean architectures</li>
               <li>DDD: evangelizing the adoption</li>
             </ul>

@@ -36,7 +36,7 @@ const getClasses = () => {
     }),
     cvExperienceDescription: css({
       boxSizing: 'border-box',
-      flex: '1 0 350px',
+      flex: '1 1 350px',
       '& > div': {
         maxWidth: 614,
       },
@@ -60,34 +60,14 @@ type CVExperienceItemProperties = {
   children: React.ReactNode;
 };
 
-// type CVExperienceItemProperties = { color: string };
-//
-// const nclasses = () => {
-//   return {
-//     classTest: css({
-//       color: 'red',
-//     }),
-//     back: css({
-//       backgroundColor: 'white',
-//     }),
-//   };
-// };
-
 const CVExperienceItem = ({
   headerInfo,
   children,
 }: CVExperienceItemProperties) => {
-  // const classes = nclasses();
-  // const headerClasses = css([
-  //   classes.classTest,
-  //   headerInfo !== undefined ? classes.back : null,
-  // ]);
-  // return <div css={headerClasses}>hello</div>;
   const classes = getClasses();
   const cvExperienceItemRef = useRef(null);
   const { width } = useDimensions(cvExperienceItemRef);
   const headerClasses = useMemo(() => {
-    console.log(headerInfo);
     return [
       classes.cvExperienceItemHeader,
       headerInfo !== undefined ? null : classes.cvExperienceItemHeaderHidden,
