@@ -8,6 +8,8 @@ import Button from '../components/button';
 
 import CVExperienceItem from '../components/CVExperienceItem';
 
+import Test from '../components/test';
+
 import { useEffect, useMemo, useState } from 'react';
 import { css } from '@emotion/react';
 
@@ -238,17 +240,26 @@ const Home: NextPage = () => {
         </article>
         <article css={classes.workCard}>
           <h2>Work Experience</h2>
-          <p css={classes.downloadCV}>
-            <CVExperienceItem headerInfo={null} key="cv">
-              <Link href="api/cv" prefetch>
-                <a role="link" download="Curriculum-Matteo-Bertamini.pdf">
-                  <Button caption="Download CV" iconPath="/download.svg" />
-                </a>
-              </Link>
-            </CVExperienceItem>
-          </p>
+          {/*<Test color="blue" />*/}
+          {/*<Test color="pink" />*/}
+          {/*<p css={classes.downloadCV}>*/}
+          {/*<CVExperienceItem />*/}
+          {/*<CVExperienceItem*/}
+          {/*  headerInfo={{*/}
+          {/*    companyName: 'Telefónica',*/}
+          {/*    experienceDates: '2017 - Present',*/}
+          {/*  }}*/}
+          {/*/>*/}
+
+          <CVExperienceItem>
+            <Link href="api/cv" prefetch>
+              <a role="link" download="Curriculum-Matteo-Bertamini.pdf">
+                <Button caption="Download CV" iconPath="/download.svg" />
+              </a>
+            </Link>
+          </CVExperienceItem>
+          {/*</p>*/}
           <CVExperienceItem
-            key="1"
             headerInfo={{
               companyName: 'Telefónica',
               experienceDates: '2017 - Present',
