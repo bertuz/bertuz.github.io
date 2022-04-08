@@ -45,9 +45,7 @@ const getClasses = (showMac: boolean) => ({
   laptop: css({
     position: 'absolute',
     width: '100%',
-    transform: showMac
-      ? 'translate(-450px, 200px)'
-      : 'translate(-100vw, 100vh)',
+    transform: showMac ? 'translate(-100%, 70%)' : 'translate(-100vw, 100vh)',
     transition: 'all 0.2s ease-in-out',
   }),
   mainContent: css({
