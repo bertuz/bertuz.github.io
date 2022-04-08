@@ -1,6 +1,6 @@
 const breakpoints = {
-  maxMobile: '@media (maxWidth: 809px)',
-  minTablet: '@media (minWidth: 810px)',
+  maxMobile: '@media (max-width: 809px)',
+  minTablet: '@media (min-width: 810px)',
 };
 
 export default breakpoints;
