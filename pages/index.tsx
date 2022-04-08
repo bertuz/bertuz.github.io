@@ -239,7 +239,7 @@ const Home: NextPage = () => {
         <article css={classes.workCard}>
           <h2>Work Experience</h2>
           <p css={classes.downloadCV}>
-            <CVExperienceItem headerInfo={null}>
+            <CVExperienceItem headerInfo={null} key="cv">
               <Link href="api/cv" prefetch>
                 <a role="link" download="Curriculum-Matteo-Bertamini.pdf">
                   <Button caption="Download CV" iconPath="/download.svg" />
@@ -248,6 +248,7 @@ const Home: NextPage = () => {
             </CVExperienceItem>
           </p>
           <CVExperienceItem
+            key="1"
             headerInfo={{
               companyName: 'Telefónica',
               experienceDates: '2017 - Present',
