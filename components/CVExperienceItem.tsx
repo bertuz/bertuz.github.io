@@ -70,7 +70,9 @@ const CVExperienceItem = ({
   const headerClasses = useMemo(() => {
     return [
       classes.cvExperienceItemHeader,
-      headerInfo !== undefined ? null : classes.cvExperienceItemHeaderHidden,
+      headerInfo === undefined && (width ?? 0) < 500
+        ? classes.cvExperienceItemHeaderHidden
+        : null,
       (width ?? 0) < 500 ? classes.cvExperienceItemHeaderStacked : null,
     ];
   }, [width, headerInfo]);
