@@ -8,8 +8,6 @@ import Button from '../components/button';
 
 import CVExperienceItem from '../components/CVExperienceItem';
 
-import Test from '../components/test';
-
 import { useEffect, useMemo, useState } from 'react';
 import { css } from '@emotion/react';
 
