@@ -45,8 +45,9 @@ const getClasses = (showMac: boolean) => ({
   laptop: css({
     position: 'absolute',
     width: '100%',
-    bottom: showMac ? 0 : '-60vh',
-    left: showMac ? 0 : '-100%',
+    transform: showMac
+      ? 'translate(-450px, 200px)'
+      : 'translate(-100vw, 100vh)',
     transition: 'all 0.2s ease-in-out',
   }),
   mainContent: css({
@@ -240,7 +241,7 @@ const Home: NextPage = () => {
         <article css={classes.workCard}>
           <h2>Work Experience</h2>
           <p css={classes.downloadCV}>
-            <CVExperienceItem commpanyName="" experienceDates="">
+            <CVExperienceItem headerInfo={null}>
               <Link href="api/cv" prefetch>
                 <a role="link" download="Curriculum-Matteo-Bertamini.pdf">
                   <Button caption="Download CV" iconPath="/download.svg" />
@@ -249,8 +250,10 @@ const Home: NextPage = () => {
             </CVExperienceItem>
           </p>
           <CVExperienceItem
-            commpanyName="Telefónica"
-            experienceDates="2017 - Present"
+            headerInfo={{
+              companyName: 'Telefónica',
+              experienceDates: '2017 - Present',
+            }}
           >
             I&apos;m part of a multidisciplinary team that aims to fully
             digitalize the customer care experience, from solving technical

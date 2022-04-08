@@ -1,7 +1,10 @@
 import colors from '../assets/styles/colors';
 import { dimensionInRem } from '../assets/styles/dimensions';
 
+import useDimensions from '../utils/useDimensions';
+
 import { css } from '@emotion/react';
+import { useRef } from 'react';
 
 const getClasses = () => ({
   cvExperienceItem: css({
@@ -13,12 +16,16 @@ const getClasses = () => ({
     hyphens: 'auto',
   }),
   cvExperienceItemHeader: css({
+    boxSizing: 'border-box',
     flex: '0 0 150px',
     paddingRight: '1rem',
     textAlign: 'right',
     fontFamily: 'Alegreya-Sans SC',
-    ['@media (max-width: 1235px)']: {
-      textAlign: 'left',
+  }),
+  cvExperienceItemHeaderStacked: css({ textAlign: 'left' }),
+  cvExperienceItemHeaderHidden: css({
+    ['@media (max-width: 1095px)']: {
+      display: 'none',
     },
   }),
   cvExperienceCompany: css({ fontSize: dimensionInRem(1) }),
@@ -27,7 +34,8 @@ const getClasses = () => ({
     backgroundColor: colors.senape,
   }),
   cvExperienceDescription: css({
-    flex: '1 0 400px',
+    boxSizing: 'border-box',
+    flex: '1 0 350px',
     '& > div': {
       maxWidth: 614,
     },
@@ -43,23 +51,32 @@ const getClasses = () => ({
 });
 
 type CVExperienceItemProperties = {
-  commpanyName: string;
-  experienceDates: string;
+  headerInfo: {
+    companyName: string;
+    experienceDates: string;
+  } | null;
   children: React.ReactNode;
 };
 const CVExperienceItem = ({
   children,
-  commpanyName,
-  experienceDates,
+  headerInfo = null,
 }: CVExperienceItemProperties) => {
   const classes = getClasses();
+  const cvExperienceItemRef = useRef(null);
+  const { width } = useDimensions(cvExperienceItemRef);
 
   return (
-    <div css={classes.cvExperienceItem}>
-      <div css={classes.cvExperienceItemHeader}>
-        <span css={classes.cvExperienceCompany}>{commpanyName}</span>
+    <div css={classes.cvExperienceItem} ref={cvExperienceItemRef}>
+      <div
+        css={[
+          classes.cvExperienceItemHeader,
+          headerInfo !== null ? null : classes.cvExperienceItemHeaderHidden,
+          (width ?? 0) < 500 ? classes.cvExperienceItemHeaderStacked : null,
+        ]}
+      >
+        <span css={classes.cvExperienceCompany}>{headerInfo?.companyName}</span>
         <br />
-        {experienceDates}
+        {headerInfo?.experienceDates}
       </div>
       <div css={classes.cvExperienceDescription}>
         <div>{children}</div>
