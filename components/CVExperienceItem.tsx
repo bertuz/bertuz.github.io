@@ -1,4 +1,3 @@
-import colors from '../assets/styles/colors';
 import { dimensionInRem } from '../assets/styles/dimensions';
 
 import useDimensions from '../utils/useDimensions';
@@ -19,7 +18,6 @@ const getClasses = () => {
     cvExperienceItemHeader: css({
       boxSizing: 'border-box',
       flex: '0 0 150px',
-      paddingRight: '1rem',
       textAlign: 'right',
       fontFamily: 'Alegreya-Sans SC',
     }),
@@ -29,26 +27,18 @@ const getClasses = () => {
         display: 'none',
       },
     }),
-    cvExperienceCompany: css({ fontSize: dimensionInRem(1) }),
-    footer: css({
-      display: 'block',
-      backgroundColor: colors.senape,
-    }),
+    cvExperienceCompany: css({ fontSize: dimensionInRem(2) }),
     cvExperienceDescription: css({
       boxSizing: 'border-box',
+      paddingLeft: '1rem',
       flex: '1 1 350px',
       '& > div': {
         maxWidth: 614,
       },
     }),
-
-    footerContent: css({
-      textAlign: 'center',
-      fontFamily: "'Alegreya', serif",
-      textTransform: 'uppercase',
-      margin: 0,
-      padding: 24,
-    }),
+    cvExperienceDescriptionWithoutPadding: {
+      paddingLeft: 0,
+    },
   };
 };
 
@@ -64,7 +54,9 @@ const CVExperienceItem = ({
   headerInfo,
   children,
 }: CVExperienceItemProperties) => {
-  const classes = getClasses();
+  const classes = useMemo(() => {
+    return getClasses();
+  }, []);
   const cvExperienceItemRef = useRef(null);
   const { width } = useDimensions(cvExperienceItemRef);
   const headerClasses = useMemo(() => {
@@ -76,6 +68,16 @@ const CVExperienceItem = ({
       (width ?? 0) < 500 ? classes.cvExperienceItemHeaderStacked : null,
     ];
   }, [width, headerInfo]);
+  const cvExperienceDescriptionClasses = useMemo(() => {
+    return [
+      classes.cvExperienceDescription,
+      (width ?? 0) < 500 ? classes.cvExperienceDescriptionWithoutPadding : null,
+    ];
+  }, [
+    classes.cvExperienceDescription,
+    classes.cvExperienceDescriptionWithoutPadding,
+    width,
+  ]);
 
   return (
     <div css={classes.cvExperienceItem} ref={cvExperienceItemRef}>
@@ -84,7 +86,7 @@ const CVExperienceItem = ({
         <br />
         {headerInfo?.experienceDates}
       </div>
-      <div css={classes.cvExperienceDescription}>
+      <div css={cvExperienceDescriptionClasses}>
         <div>{children}</div>
       </div>
     </div>

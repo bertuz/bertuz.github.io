@@ -8,6 +8,8 @@ import Button from '../components/button';
 
 import CVExperienceItem from '../components/CVExperienceItem';
 
+import TextLink from '../components/TextLink';
+
 import { useEffect, useMemo, useState } from 'react';
 import { css } from '@emotion/react';
 
@@ -112,6 +114,13 @@ const getClasses = (showMac: boolean) => ({
     margin: 0,
     padding: 24,
   }),
+  externalLinkIcon: {
+    height: dimensionInRem(-1),
+    width: dimensionInRem(-1),
+    display: 'inline-block',
+    verticalAlign: 'middle',
+    paddingLeft: '0.2rem',
+  },
 });
 
 const Home: NextPage = () => {
@@ -226,13 +235,14 @@ const Home: NextPage = () => {
             }}
           >
             I&apos;m part of a multidisciplinary team that aims to fully
-            digitalize the customer care experience, from solving technical
-            issues remotely to support{' '}
-            <Link href="https://www.movistar.es/citaprevia" prefetch={false}>
-              <a target="_blank" rel="noreferrer">
-                their visit
-              </a>
-            </Link>{' '}
+            digitalize the{' '}
+            <TextLink href="https://www.movistar.es/particulares/movil/servicios/app-mimovistar/">
+              customer care experience
+            </TextLink>
+            , from solving technical issues remotely to support{' '}
+            <TextLink href="https://www.movistar.es/citaprevia">
+              their visit
+            </TextLink>{' '}
             in physical shops. Our work is visible on Vivo Brasil, Movistar
             (worldwide), O2 (worldwide) and Tuenti&apos;s apps.
             <ul>
@@ -242,9 +252,79 @@ const Home: NextPage = () => {
               <li>We work in CI/CD, depending on the environment/product</li>
               <li>Clean architectures</li>
               <li>DDD: evangelizing the adoption</li>
+              <li>
+                Development of{' '}
+                <TextLink href="https://www.npmjs.com/package/ya-google-maps-react">
+                  google Maps interfaces
+                </TextLink>
+              </li>
+            </ul>
+          </CVExperienceItem>
+          <CVExperienceItem
+            headerInfo={{
+              companyName: 'Belka',
+              experienceDates: '2015 - 2017',
+            }}
+          >
+            Evolution of a legacy{' '}
+            <TextLink href="https://www.electricautomationnetwork.com/en/carlo-gavazzi/carlo-gavazzi-em2serverstdl1">
+              HW-SW platform
+            </TextLink>{' '}
+            to plan, analyse and monitoring energy and environmental data to cut
+            energy-related costs in big and industrial buildings.
+            <ul>
+              <li>
+                Legacy: evolution of an undocumented old back-frontend towards a
+                long lasting, future-proof solution
+                <ul>
+                  <li>Adoption of DDD</li>
+                  <li>
+                    Progressive transition to{' '}
+                    <TextLink href="https://www.reactivemanifesto.org/">
+                      Reactive architecture
+                    </TextLink>
+                  </li>
+                  <li>
+                    BDD and Acceptance testing in order to cover old a new
+                    requisites
+                  </li>
+                  <li>
+                    Evolution in scrum cycles with a tight collaboration with
+                    the stakeholders
+                  </li>
+                </ul>
+              </li>
+              <li>
+                <TextLink href="https://github.com/BelkaLab/react-translatable-input">
+                  Multi-lang
+                </TextLink>{' '}
+                <TextLink href="https://github.com/BelkaLab/i18n-timezones">
+                  multi-timezones
+                </TextLink>{' '}
+                challenging requisites that led to implement tailored solutions
+              </li>
+              <li>Backend: PHP7, Symfony framework</li>
+              <li>Frontend: React</li>
+            </ul>
+          </CVExperienceItem>
+          <CVExperienceItem
+            headerInfo={{
+              companyName: 'Tembo',
+              experienceDates: '2014 - 2015',
+            }}
+          >
+            Evolution and maintenance of Tembo White, an independent e-commerce
+            platform based on Prestashop.
+            <ul>
+              <li>Prestashop</li>
+              <li>
+                React JS for frontend embedded widgets in products&apos; pages
+              </li>
+              <li>Continuous deployment</li>
             </ul>
           </CVExperienceItem>
         </article>
+
         {/*<article css={classes.descriptionCard}>*/}
         {/*  <h2>Contacts</h2>*/}
         {/*</article>*/}

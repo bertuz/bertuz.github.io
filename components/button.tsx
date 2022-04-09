@@ -52,6 +52,7 @@ const Button = ({ caption, iconPath }: ButtonProperties) => {
   const classes = getClasses();
   return (
     <span css={css(classes.wrapper)}>
+      {/* todo change path with element so as to load svg within the HTML from SSR */}
       {iconPath && (
         <img
           alt="download"
