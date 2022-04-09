@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape, edited and animated by hand matteo@bertamini.net -->
+
+<svg
+        width="2px"
+        height="1px"
+        viewBox="0 0 2 1"
+        version="1.0"
+        id="background"
+        xmlns="http://www.w3.org/2000/svg"
+        xmlns:svg="http://www.w3.org/2000/svg">>
+    <g
+            id="layer1">
+        <rect x="0" y="0" width="1" height="1" fill="#C9A2EB"></rect>
+        <rect x="1" y="0" width="1" height="1" fill="#EBAB26"></rect>
+    </g>
+</svg>

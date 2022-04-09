@@ -1,14 +1,15 @@
 /** @type {import('next').NextConfig} */
-const withStylus = require("next-stylus");
-const nextConfig = withStylus({
+const nextConfig = {
   reactStrictMode: true,
-  images: {
-    domains: ["images.unsplash.com"],
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3870],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    formats: ["image/webp"],
-  },
-  swcMinify: true,
-});
+  webpack(config) {
+    config.module.rules.push({
+      test: /\.svg$/i,
+      issuer: /\.[jt]sx?$/,
+      use: ['@svgr/webpack'],
+    })
 
-module.exports = nextConfig;
+    return config
+  },
+}
+
+module.exports = nextConfig

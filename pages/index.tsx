@@ -1,35 +1,344 @@
-import type { NextPage } from 'next'
-import Head from "next/head";
-import {FC} from "react";
-import ArticleList from "../components/ArticleList";
+import colors from '../assets/styles/colors';
 
-type Props = {
-    articles: any
-};
-const Home: FC<Props> = ({articles}) => {
+import breakpoints from '../assets/styles/breakpoints';
 
-    
-  return (
+import { dimensionInRem } from '../assets/styles/dimensions';
 
-    <div>
-        <Head>
-            <title>Hola</title>
-            <meta name="keywords" content="web development, programming"/>
-        </Head>
-      <h1 data-testid="t1">Welcome to my page!</h1>
-        <ArticleList articles={articles}/>
-    </div>
-  )
-}
+import Button from '../components/button';
 
-export const getStaticProps = async() => {
-  const res = await fetch(`https://jsonplaceholder.typicode.com/posts?_limit=6`);
-  const articles = await res.json();
+import CVExperienceItem from '../components/CVExperienceItem';
 
-  return {
-    props: {
-        articles
+import TextLink from '../components/TextLink';
+
+import { useEffect, useMemo, useState } from 'react';
+import { css } from '@emotion/react';
+
+import Link from 'next/link';
+
+import type { NextPage } from 'next';
+
+// todo adopt csslint when available https://github.com/emotion-js/emotion/issues/2695
+const getClasses = (showMac: boolean) => ({
+  asideColumn: css({
+    position: 'fixed',
+    bottom: 0,
+    left: 0,
+    top: 0,
+    width: '50vw',
+    backgroundColor: colors.pastelViolet,
+    [breakpoints.maxMobile]: {
+      display: 'none',
+    },
+  }),
+  centralScene: css({
+    position: 'absolute',
+    width: showMac ? '35%' : '45%',
+    height: showMac ? '35%' : '45%',
+    left: showMac ? '33%' : '25%',
+    top: '35%',
+    transition: 'all 0.2s ease-in-out',
+    '& > div': {
+      position: 'relative',
+    },
+  }),
+  smileyFace: {
+    width: '100%',
+  },
+  laptop: css({
+    position: 'absolute',
+    width: '100%',
+    transform: showMac ? 'translate(-100%, 70%)' : 'translate(-100vw, 100vh)',
+    transition: 'all 0.2s ease-in-out',
+  }),
+  mainContent: css({
+    padding: 0,
+    margin: 0,
+    paddingLeft: '50vw',
+    [breakpoints.maxMobile]: {
+      paddingLeft: 0,
+    },
+  }),
+  presentationCard: css({
+    height: '80vh',
+    minHeight: 230,
+    textAlign: 'center',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    overflow: '',
+    backgroundColor: colors.senape,
+    [breakpoints.maxMobile]: {
+      height: '35vh',
+    },
+  }),
+  presentationCardLogo: css({
+    display: 'none',
+    width: '2.5rem',
+    height: '3.4rem',
+    [breakpoints.maxMobile]: {
+      display: 'inline',
+    },
+  }),
+  nameTitle: css({
+    fontFamily: "'Indie Flower', cursive",
+  }),
+  jobDescription: css({
+    fontSize: dimensionInRem(1),
+    margin: 0,
+    textAlign: 'center',
+    fontFamily: "'Alegreya SC', serif",
+  }),
+  descriptionCard: css({
+    padding: 24,
+    backgroundColor: colors.mountainGrey,
+    fontFamily: "'Alegreya', serif",
+  }),
+  presentationDescription: css({
+    textAlign: 'justify',
+    textjustify: 'inter-word',
+    hyphens: 'auto',
+  }),
+  workCard: css({
+    backgroundColor: colors.sugarPaperBlue,
+    padding: 24,
+    fontFamily: "'Alegreya', serif",
+  }),
+  footer: css({
+    display: 'block',
+    backgroundColor: colors.senape,
+  }),
+  footerContent: css({
+    textAlign: 'center',
+    fontFamily: "'Alegreya', serif",
+    textTransform: 'uppercase',
+    margin: 0,
+    padding: 24,
+  }),
+  externalLinkIcon: {
+    height: dimensionInRem(-1),
+    width: dimensionInRem(-1),
+    display: 'inline-block',
+    verticalAlign: 'middle',
+    paddingLeft: '0.2rem',
+  },
+});
+
+const Home: NextPage = () => {
+  const [showMac, setShowMac] = useState(false);
+  const classes = useMemo(() => {
+    return getClasses(showMac);
+  }, [showMac]);
+
+  useEffect(() => {
+    function updatePosition() {
+      if ((window.scrollY ?? 0) > 200) {
+        setShowMac(true);
+        return;
+      }
+
+      setShowMac(false);
     }
-  };
+
+    window.addEventListener('scroll', updatePosition);
+    updatePosition();
+
+    return () => window.removeEventListener('scroll', updatePosition);
+  }, []);
+
+  return (
+    <>
+      <aside css={classes.asideColumn} role="presentation">
+        {/* todo https://stackoverflow.com/questions/71719915/how-to-make-next-js-load-images-from-public-source-with-default-img-element */}
+        <div css={classes.centralScene}>
+          <div>
+            <img
+              css={classes.smileyFace}
+              src="/smiley-face.svg"
+              alt="Presentation logo"
+              role="presentation"
+            />
+            <img
+              css={classes.laptop}
+              src="/mac.svg"
+              alt="mac"
+              role="presentation"
+            />
+          </div>
+        </div>
+      </aside>
+      <main css={classes.mainContent}>
+        <article css={classes.presentationCard}>
+          <div>
+            <img
+              src="/smiley-face.svg"
+              css={classes.presentationCardLogo}
+              alt="Presentation logo"
+              role="presentation"
+            />
+          </div>
+          <h1 css={classes.nameTitle}>Matteo Bertamini</h1>
+          <p css={classes.jobDescription}>Fullstack Developer</p>
+        </article>
+        <article css={classes.descriptionCard}>
+          <h2>Toolbox</h2>
+          <p css={classes.presentationDescription}>
+            I like the idea of a developer as an artisan who loves and cares its
+            product the most. <br />
+            Pushed by that mindset, I constantly grow and cover different
+            expertises.
+          </p>
+          <p css={classes.presentationDescription}>
+            With that in mind, this is what I currently have in my toolbox 🧑🏽‍💻:
+          </p>
+          <ul>
+            <li>
+              Frontend
+              <ul>
+                <li>ES6: vanilla, Typescript, Flow.js</li>
+                <li>React</li>
+                <li>Next.JS</li>
+              </ul>
+            </li>
+            <li>
+              Backend
+              <ul>
+                <li>Node</li>
+                <li>Java: Kotlin, Groovy</li>
+                <li>PHP: symfony</li>
+                <li>C++: Qt</li>
+              </ul>
+            </li>
+            <li>
+              Cross
+              <ul>
+                <li>Agile: kanban and scrum</li>
+                <li>Kubernetes</li>
+                <li>Hexagonal architecture</li>
+                <li>DDD</li>
+              </ul>
+            </li>
+          </ul>
+        </article>
+        <article css={classes.workCard}>
+          <h2>Work Experience</h2>
+          <CVExperienceItem>
+            <Link href="/api/cv" prefetch>
+              <a role="link" download="Curriculum-Matteo-Bertamini.pdf">
+                <Button caption="Download CV" iconPath="/download.svg" />
+              </a>
+            </Link>
+          </CVExperienceItem>
+          <CVExperienceItem
+            headerInfo={{
+              companyName: 'Telefónica',
+              experienceDates: '2017 - Present',
+            }}
+          >
+            I&apos;m part of a multidisciplinary team that aims to fully
+            digitalize the{' '}
+            <TextLink href="https://www.movistar.es/particulares/movil/servicios/app-mimovistar/">
+              customer care experience
+            </TextLink>
+            , from solving technical issues remotely to support{' '}
+            <TextLink href="https://www.movistar.es/citaprevia">
+              their visit
+            </TextLink>{' '}
+            in physical shops. Our work is visible on Vivo Brasil, Movistar
+            (worldwide), O2 (worldwide) and Tuenti&apos;s apps.
+            <ul>
+              <li>Frontend: Typescript, React, Next.JS, Jest (and more!)</li>
+              <li>Backend: Kotlin and Node, PHP8 and Java8 on legacy</li>
+              <li>Kubernetes for our 52 environments 🤪</li>
+              <li>We work in CI/CD, depending on the environment/product</li>
+              <li>Clean architectures</li>
+              <li>DDD: evangelizing the adoption</li>
+              <li>
+                Development of{' '}
+                <TextLink href="https://www.npmjs.com/package/ya-google-maps-react">
+                  google Maps interfaces
+                </TextLink>
+              </li>
+            </ul>
+          </CVExperienceItem>
+          <CVExperienceItem
+            headerInfo={{
+              companyName: 'Belka',
+              experienceDates: '2015 - 2017',
+            }}
+          >
+            Evolution of a legacy{' '}
+            <TextLink href="https://www.electricautomationnetwork.com/en/carlo-gavazzi/carlo-gavazzi-em2serverstdl1">
+              HW-SW platform
+            </TextLink>{' '}
+            to plan, analyse and monitoring energy and environmental data to cut
+            energy-related costs in big and industrial buildings.
+            <ul>
+              <li>
+                Legacy: evolution of an undocumented old back-frontend towards a
+                long lasting, future-proof solution
+                <ul>
+                  <li>Adoption of DDD</li>
+                  <li>
+                    Progressive transition to{' '}
+                    <TextLink href="https://www.reactivemanifesto.org/">
+                      Reactive architecture
+                    </TextLink>
+                  </li>
+                  <li>
+                    BDD and Acceptance testing in order to cover old a new
+                    requisites
+                  </li>
+                  <li>
+                    Evolution in scrum cycles with a tight collaboration with
+                    the stakeholders
+                  </li>
+                </ul>
+              </li>
+              <li>
+                <TextLink href="https://github.com/BelkaLab/react-translatable-input">
+                  Multi-lang
+                </TextLink>{' '}
+                <TextLink href="https://github.com/BelkaLab/i18n-timezones">
+                  multi-timezones
+                </TextLink>{' '}
+                challenging requisites that led to implement tailored solutions
+              </li>
+              <li>Backend: PHP7, Symfony framework</li>
+              <li>Frontend: React</li>
+            </ul>
+          </CVExperienceItem>
+          <CVExperienceItem
+            headerInfo={{
+              companyName: 'Tembo',
+              experienceDates: '2014 - 2015',
+            }}
+          >
+            Evolution and maintenance of Tembo White, an independent e-commerce
+            platform based on Prestashop.
+            <ul>
+              <li>Prestashop</li>
+              <li>
+                React JS for frontend embedded widgets in products&apos; pages
+              </li>
+              <li>Continuous deployment</li>
+            </ul>
+          </CVExperienceItem>
+        </article>
+
+        {/*<article css={classes.descriptionCard}>*/}
+        {/*  <h2>Contacts</h2>*/}
+        {/*</article>*/}
+        <div css={classes.footer}>
+          <p css={classes.footerContent}>Matteo Bertamini 2022</p>
+        </div>
+        {/*<article style="height: 70vh; background-color: #DDF4C8; flex-shrink: 0; padding: 20px;">*/}
+        {/*    <p style="font-family: 'Alegreya', serif; font-size: 1.2em;">*/}
+        {/*        Come near, ladies and gentlemen!*/}
+        {/*    </p>*/}
+        {/*</article>*/}
+      </main>
+    </>
+  );
 };
+
 export default Home;

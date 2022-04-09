@@ -37,7 +37,5 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 
-
-.testres.json
-
+.DS_Store
 /.idea/

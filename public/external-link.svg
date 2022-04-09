@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- 2022 Matteo Bertamini www.bertamini.net -->
+
+<svg
+   height="45.712193pt"
+   viewBox="0 0 41.206453 45.712192"
+   width="41.206455pt"
+   version="1.1"
+   id="svg2120"
+   xmlns="http://www.w3.org/2000/svg"
+   >
+  <defs
+     id="defs2036" />
+  <g
+     id="Layer 2"
+     transform="translate(-363.83754,-472.01301)">
+    <path
+       stroke="#333333"
+       stroke-width="4"
+       d="m 384.162,498.62 c 1.462,-5.15 10.442,-15.425 14.353,-19.336 0.84,-0.839 3.511,-4.224 3.511,-4.224"
+       fill="#000000"
+       stroke-linecap="round"
+       fill-opacity="0"
+       opacity="1"
+       stroke-linejoin="round"
+       id="path2096" />
+    <path
+       stroke="#333333"
+       stroke-width="4"
+       d="m 389.411,474.732 c -1.372,0 13.417,-0.719 13.417,-0.719 l 0.216,13.177"
+       fill="#000000"
+       stroke-linecap="round"
+       fill-opacity="0"
+       opacity="1"
+       stroke-linejoin="round"
+       id="path2098" />
+    <path
+       stroke="#333333"
+       stroke-width="4"
+       d="m 383.898,483.054 c 0,0 -12.244,-1.16 -15.093,3.114 -3.655,5.483 -3.876,21.477 -0.959,27.312 2.013,4.026 22.954,1.963 25.875,-0.958 3.49,-3.491 2.567,-17.47 2.567,-17.47"
+       fill="#000000"
+       stroke-linecap="round"
+       fill-opacity="0"
+       opacity="1"
+       stroke-linejoin="round"
+       id="path2100" />
+  </g>
+  <g
+     id="Layer 1"
+     transform="translate(-363.83754,-472.01301)" />
+</svg>

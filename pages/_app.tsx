@@ -1,36 +1,52 @@
-import "../styles/globals.styl";
-import type { AppProps } from "next/app";
-import Layout from "../components/Layout";
-import { ReactElement, ReactNode } from "react";
-import { NextPage } from "next";
-import { SessionProvider } from "next-auth/react";
+import '../styles/globals.css';
+import * as ga from '../lib/google-analytics';
 
-type NextPageWithLayout = NextPage & {
-  getLayout?: (page: ReactNode) => ReactNode;
-};
+import Head from 'next/head';
 
-type AppPropsWithLayout = AppProps & {
-  Component: NextPageWithLayout;
-};
+import Script from 'next/script';
 
-function MyApp({
-  Component,
-  pageProps: { session, ...pageProps },
-}: AppPropsWithLayout) {
-  if (Component.getLayout) {
-    return Component.getLayout(
-      <SessionProvider session={session}>
-        <Component {...pageProps} />
-      </SessionProvider>
-    );
-  }
+import { useRouter } from 'next/router';
+
+import { useEffect } from 'react';
+
+import type { AppProps } from 'next/app';
+
+function MyApp({ Component, pageProps }: AppProps) {
+  const router = useRouter();
+
+  useEffect(() => {
+    const handleRouteChange = (url: string) => {
+      ga.pageview(url);
+    };
+
+    router.events.on('routeChangeComplete', handleRouteChange);
+
+    return () => {
+      router.events.off('routeChangeComplete', handleRouteChange);
+    };
+  }, [router.events]);
 
   return (
-    <SessionProvider session={session}>
-      <Layout>
-        <Component {...pageProps} />
-      </Layout>
-    </SessionProvider>
+    <>
+      <Head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Matteo Bertamini</title>
+      </Head>
+      <Script
+        src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_MEASUREMENT_ID}`}
+        strategy="afterInteractive"
+      />
+      <Script id="google-analytics" strategy="afterInteractive">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', '${process.env.NEXT_PUBLIC_MEASUREMENT_ID}');
+        `}
+      </Script>
+      <Component {...pageProps} />
+    </>
   );
 }
 
