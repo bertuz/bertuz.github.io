@@ -220,7 +220,7 @@ const Home: NextPage = () => {
           </ul>
         </article>
         <article css={classes.workCard}>
-          <h2>Work Experience</h2>
+          <h2 id="work-experience">Work Experience</h2>
           <CVExperienceItem>
             <Link href="/api/cv" prefetch>
               <a role="link" download="Curriculum-Matteo-Bertamini.pdf">
