@@ -16,8 +16,8 @@ export default function handler(
   const source = req.headers['user-agent'];
   const contentType =
     source && !useragent.parse(source).isMobile
-      ? 'application/pdf'
-      : 'application/octet-stream';
+      ? 'application/octet-stream'
+      : 'application/pdf';
 
   const cvFile = path.resolve('./public/cv.pdf');
   const stat = fs.statSync(cvFile);
