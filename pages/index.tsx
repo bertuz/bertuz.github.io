@@ -7,6 +7,7 @@ import { dimensionInRem } from '../assets/styles/dimensions';
 import Button from '../components/button';
 
 import CVExperienceItem from '../components/CVExperienceItem';
+import * as ga from '../lib/google-analytics';
 
 import TextLink from '../components/TextLink';
 
@@ -223,7 +224,17 @@ const Home: NextPage = () => {
           <h2 id="work-experience">Work Experience</h2>
           <CVExperienceItem>
             <Link href="/api/cv" prefetch>
-              <a role="link" download="Curriculum-Matteo-Bertamini.pdf">
+              <a
+                role="link"
+                download="Curriculum-Matteo-Bertamini.pdf"
+                onKeyPress={() => {
+                  ga.click('cv');
+                }}
+                onClick={() => {
+                  ga.click('cv');
+                }}
+                tabIndex={0}
+              >
                 <Button caption="Download CV" iconPath="/download.svg" />
               </a>
             </Link>
