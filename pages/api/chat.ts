@@ -18,18 +18,6 @@ export default function handler(
 ) {
   const data = req.body;
 
-  // const rees = pusher
-  //   .trigger(
-  //     data.id,
-  //     'message-sent-ack',
-  //     '\nHola! Matteo is not really here right now, but in the future he will be. If you patiently wait here you can maybe get an answer once he is online :)'
-  //   )
-  //   .then((data) => {
-  //     // console.log(data);
-  //   })
-  //   .catch((data) => {
-  //     // console.log(data);
-  //   });
   console.log('payload');
   console.log(data);
 
@@ -44,11 +32,13 @@ export default function handler(
       })
     )
     .then((data) => {
-      console.log('ok>' + data);
+      console.log('OK> ' + data);
+      res.send('OK');
+      res.end();
     })
     .catch((data) => {
+      res.send('KO');
+      res.end();
       console.log('ko>' + data);
     });
-
-  res.end();
 }
