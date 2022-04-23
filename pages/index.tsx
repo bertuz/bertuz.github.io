@@ -117,13 +117,9 @@ const getClasses = (showMac: boolean) => ({
     margin: 0,
     padding: 24,
   }),
-  externalLinkIcon: {
-    height: dimensionInRem(-1),
-    width: dimensionInRem(-1),
-    display: 'inline-block',
-    verticalAlign: 'middle',
-    paddingLeft: '0.2rem',
-  },
+  chatWrapper: css({
+    marginTop: dimensionInRem(0),
+  }),
 });
 
 const Home: NextPage = () => {
@@ -339,10 +335,10 @@ const Home: NextPage = () => {
         </article>
 
         <article css={classes.descriptionCard}>
-          <h2>Chat with me</h2>
-          <p>
+          <h2 id="chat-with-me">Chat with me</h2>
+          <div css={classes.chatWrapper}>
             <Chat />
-          </p>
+          </div>
         </article>
         <div css={classes.footer}>
           <p css={classes.footerContent}>Matteo Bertamini 2022</p>

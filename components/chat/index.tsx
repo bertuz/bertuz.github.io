@@ -6,6 +6,10 @@ import colors from '../../assets/styles/colors';
 
 import { dimensionInRem } from '../../assets/styles/dimensions';
 
+import TextLink from '../TextLink';
+
+import useDimensions from '../../utils/useDimensions';
+
 import { useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -130,6 +134,11 @@ const getClasses = () => ({
     marginRight: 20,
     boxSizing: 'border-box',
   }),
+  chatPromptDescription: css({
+    transition: 'all 0.5s ease-in-out',
+    display: 'block',
+    overflow: 'hidden',
+  }),
   chatInput: css({ flex: '1 0 auto', marginRight: 10 }),
 });
 
@@ -145,6 +154,9 @@ const Index = () => {
   const [userInput, setUserInput] = useState<string>('');
   const classes = getClasses();
   const bottomHistoryRef = useRef<HTMLDivElement | null>(null);
+  const inputTextRef = useRef<HTMLInputElement | null>(null);
+  const promptRef = useRef<HTMLParagraphElement | null>(null);
+  const { height: promptHeight } = useDimensions(promptRef);
 
   const startChannel = () => {
     const newChannel = openChannel((states) => {
@@ -201,6 +213,10 @@ const Index = () => {
   };
 
   const sendMessage = () => {
+    if (userInput.length === 0) {
+      return;
+    }
+
     const message: FrontMessage = {
       type: MessageType.front,
       id: uuidv4(),
@@ -366,6 +382,27 @@ const Index = () => {
 
   return (
     <>
+      <p
+        ref={promptRef}
+        style={{
+          height:
+            status == ChatState.WaitForFirstConnectingMessage
+              ? promptHeight
+              : 0,
+        }}
+        css={classes.chatPromptDescription}
+      >
+        Mobile phone and messaging service: my{' '}
+        <TextLink href="https://www.youtube.com/watch?v=XAUVntxX85k">
+          croce e delizia
+        </TextLink>
+        . I love chatting but I hate the overwhelming load of incoming messages
+        we&apos;re obliged to answer straightforwardly nowadays, it&apos;s
+        simply unnatural!
+        <br />
+        So here is a dandy, playful, straightforward way to contact me when
+        I&apos;m in front of the Mac coding. At least I&apos;ve coded myself 😅
+      </p>
       <div css={classes.messagesBox} ref={messagesBox}>
         {chatHistory.map((message) => {
           if (message.type === MessageType.front) {
@@ -431,9 +468,14 @@ const Index = () => {
       </div>
       <div css={classes.chatUserControl}>
         <input
+          ref={inputTextRef}
           disabled={shouldDisableInterface(status, lastUserMessage)}
           css={classes.chatInput}
           type="text"
+          placeholder={chatHistory.length > 0 ? '' : 'Write me something 🌝'}
+          onFocusCapture={() => {
+            inputTextRef?.current?.scrollIntoView({ behavior: 'smooth' });
+          }}
           onChange={handleChangeUserInput}
           value={userInput}
           onKeyPress={handleKeyPress}

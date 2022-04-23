@@ -90,6 +90,11 @@ const globalStyles = css({
     fontSize: dimensionInRem(2),
     lineHeight: '1.5rem',
   },
+  input: {
+    [breakpoints.maxMobile]: {
+      fontSize: dimensionInRem(0),
+    },
+  },
 });
 
 export default function Document() {

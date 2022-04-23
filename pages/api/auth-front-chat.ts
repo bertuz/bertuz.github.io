@@ -2,14 +2,18 @@ import Pusher from 'pusher';
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-const { NEXT_PUBLIC_PUSHER_APP_KEY: key, APP_ID, SECRET } = process.env;
+const {
+  NEXT_PUBLIC_PUSHER_APP_KEY: channelKey,
+  PUSHER_APP_ID: channelAppId,
+  PUSHER_SECRET: channelAppSecret,
+  NEXT_PUBLIC_PUSHER_CLUSTER_REGION: channelCluster,
+} = process.env;
 
 const pusher = new Pusher({
-  appId: APP_ID,
-  key,
-  secret: SECRET,
-  cluster: 'eu', // if `host` is present, it will override the `cluster` option.
-  // encryptionMasterKeyBase64: 'sdf', // a base64 string which encodes 32 bytes, used to derive the per-channel encryption keys (see below!)
+  appId: channelAppId || '',
+  key: channelKey || '',
+  secret: channelAppSecret || '',
+  cluster: channelCluster || '',
 });
 
 export default function handler(

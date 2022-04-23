@@ -57,7 +57,12 @@ const BackChat = ({ chat }: Property) => {
 
   return (
     <div
-      style={{ border: '1px solid blue', marginRight: 15, flex: '0 0 300px' }}
+      style={{
+        border: '1px solid blue',
+        marginRight: 15,
+        marginBottom: 15,
+        flex: '0 0 300px',
+      }}
     >
       {chat.messages.map((message, index) => (
         <div key={index}>{message}</div>
@@ -123,10 +128,6 @@ const Chatboard: NextPage = () => {
         });
       });
 
-      // newChatChannel.trigger('client-back-message-ack', {
-      //   ackMessageId: data.payload.id,
-      // });
-
       fetch('/api/backChat', {
         method: 'POST',
         headers: {
@@ -161,7 +162,7 @@ const Chatboard: NextPage = () => {
   return (
     <>
       Total chats: {chats.length}
-      <div style={{ display: 'flex', width: '100%' }}>
+      <div style={{ display: 'flex', width: '100%', flexWrap: 'wrap' }}>
         {chats.map((chat) => (
           <BackChat chat={chat} key={chat.id} />
         ))}
