@@ -43,11 +43,11 @@ export default function handler(
         firstMessage: { id: data.payload.id, message: data.payload.payload },
       })
     )
-    .then(() => {
-      // console.log(data);
+    .then((data) => {
+      console.log('ok>' + data);
     })
-    .catch(() => {
-      // console.log(data);
+    .catch((data) => {
+      console.log('ko>' + data);
     });
 
   res.end();
