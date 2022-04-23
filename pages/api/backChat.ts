@@ -24,11 +24,11 @@ export default function handler(
     })
 
     .then(() => {
-      // console.log(data);
+      res.send('OK');
+      res.end();
     })
     .catch(() => {
-      // console.log(data);
+      res.send('NO OK');
+      res.end();
     });
-
-  res.end();
 }
