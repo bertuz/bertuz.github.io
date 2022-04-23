@@ -327,6 +327,7 @@ const Chat = () => {
           (message) => message.id === payload.ackMessageId
         );
         const newHistory = [...previousHistory];
+
         newHistory[ackedMessageIndex].ack = true;
 
         return newHistory;

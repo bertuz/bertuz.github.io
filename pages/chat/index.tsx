@@ -1,21 +1,6 @@
-import colors from '../../assets/styles/colors';
-
-import breakpoints from '../../assets/styles/breakpoints';
-
-import { dimensionInRem } from '../../assets/styles/dimensions';
-
-import Button from '../../components/button';
-
-import CVExperienceItem from '../../components/CVExperienceItem';
-
-import TextLink from '../../components/TextLink';
-
 import { MessageType } from '../../components/Chat';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { css } from '@emotion/react';
-
-import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 import Pusher from 'pusher-js';
 
@@ -23,8 +8,6 @@ import { v4 as uuidv4 } from 'uuid';
 
 import type { BackMessage } from '../../components/Chat';
 import type { NextPage } from 'next';
-
-const getClasses = (showMac: boolean) => ({});
 
 type Chat = {
   id: string;

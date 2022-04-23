@@ -13,14 +13,10 @@ import TextLink from '../components/TextLink';
 
 import Chat from '../components/Chat';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { css } from '@emotion/react';
 
-import { v4 as uuidv4 } from 'uuid';
-
 import Link from 'next/link';
-
-import Pusher from 'pusher-js';
 
 import type { NextPage } from 'next';
 

@@ -2,12 +2,7 @@ import Pusher from 'pusher';
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-const {
-  NEXT_PUBLIC_PUSHER_APP_KEY: key,
-  CLUSTER: cluster,
-  APP_ID,
-  SECRET,
-} = process.env;
+const { NEXT_PUBLIC_PUSHER_APP_KEY: key, APP_ID, SECRET } = process.env;
 
 export default function handler(
   req: NextApiRequest,
@@ -28,10 +23,10 @@ export default function handler(
       ackMessageId: data.message.id,
     })
 
-    .then((data) => {
+    .then(() => {
       // console.log(data);
     })
-    .catch((data) => {
+    .catch(() => {
       // console.log(data);
     });
 

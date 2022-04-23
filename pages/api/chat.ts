@@ -1,20 +1,8 @@
-import useragent from 'express-useragent';
-
-import Channels from 'pusher-js/src/core/channels/channels';
-
 import Pusher from 'pusher';
-
-import path from 'path';
-import fs from 'fs';
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-const {
-  NEXT_PUBLIC_PUSHER_APP_KEY: key,
-  CLUSTER: cluster,
-  APP_ID,
-  SECRET,
-} = process.env;
+const { NEXT_PUBLIC_PUSHER_APP_KEY: key, APP_ID, SECRET } = process.env;
 
 const pusher = new Pusher({
   appId: APP_ID,
@@ -55,10 +43,10 @@ export default function handler(
         firstMessage: { id: data.payload.id, message: data.payload.payload },
       })
     )
-    .then((data) => {
+    .then(() => {
       // console.log(data);
     })
-    .catch((data) => {
+    .catch(() => {
       // console.log(data);
     });
 
