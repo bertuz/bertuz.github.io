@@ -11,7 +11,7 @@ import * as ga from '../lib/google-analytics';
 
 import TextLink from '../components/TextLink';
 
-import Chat from '../components/Chat';
+import Chat from '../components/chat';
 
 import { useEffect, useMemo, useState } from 'react';
 import { css } from '@emotion/react';

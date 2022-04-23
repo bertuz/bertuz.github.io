@@ -1,4 +1,4 @@
-import { MessageType } from '../../components/Chat';
+import { MessageType } from '../../components/chat/model';
 
 import { useEffect, useState } from 'react';
 
@@ -6,7 +6,7 @@ import Pusher from 'pusher-js';
 
 import { v4 as uuidv4 } from 'uuid';
 
-import type { BackMessage } from '../../components/Chat';
+import type { BackMessage } from '../../components/chat/model';
 import type { NextPage } from 'next';
 
 type Chat = {
@@ -44,8 +44,7 @@ const BackChat = ({ chat }: Property) => {
     };
 
     setBackInput('');
-    console.log(channels.channels);
-    console.log(chat.id);
+
     const channel = channels.subscribe(chat.id);
     if (channel.subscribed) {
       channel.trigger('client-back-send-message', JSON.stringify(message));
@@ -57,7 +56,9 @@ const BackChat = ({ chat }: Property) => {
   };
 
   return (
-    <div style={{ border: '1 px solid blue' }}>
+    <div
+      style={{ border: '1px solid blue', marginRight: 15, flex: '0 0 300px' }}
+    >
       {chat.messages.map((message, index) => (
         <div key={index}>{message}</div>
       ))}
@@ -73,7 +74,7 @@ const BackChat = ({ chat }: Property) => {
 };
 
 // Initialize Channels client
-const channels = new Pusher(process.env.NEXT_PUBLIC_PUSHER_APP_KEY, {
+const channels = new Pusher(process.env.NEXT_PUBLIC_PUSHER_APP_KEY!, {
   cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER_REGION,
   authEndpoint: '/api/auth-front-chat',
 });
@@ -96,7 +97,7 @@ const Chatboard: NextPage = () => {
         console.log('==== SENT MESSAGE ====');
         console.log(payload);
         newChatChannel.trigger(
-          'client-back-message-ack',
+          'client-back-front-message-ack',
           JSON.stringify({ ackMessageId: payload.id })
         );
 
@@ -158,12 +159,14 @@ const Chatboard: NextPage = () => {
   }, []);
 
   return (
-    <div>
+    <>
       Total chats: {chats.length}
-      {chats.map((chat) => (
-        <BackChat chat={chat} key={chat.id} />
-      ))}
-    </div>
+      <div style={{ display: 'flex', width: '100%' }}>
+        {chats.map((chat) => (
+          <BackChat chat={chat} key={chat.id} />
+        ))}
+      </div>
+    </>
   );
 };
 

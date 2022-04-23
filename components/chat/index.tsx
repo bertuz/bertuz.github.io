@@ -1,8 +1,10 @@
-import Button from './button';
+import { BackEvent, FrontEvent, isAFrontMessage, MessageType } from './model';
 
-import colors from '../assets/styles/colors';
+import Button from '../button';
 
-import { dimensionInRem } from '../assets/styles/dimensions';
+import colors from '../../assets/styles/colors';
+
+import { dimensionInRem } from '../../assets/styles/dimensions';
 
 import { useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
@@ -12,31 +14,13 @@ import Pusher from 'pusher-js';
 import { css } from '@emotion/react';
 
 import type { Channel } from 'pusher-js';
-
-export enum MessageType {
-  front,
-  back,
-  system,
-}
-
-export type Message = {
-  type: MessageType;
-  id: string;
-  timestamp: number;
-  payload: string;
-};
-
-export type FrontMessage = Message & {
-  type: MessageType.front;
-  ack: boolean;
-};
-
-export type BackMessage = Message & {
-  type: MessageType.back;
-};
-export type SystemMessage = Message & {
-  type: MessageType.system;
-};
+import type {
+  BackMessage,
+  FrontMessage,
+  FrontSendMessageEventBody,
+  Message,
+  SystemMessage,
+} from './model';
 
 enum ChatState {
   WaitForFirstConnectingMessage = 'first-connecting-message',
@@ -123,7 +107,7 @@ const getClasses = () => ({
   }),
   messageMeta: css({
     fontFamily: 'Alegreya-Sans',
-    fontSize: dimensionInRem(0),
+    fontSize: dimensionInRem(-1),
     textAlign: 'right',
     color: colors.darkerGrey,
   }),
@@ -148,7 +132,8 @@ const getClasses = () => ({
   }),
   chatInput: css({ flex: '1 0 auto', marginRight: 10 }),
 });
-const Chat = () => {
+
+const Index = () => {
   const [status, setStatus] = useState<ChatState>(
     ChatState.WaitForFirstConnectingMessage
   );
@@ -159,6 +144,61 @@ const Chat = () => {
   const [chatHistory, setChatHistory] = useState<Array<Message>>([]);
   const [userInput, setUserInput] = useState<string>('');
   const classes = getClasses();
+  const bottomHistoryRef = useRef<HTMLDivElement | null>(null);
+
+  const startChannel = () => {
+    const newChannel = openChannel((states) => {
+      switch (states.current) {
+        case 'initialized':
+        case 'connecting':
+          setChannel(null);
+
+          if (states.previous === 'connected') {
+            setChatHistory((previousMessages) => {
+              return [
+                ...previousMessages,
+                {
+                  type: MessageType.system,
+                  id: uuidv4(),
+                  timestamp: Date.now(),
+                  payload: 'Reconnecting...',
+                } as SystemMessage,
+              ];
+            });
+            setStatus(ChatState.Reconnecting);
+            break;
+          }
+          setStatus(ChatState.Connecting);
+          break;
+
+        case 'connected':
+          setChannel(newChannel);
+          setStatus(ChatState.ConnectedOnFrontSide);
+          break;
+
+        case 'unavailable':
+          setChannel(null);
+          setStatus(ChatState.Offline);
+          setChatHistory((previousMessages) => {
+            return [
+              ...previousMessages,
+              {
+                type: MessageType.system,
+                id: uuidv4(),
+                timestamp: Date.now(),
+                payload: 'Index unavailable',
+              } as SystemMessage,
+            ];
+          });
+          break;
+
+        default:
+          setChannel(null);
+          setStatus(ChatState.Failed);
+          break;
+      }
+    });
+  };
 
   const sendMessage = () => {
     const message: FrontMessage = {
@@ -172,103 +212,64 @@ const Chat = () => {
     setLastUserMessage(message);
     setUserInput('');
 
-    // first message
-    if (status === ChatState.WaitForFirstConnectingMessage) {
-      setStatus(ChatState.Connecting);
-      setChatHistory((previousMessages) => {
-        return [
-          ...previousMessages,
-          {
-            type: MessageType.system,
-            id: uuidv4(),
-            timestamp: Date.now(),
-            payload: 'Connecting...',
-          } as SystemMessage,
-          message,
-        ];
-      });
+    switch (status) {
+      case ChatState.Connected:
+        setLastUserMessage(message);
+        setChatHistory((previousMessages) => {
+          return [...previousMessages, message];
+        });
 
-      const channel = openChannel((states) => {
-        switch (states.current) {
-          case 'initialized':
-          case 'connecting':
-            setChannel(null);
-            if (states.previous === 'connected') {
-              setChatHistory((previousMessages) => {
-                return [
-                  ...previousMessages,
-                  {
-                    type: MessageType.system,
-                    id: uuidv4(),
-                    timestamp: Date.now(),
-                    payload: 'Reconnecting...',
-                  } as SystemMessage,
-                ];
-              });
-              setStatus(ChatState.Reconnecting);
-            } else {
-              setStatus(ChatState.Connecting);
-            }
-            break;
-          case 'connected':
-            setChannel(channel);
-            setStatus(ChatState.ConnectedOnFrontSide);
-            break;
-          case 'unavailable':
-            setChannel(null);
-            setStatus(ChatState.Offline);
-            setChatHistory((previousMessages) => {
-              return [
-                ...previousMessages,
-                {
-                  type: MessageType.system,
-                  id: uuidv4(),
-                  timestamp: Date.now(),
-                  payload: 'Chat unavailable',
-                } as SystemMessage,
-              ];
-            });
-            break;
-          default:
-            setChannel(null);
-            setStatus(ChatState.Failed);
-            break;
-        }
-      });
+        channel?.trigger(
+          FrontEvent.sendMessage,
+          JSON.stringify({
+            id: message.id,
+            timestamp: message.timestamp,
+            payload: message.payload,
+          } as FrontSendMessageEventBody)
+        );
+        break;
+      case ChatState.WaitForFirstConnectingMessage:
+        setStatus(ChatState.Connecting);
+        setChatHistory((previousMessages) => {
+          return [
+            ...previousMessages,
+            {
+              type: MessageType.system,
+              id: uuidv4(),
+              timestamp: Date.now(),
+              payload: 'Connecting...',
+            } as SystemMessage,
+            message,
+          ];
+        });
 
-      return;
+        startChannel();
+        break;
+
+      default:
+        throw new Error(
+          `The message cannot be sent when the chat status is ${status}`
+        );
+        break;
     }
-
-    setLastUserMessage(message);
-    setChatHistory((previousMessages) => {
-      return [...previousMessages, message];
-    });
-    console.log('sending with ID' + message.id);
-    channel?.trigger(
-      'client-send-message',
-      JSON.stringify({
-        id: message.id,
-        timestamp: message.timestamp,
-        payload: message.payload,
-      })
-    );
   };
 
   useEffect(() => {
     channel?.unbind_all();
 
+    // waiting for the first message ack to fully open up the chat
     if (status === ChatState.ConnectedOnFrontSide) {
-      // channel?.bind('client-back-message-ack', () => {
-      //   console.log('ACK RECEIVED!!!');
-      // });
-      channel?.bind('client-back-message-ack', (payload: FrontMessageAck) => {
-        console.log('RECEIVED');
+      channel?.bind(BackEvent.frontMessageAck, (payload: FrontMessageAck) => {
         setChatHistory((previousHistory) => {
           const ackedMessageIndex = previousHistory.findIndex(
             (message) => message.id === payload.ackMessageId
           );
           const newHistory = [...previousHistory];
-          newHistory[ackedMessageIndex].ack = true;
+          const frontMessageToAck = newHistory[ackedMessageIndex];
+
+          if (isAFrontMessage(frontMessageToAck)) {
+            frontMessageToAck.ack = true;
+          }
 
           return newHistory;
         });
@@ -293,8 +294,7 @@ const Chat = () => {
         }
       });
 
-      console.log('sending with ID' + lastUserMessage.id);
-      fetch('/api/chat', {
+      fetch('/api/frontChat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -311,24 +311,27 @@ const Chat = () => {
       });
     }
 
-    channel?.bind('client-back-send-message', (message: BackMessage) => {
+    //
+    // normal flow events
+    //
+    channel?.bind(BackEvent.messageSentFromBack, (message: BackMessage) => {
       setChatHistory((previousHistory) => {
-        const newHistory = [...previousHistory, message];
-        return newHistory;
+        return [...previousHistory, message];
       });
     });
 
     // connected
-    channel?.bind('client-back-message-ack', (payload: FrontMessageAck) => {
-      console.log('RECEIVED2');
-      console.log(payload);
+    channel?.bind(BackEvent.frontMessageAck, (payload: FrontMessageAck) => {
       setChatHistory((previousHistory) => {
         const ackedMessageIndex = previousHistory.findIndex(
           (message) => message.id === payload.ackMessageId
         );
         const newHistory = [...previousHistory];
+        const messageToAck = newHistory[ackedMessageIndex];
 
-        newHistory[ackedMessageIndex].ack = true;
+        if (isAFrontMessage(messageToAck)) {
+          messageToAck.ack = true;
+        }
 
         return newHistory;
       });
@@ -340,8 +343,12 @@ const Chat = () => {
   }, [status, userInput]);
   const messagesBox = useRef(null);
   useEffect(() => {
+    if (chatHistory.length === 0) {
+      return;
+    }
+
     if (messagesBox.current) {
-      messagesBox.current.scrollTop = messagesBox.current.scrollHeight;
+      bottomHistoryRef?.current?.scrollIntoView({ behavior: 'smooth' });
     }
   }, [chatHistory]);
 
@@ -420,13 +427,7 @@ const Chat = () => {
           }
         })}
 
-        {/*<div css={[classes.message, classes.backMessage]}>*/}
-        {/*  <div css={[classes.messageContent, classes.backMessageContent]}>*/}
-        {/*    Sono il capone de la mafia, sono il filio de la mia mama. sei un*/}
-        {/*    estronzo di merda*/}
-        {/*  </div>*/}
-        {/*  <div css={classes.messageMeta}>12:20</div>*/}
-        {/*</div>*/}
+        <div ref={bottomHistoryRef} />
       </div>
       <div css={classes.chatUserControl}>
         <input
@@ -458,4 +459,4 @@ const Chat = () => {
   );
 };
 
-export default Chat;
+export default Index;

@@ -19,7 +19,7 @@ export default function handler(
   });
   console.log(data.id);
   pusher
-    .trigger(data.id, 'client-back-message-ack', {
+    .trigger(data.id, 'client-back-front-message-ack', {
       ackMessageId: data.message.id,
     })
 
