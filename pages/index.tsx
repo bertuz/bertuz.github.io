@@ -11,10 +11,16 @@ import * as ga from '../lib/google-analytics';
 
 import TextLink from '../components/TextLink';
 
-import { useEffect, useMemo, useState } from 'react';
+import Chat from '../components/Chat';
+
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { css } from '@emotion/react';
 
+import { v4 as uuidv4 } from 'uuid';
+
 import Link from 'next/link';
+
+import Pusher from 'pusher-js';
 
 import type { NextPage } from 'next';
 
@@ -336,9 +342,12 @@ const Home: NextPage = () => {
           </CVExperienceItem>
         </article>
 
-        {/*<article css={classes.descriptionCard}>*/}
-        {/*  <h2>Contacts</h2>*/}
-        {/*</article>*/}
+        <article css={classes.descriptionCard}>
+          <h2>Chat with me</h2>
+          <p>
+            <Chat />
+          </p>
+        </article>
         <div css={classes.footer}>
           <p css={classes.footerContent}>Matteo Bertamini 2022</p>
         </div>
