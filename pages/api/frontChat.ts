@@ -8,7 +8,7 @@ const pusher = new Pusher({
   appId: APP_ID,
   key,
   secret: SECRET,
-  cluster: 'eu', // if `host` is present, it will override the `cluster` option.
+  cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER_REGION, // if `host` is present, it will override the `cluster` option.
   // encryptionMasterKeyBase64: 'sdf', // a base64 string which encodes 32 bytes, used to derive the per-channel encryption keys (see below!)
 });
 
