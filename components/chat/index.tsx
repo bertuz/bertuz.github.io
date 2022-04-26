@@ -6,8 +6,6 @@ import colors from '../../assets/styles/colors';
 
 import { dimensionInRem } from '../../assets/styles/dimensions';
 
-import TextLink from '../TextLink';
-
 import useDimensions from '../../utils/useDimensions';
 
 import { useEffect, useRef, useState } from 'react';
