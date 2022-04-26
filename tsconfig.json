@@ -21,7 +21,9 @@
     "incremental": true,
     "baseUrl": ".",
     "paths": {
-      "@emotion/serialize": ["typings/@emotion/serialize"],
+      "@emotion/serialize": [
+        "typings/@emotion/serialize"
+      ]
     }
   },
   "include": [

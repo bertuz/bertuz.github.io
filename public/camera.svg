@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkpad (http://inkpad.envoza.com/) -->
+
+<svg
+   height="64.112335pt"
+   viewBox="0 0 88.92184 64.112334"
+   width="88.921844pt"
+   version="1.1"
+   id="svg98"
+
+   xmlns="http://www.w3.org/2000/svg"
+   >
+
+  <defs
+     id="defs6" />
+  <g
+     id="Layer 2"
+
+     transform="translate(-126.99742,-616.49402)">
+    <path
+       stroke="#333333"
+       stroke-width="4"
+       d="m 130.763,634.665 c 1.852,-1.141 77.05,-4.094 80.831,-1.573 4.601,3.068 2.39,27.02 1.573,31.924 -0.266,1.592 -0.351,8.117 -1.73,8.806 -5.694,2.847 -71.363,4.577 -79.573,0.472 -5.249,-2.624 -2.54,-14.815 -3.145,-19.657 -0.333,-2.659 -0.642,-18.317 2.044,-19.972 z"
+       fill="#000000"
+       stroke-linecap="round"
+       fill-opacity="0"
+       opacity="1"
+       stroke-linejoin="round"
+       id="path72"
+       style="stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke:#ffffff;stroke-opacity:1" />
+    <path
+       stroke="#333333"
+       stroke-width="4"
+       d="m 163.94076,639.19975 c 0.48795,-1.20585 -5.54408,2.93527 -6.17152,3.81332 -3.81614,5.33721 -4.92781,12.16515 -2.87496,18.62562 3.23642,10.18467 18.40299,13.54726 26.37873,7.27282 17.43888,-13.72028 -0.25544,-31.39696 -14.54222,-31.39696 -1.28341,0 -2.89356,1.94145 -2.79003,1.6852 z"
+       fill="#ffffff"
+       stroke-linecap="round"
+       opacity="1"
+       stroke-linejoin="round"
+       id="path74"
+       style="stroke:#ffffff;stroke-width:1.90507;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <path
+       stroke="#333333"
+       stroke-width="4"
+       d="m 198.263,631.01 c 0,-4.051 3.657,-5.603 7.869,-3.497 1.054,0.527 0.525,3.497 0.525,3.497"
+       fill="#000000"
+       stroke-linecap="round"
+       fill-opacity="0"
+       opacity="1"
+       stroke-linejoin="round"
+       id="path76"
+       style="stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke:#ffffff;stroke-opacity:1" />
+    <path
+       stroke="#333333"
+       stroke-width="4"
+       d="m 144.756,632.059 c 0,0 2.322,-9.903 5.246,-11.365 6.536,-3.269 14.084,-2.129 18.885,-2.449 5.245,-0.349 16.992,-0.462 17.486,0.525 1.715,3.43 3.847,10.841 3.847,10.841"
+       fill="#000000"
+       stroke-linecap="round"
+       fill-opacity="0"
+       opacity="1"
+       stroke-linejoin="round"
+       id="path78"
+       style="stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke:#ffffff;stroke-opacity:1" />
+  </g>
+  <g
+     id="Layer 1"
+     transform="translate(-126.99742,-616.49402)" />
+</svg>
