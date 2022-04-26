@@ -389,16 +389,13 @@ const Index = () => {
         style={{
           height:
             status == ChatState.WaitForFirstConnectingMessage
-              ? promptHeight
+              ? promptHeight ?? 'auto'
               : 0,
         }}
         css={classes.chatPromptDescription}
       >
-        When you build something yourself, you tend to enjoy and care more. So
-        here is a simple, home-made way to contact me 😅.
-        <br />
-        Yep, a live chat with me. Keep in mind it&apos;s experimental, but
-        everything should work good!
+        Yep, a 1:1 live chat with me. Keep in mind it&apos;s experimental, but
+        everything should be working good!
       </p>
       <div css={classes.messagesBox} ref={messagesBox}>
         {chatHistory.map((message) => {
@@ -479,7 +476,9 @@ const Index = () => {
           type="text"
           placeholder={chatHistory.length > 0 ? '' : 'Write me something 🌝'}
           onFocusCapture={() => {
-            inputTextRef?.current?.scrollIntoView({ behavior: 'smooth' });
+            window.setTimeout(() => {
+              inputTextRef?.current?.scrollIntoView({ behavior: 'smooth' });
+            }, 100);
           }}
           onChange={handleChangeUserInput}
           value={userInput}

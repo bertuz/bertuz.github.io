@@ -133,8 +133,9 @@ const getClasses = (showMac: boolean) => ({
     boxShadow: '3px 1px 33px -4px rgba(0,0,0,0.75)',
     transition: 'all 0.2s ease-in-out',
     [breakpoints.maxMobile]: {
-      height: 15,
-      width: 15,
+      height: 25,
+      width: 25,
+      padding: 10,
       border: '5px solid ' + colors.mountainGrey,
       borderBottom: '20px solid ' + colors.mountainGrey,
     },
@@ -147,7 +148,13 @@ const getClasses = (showMac: boolean) => ({
     '&:hover': {
       transform: 'translate(-10px, -10px)',
     },
+    svg: {
+      '& > *': {
+        stroke: '#795E98FF !important',
+      },
+    },
     [breakpoints.maxMobile]: {
+      bottom: -15,
       right: 5,
       '&:hover': {
         rotate: '-7deg',
@@ -167,6 +174,11 @@ const getClasses = (showMac: boolean) => ({
     '&:hover': {
       rotate: '-5deg',
       transform: 'translate(0px, -20px)',
+    },
+    svg: {
+      '& > *': {
+        stroke: '#53777EFF !important',
+      },
     },
     [breakpoints.maxMobile]: {
       display: 'none',
@@ -246,8 +258,8 @@ const Home: NextPage = () => {
           </div>
           <h1 css={classes.nameTitle}>Matteo Bertamini</h1>
           <p css={classes.jobDescription}>Fullstack Developer</p>
+          {/* todo if not on mobile use blank */}
           <a
-            target="_blank"
             href="https://www.amazon.it/photos/share/qFervNlenYwkjdQ1o26YOsWhld5fnsJ0t89xbcv2Vep"
             rel="noreferrer"
           >
