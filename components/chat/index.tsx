@@ -166,6 +166,10 @@ const Index = () => {
           setChannel(null);
 
           if (states.previous === 'connected') {
+            if (status === ChatState.Connecting) {
+              return;
+            }
+
             setChatHistory((previousMessages) => {
               return [
                 ...previousMessages,
@@ -392,16 +396,11 @@ const Index = () => {
         }}
         css={classes.chatPromptDescription}
       >
-        Mobile phone and messaging service: my{' '}
-        <TextLink href="https://www.youtube.com/watch?v=XAUVntxX85k">
-          croce e delizia
-        </TextLink>
-        . I love chatting but I hate the overwhelming load of incoming messages
-        we&apos;re obliged to answer straightforwardly nowadays, it&apos;s
-        simply unnatural!
+        When you build something yourself, you tend to enjoy and care more. So
+        here is a simple, home-made way to contact me 😅.
         <br />
-        So here is a dandy, playful, straightforward way to contact me when
-        I&apos;m in front of the Mac coding. At least I&apos;ve coded myself 😅
+        Yep, a live chat with me. Keep in mind it&apos;s experimental, but
+        everything should work good!
       </p>
       <div css={classes.messagesBox} ref={messagesBox}>
         {chatHistory.map((message) => {
@@ -419,7 +418,11 @@ const Index = () => {
                 </div>
                 <div css={classes.messageMeta}>
                   {(frontMessage.ack && '✔️️') || '⏳'}{' '}
-                  {frontMessageDate.getHours()}:{frontMessageDate.getMinutes()}
+                  {frontMessageDate.toLocaleTimeString([], {
+                    hour12: false,
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
                 </div>
               </div>
             );
@@ -441,7 +444,11 @@ const Index = () => {
                     {backMessage.payload}
                   </div>
                   <div css={classes.messageMeta}>
-                    {backMessageDate.getHours()}:{backMessageDate.getMinutes()}
+                    {backMessageDate.toLocaleTimeString([], {
+                      hour12: false,
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
                   </div>
                 </div>
               </div>
@@ -480,7 +487,6 @@ const Index = () => {
           value={userInput}
           onKeyPress={handleKeyPress}
         />
-        {/* todo disabled status */}
         <a
           onKeyPress={() => {
             if (shouldDisableInterface(status, lastUserMessage)) return;
@@ -493,8 +499,12 @@ const Index = () => {
           }}
           tabIndex={0}
           role="button"
+          aria-disabled={shouldDisableInterface(status, lastUserMessage)}
         >
-          <Button caption="Send" />
+          <Button
+            caption="Send"
+            disabled={shouldDisableInterface(status, lastUserMessage)}
+          />
         </a>
       </div>
     </>

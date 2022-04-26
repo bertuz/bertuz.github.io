@@ -11,6 +11,8 @@ import * as ga from '../lib/google-analytics';
 
 import TextLink from '../components/TextLink';
 
+import Camera from '../public/camera.svg';
+
 import Chat from '../components/chat';
 
 import { useEffect, useMemo, useState } from 'react';
@@ -62,13 +64,14 @@ const getClasses = (showMac: boolean) => ({
     },
   }),
   presentationCard: css({
+    position: 'relative',
+    overflow: 'hidden',
     height: '80vh',
     minHeight: 230,
     textAlign: 'center',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
-    overflow: '',
     backgroundColor: colors.senape,
     [breakpoints.maxMobile]: {
       height: '35vh',
@@ -120,6 +123,72 @@ const getClasses = (showMac: boolean) => ({
   chatWrapper: css({
     marginTop: dimensionInRem(0),
   }),
+  polaroid: css({
+    position: 'absolute',
+    height: 45,
+    width: 45,
+    padding: '20px',
+    border: '15px solid ' + colors.mountainGrey,
+    borderBottom: '55px solid ' + colors.mountainGrey,
+    boxShadow: '3px 1px 33px -4px rgba(0,0,0,0.75)',
+    transition: 'all 0.2s ease-in-out',
+    [breakpoints.maxMobile]: {
+      height: 15,
+      width: 15,
+      border: '5px solid ' + colors.mountainGrey,
+      borderBottom: '20px solid ' + colors.mountainGrey,
+    },
+  }),
+  frontPolaroid: css({
+    bottom: -10,
+    right: 80,
+    rotate: '-15deg',
+    backgroundColor: colors.pastelViolet,
+    '&:hover': {
+      transform: 'translate(-10px, -10px)',
+    },
+    [breakpoints.maxMobile]: {
+      right: 5,
+      '&:hover': {
+        rotate: '-7deg',
+        boxShadow: '3px 1px 33px -4px rgba(0,0,0,1)',
+      },
+      '&:focus': {
+        rotate: '-7deg',
+        boxShadow: '3px 1px 33px -4px rgba(0,0,0,1)',
+      },
+    },
+  }),
+  middlePolaroid: css({
+    bottom: 0,
+    right: 40,
+    rotate: '-5deg',
+    backgroundColor: colors.sugarPaperBlue,
+    '&:hover': {
+      rotate: '-5deg',
+      transform: 'translate(0px, -20px)',
+    },
+    [breakpoints.maxMobile]: {
+      display: 'none',
+    },
+  }),
+  backPolaroid: css({
+    bottom: -5,
+    right: 0,
+    rotate: '10deg',
+    backgroundColor: 'grey',
+    '&:hover': {
+      rotate: '5deg',
+      transform: 'translate(0px, -20px)',
+    },
+    [breakpoints.maxMobile]: {
+      display: 'none',
+    },
+  }),
+  pic: {
+    height: '100%',
+    width: '100%',
+  },
 });
 
 const Home: NextPage = () => {
@@ -177,6 +246,21 @@ const Home: NextPage = () => {
           </div>
           <h1 css={classes.nameTitle}>Matteo Bertamini</h1>
           <p css={classes.jobDescription}>Fullstack Developer</p>
+          <a
+            target="_blank"
+            href="https://www.amazon.it/photos/share/qFervNlenYwkjdQ1o26YOsWhld5fnsJ0t89xbcv2Vep"
+            rel="noreferrer"
+          >
+            <div css={[classes.polaroid, classes.backPolaroid]}>
+              <Camera css={classes.pic} />
+            </div>
+            <div css={[classes.polaroid, classes.middlePolaroid]}>
+              <Camera css={classes.pic} />
+            </div>
+            <div css={[classes.polaroid, classes.frontPolaroid]}>
+              <Camera css={classes.pic} />
+            </div>
+          </a>
         </article>
         <article css={classes.descriptionCard}>
           <h2>Toolbox</h2>
