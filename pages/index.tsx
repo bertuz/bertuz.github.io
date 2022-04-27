@@ -154,8 +154,8 @@ const getClasses = (showMac: boolean) => ({
       },
     },
     [breakpoints.maxMobile]: {
-      top: -5,
-      right: -10,
+      top: -10,
+      right: -25,
       '&:hover': {
         top: 10,
         rotate: '7deg',
@@ -183,7 +183,7 @@ const getClasses = (showMac: boolean) => ({
     },
     [breakpoints.maxMobile]: {
       top: 10,
-      right: 5,
+      right: 0,
       rotate: '-25deg',
       '&:hover': {
         top: 10,
@@ -206,7 +206,7 @@ const getClasses = (showMac: boolean) => ({
       transform: 'translate(0px, -20px)',
     },
     [breakpoints.maxMobile]: {
-      top: 35,
+      top: 25,
       right: 5,
       rotate: '-45deg',
       '&:hover': {
