@@ -154,10 +154,11 @@ const getClasses = (showMac: boolean) => ({
       },
     },
     [breakpoints.maxMobile]: {
-      bottom: -15,
-      right: 5,
+      top: -5,
+      right: -10,
       '&:hover': {
-        rotate: '-7deg',
+        top: 10,
+        rotate: '7deg',
         boxShadow: '3px 1px 33px -4px rgba(0,0,0,1)',
       },
       '&:focus': {
@@ -181,7 +182,18 @@ const getClasses = (showMac: boolean) => ({
       },
     },
     [breakpoints.maxMobile]: {
-      display: 'none',
+      top: 10,
+      right: 5,
+      rotate: '-25deg',
+      '&:hover': {
+        top: 10,
+        rotate: '-35deg',
+        boxShadow: '3px 1px 33px -4px rgba(0,0,0,1)',
+      },
+      '&:focus': {
+        rotate: '-7deg',
+        boxShadow: '3px 1px 33px -4px rgba(0,0,0,1)',
+      },
     },
   }),
   backPolaroid: css({
@@ -194,7 +206,20 @@ const getClasses = (showMac: boolean) => ({
       transform: 'translate(0px, -20px)',
     },
     [breakpoints.maxMobile]: {
-      display: 'none',
+      top: 35,
+      right: 5,
+      rotate: '-45deg',
+      '&:hover': {
+        top: 40,
+        rotate: '-50deg',
+        boxShadow: '3px 1px 33px -4px rgba(0,0,0,1)',
+      },
+      '&:focus': {
+        top: 40,
+        right: 5,
+        rotate: '-50deg',
+        boxShadow: '3px 1px 33px -4px rgba(0,0,0,1)',
+      },
     },
   }),
   pic: {
