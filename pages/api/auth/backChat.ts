@@ -27,7 +27,7 @@ export default async function handler(
 ) {
   const session = await getSession({ req });
 
-  console.log('body> ' + req.body);
+  console.log('body> ' + JSON.stringify(req.body));
 
   if (!session || session?.user?.email !== 'matteo.bertamini@telefonica.com') {
     res.status(403);
