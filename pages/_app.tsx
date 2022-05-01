@@ -34,9 +34,6 @@ const Auth: FC<AuthProps> = ({ children, config }) => {
     config.role === 'admin' &&
     data?.user?.id !== process.env.NEXT_PUBLIC_ADMIN_USER_ID
   ) {
-    console.log('----');
-    console.log(data?.user?.id);
-    console.log(process.env.NEXT_PUBLIC_ADMIN_USER_ID);
     router.push(config.unauthorizedUrl);
     return <></>;
   }

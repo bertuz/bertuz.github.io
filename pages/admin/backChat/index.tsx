@@ -8,8 +8,6 @@ import Pusher from 'pusher-js';
 
 import { v4 as uuidv4 } from 'uuid';
 
-import { useSession } from 'next-auth/react';
-
 import type { AuthConfig } from '../../../typings/next';
 
 import type { BackMessage } from '../../../components/chat/model';
@@ -91,7 +89,6 @@ type MyPage = NextPage & { auth?: AuthConfig };
 const Chatboard: MyPage = () => {
   const [chats, setChats] = useState<Array<Chat>>([]);
   const [channels, setChannels] = useState<null | Pusher>(null);
-  const { status, data } = useSession({ required: true });
 
   useEffect(() => {
     const channels = new Pusher(process.env.NEXT_PUBLIC_PUSHER_APP_KEY!, {
@@ -106,21 +103,13 @@ const Chatboard: MyPage = () => {
       return;
     }
 
-    console.log(status, data);
-
     // Subscribe to the appropriate channel
     const channel = channels.subscribe('private-support-channel');
 
     // Bind a callback function to an event within the subscribed channel
     channel.bind('init-chat-req', (initChatData: InitChat) => {
-      console.log('received');
-      console.log(initChatData);
-
-      console.log('subscribed to ' + initChatData.id);
       const newChatChannel = channels.subscribe(initChatData.id);
       newChatChannel.bind('client-send-message', (payload: any) => {
-        console.log('==== SENT MESSAGE ====');
-        console.log(payload);
         newChatChannel.trigger(
           'client-back-front-message-ack',
           JSON.stringify({ ackMessageId: payload.id })
@@ -138,12 +127,8 @@ const Chatboard: MyPage = () => {
             ...previousChats[updatedChatIndex].messages,
           ];
 
-          console.log('>>>>> CHATS SET');
-          console.log(newChats[updatedChatIndex].messages);
-
           newChats[updatedChatIndex].messages.push(payload.payload);
-          console.log('last before return');
-          console.log(newChats[updatedChatIndex].messages);
+
           return newChats;
         });
       });
