@@ -1,4 +1,6 @@
-import { MessageType } from '../../components/chat/model';
+import { MessageType } from '../../../components/chat/model';
+
+import AdminLoadingSkeleton from '../../../components/AdminLoadingSkeleton';
 
 import { useEffect, useState } from 'react';
 
@@ -6,7 +8,11 @@ import Pusher from 'pusher-js';
 
 import { v4 as uuidv4 } from 'uuid';
 
-import type { BackMessage } from '../../components/chat/model';
+import { useSession } from 'next-auth/react';
+
+import type { AuthConfig } from '../../../typings/next';
+
+import type { BackMessage } from '../../../components/chat/model';
 import type { NextPage } from 'next';
 
 type Chat = {
@@ -19,8 +25,8 @@ type InitChat = {
   openedAt: number;
   firstMessage: { id: string; message: string };
 };
-type Property = { chat: Chat };
-const BackChat = ({ chat }: Property) => {
+type Property = { chat: Chat; channels: Pusher };
+const BackChat = ({ chat, channels }: Property) => {
   const [backInput, setBackInput] = useState<string>('');
 
   const handleChangeBackInput = (
@@ -79,15 +85,29 @@ const BackChat = ({ chat }: Property) => {
 };
 
 // Initialize Channels client
-const channels = new Pusher(process.env.NEXT_PUBLIC_PUSHER_APP_KEY!, {
-  cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER_REGION,
-  authEndpoint: '/api/auth-front-chat',
-});
 
-const Chatboard: NextPage = () => {
+type MyPage = NextPage & { auth?: AuthConfig };
+
+const Chatboard: MyPage = () => {
   const [chats, setChats] = useState<Array<Chat>>([]);
+  const [channels, setChannels] = useState<null | Pusher>(null);
+  const { status, data } = useSession({ required: true });
 
   useEffect(() => {
+    const channels = new Pusher(process.env.NEXT_PUBLIC_PUSHER_APP_KEY!, {
+      cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER_REGION,
+      authEndpoint: '/api/auth/backChat',
+    });
+    setChannels(channels);
+  }, []);
+
+  useEffect(() => {
+    if (!channels) {
+      return;
+    }
+
+    console.log(status, data);
+
     // Subscribe to the appropriate channel
     const channel = channels.subscribe('private-support-channel');
 
@@ -157,18 +177,54 @@ const Chatboard: NextPage = () => {
         ];
       });
     });
-  }, []);
+  }, [channels]);
+
+  // if (status === 'unauthenticated') {
+  //   return (
+  //     <>
+  //       <h1>Nothing to see here 🤌🏽</h1>
+  //       <p>
+  //         <Link href="/api/auth/signin">
+  //           <a
+  //             tabIndex={0}
+  //             role="link"
+  //             onClick={(e) => {
+  //               e.preventDefault();
+  //               signIn('github');
+  //             }}
+  //             onKeyPress={(e) => {
+  //               e.preventDefault();
+  //               signIn('github');
+  //             }}
+  //           >
+  //             Login
+  //           </a>
+  //         </Link>
+  //       </p>
+  //     </>
+  //   );
+  // }
+
+  if (!channels) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <>
       Total chats: {chats.length}
       <div style={{ display: 'flex', width: '100%', flexWrap: 'wrap' }}>
         {chats.map((chat) => (
-          <BackChat chat={chat} key={chat.id} />
+          <BackChat chat={chat} key={chat.id} channels={channels} />
         ))}
       </div>
     </>
   );
+};
+
+Chatboard.auth = {
+  role: 'admin',
+  loading: <AdminLoadingSkeleton />,
+  unauthorizedUrl: '/admin/login-with-different-user', // redirect to this url
 };
 
 export default Chatboard;

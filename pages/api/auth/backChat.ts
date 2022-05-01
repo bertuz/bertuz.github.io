@@ -1,5 +1,7 @@
 import Pusher from 'pusher';
 
+import { getSession } from 'next-auth/react';
+
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 const {
@@ -7,6 +9,7 @@ const {
   PUSHER_APP_ID: channelAppId,
   PUSHER_SECRET: channelAppSecret,
   NEXT_PUBLIC_PUSHER_CLUSTER_REGION: channelCluster,
+  PUSHER_ENCRYPTION_MASTER_KEY: encryptionKey,
 } = process.env;
 
 const pusher = new Pusher({
@@ -14,25 +17,33 @@ const pusher = new Pusher({
   key: channelKey || '',
   secret: channelAppSecret || '',
   cluster: channelCluster || '',
+  useTLS: true,
+  encryptionMasterKeyBase64: encryptionKey,
 });
 
-export default function handler(
+export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<any>
 ) {
-  const { channel_name } = req.body;
+  const session = await getSession({ req });
 
-  if (channel_name === 'private-support-channel') {
-    res.status(400);
-    res.send('🤌🏽 che me stai a cojonà?');
+  console.log('session> ' + session);
+
+  if (!session || session?.user?.email !== 'matteo.bertamini@telefonica.com') {
+    res.status(403);
+    res.send({
+      error:
+        '🤌🏽 You must be signed in as admin to access this: ' +
+        JSON.stringify(session),
+    });
     res.end();
     return;
   }
 
   if (req.method !== 'POST') {
+    res.send('🤌🏽 what are you sending me?');
     res.status(400);
     res.end();
-    return;
   }
 
   const socketId = req.body.socket_id;

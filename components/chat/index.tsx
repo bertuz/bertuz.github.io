@@ -161,6 +161,10 @@ const Index = () => {
       switch (states.current) {
         case 'initialized':
         case 'connecting':
+          if (states.previous === 'connecting') {
+            return;
+          }
+
           setChannel(null);
 
           if (states.previous === 'connected') {

@@ -9,6 +9,7 @@ import { css } from '@emotion/react';
 type TextLinkProperties = {
   href: string;
   children: React.ReactNode;
+  target?: '_blank' | '_self';
 };
 
 const getClasses = () => ({
@@ -21,14 +22,18 @@ const getClasses = () => ({
   }),
 });
 
-const TextLink = ({ children, href }: TextLinkProperties) => {
+const TextLink = ({
+  children,
+  href,
+  target = '_blank',
+}: TextLinkProperties) => {
   const classes = useMemo(() => {
     return getClasses();
   }, []);
 
   return (
     <Link href={href} prefetch={false}>
-      <a target="_blank" rel="noreferrer">
+      <a target={target} rel="noreferrer">
         {children}
         <Extlink css={classes.externalLinkIcon} />
       </a>
