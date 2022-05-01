@@ -2,7 +2,6 @@ import NextAuth from 'next-auth';
 
 import GithubProvider from 'next-auth/providers/github';
 
-console.error('test' + process.env.GITHUB_SECRET);
 export default NextAuth({
   providers: [
     GithubProvider({

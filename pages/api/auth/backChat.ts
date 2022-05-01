@@ -32,7 +32,7 @@ export default async function handler(
     res.send({
       error:
         '🤌🏽 You must be signed in as admin to access this: ' +
-        session?.user?.email,
+        JSON.stringify(session),
     });
     res.end();
     return;
