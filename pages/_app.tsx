@@ -9,10 +9,45 @@ import { useRouter } from 'next/router';
 
 import { useEffect } from 'react';
 
+import { SessionProvider, useSession } from 'next-auth/react';
+
+import type { AuthenticatedPageConfig } from '../typings/next';
+
+import type { NextPageWithConfig } from 'next';
+
+import type { FC, ReactNode } from 'react';
+
 import type { AppProps } from 'next/app';
 
-function MyApp({ Component, pageProps }: AppProps) {
+type AuthProps = { children: ReactNode; config: AuthenticatedPageConfig };
+const Auth: FC<AuthProps> = ({ children, config }) => {
+  const { status, data } = useSession({ required: true });
   const router = useRouter();
+
+  if (status === 'loading') {
+    if (config.loading) {
+      return config.loading;
+    } else return <>⏳ One moment...</>;
+  }
+
+  if (
+    config.role === 'admin' &&
+    data?.user?.email !== 'matteo.bertamini@telefonica.com'
+  ) {
+    router.push(config.unauthorizedUrl);
+    return <></>;
+  }
+
+  return <>{children}</>;
+};
+
+type AppPropsWithConfig = AppProps & {
+  Component: NextPageWithConfig;
+};
+
+const MyApp = ({ Component, pageProps }: AppPropsWithConfig): ReactNode => {
+  const router = useRouter();
+  const isPrivate = (Component.auth?.role ?? 'free') !== 'free';
 
   useEffect(() => {
     const handleRouteChange = (url: string) => {
@@ -45,9 +80,18 @@ function MyApp({ Component, pageProps }: AppProps) {
           gtag('config', '${process.env.NEXT_PUBLIC_MEASUREMENT_ID}');
         `}
       </Script>
-      <Component {...pageProps} />
+
+      <SessionProvider session={pageProps.session}>
+        {isPrivate ? (
+          <Auth config={Component.auth}>
+            <Component {...pageProps} />
+          </Auth>
+        ) : (
+          <Component {...pageProps} />
+        )}
+      </SessionProvider>
     </>
   );
-}
+};
 
 export default MyApp;
