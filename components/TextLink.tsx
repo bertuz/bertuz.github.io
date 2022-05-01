@@ -9,7 +9,7 @@ import { css } from '@emotion/react';
 type TextLinkProperties = {
   href: string;
   children: React.ReactNode;
-  target: '_blank' | '_self';
+  target?: '_blank' | '_self';
 };
 
 const getClasses = () => ({
