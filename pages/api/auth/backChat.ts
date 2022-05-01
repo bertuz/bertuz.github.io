@@ -46,7 +46,7 @@ export default async function handler(
     res.end();
   }
 
-  const socketId = req.body.socket_id;
+  const socketId = req.body.id;
   const channel = req.body.channel_name;
 
   const auth = pusher.authenticate(socketId, channel);
