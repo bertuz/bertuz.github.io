@@ -29,7 +29,11 @@ export default async function handler(
 
   if (!session || session?.user?.email !== 'matteo.bertamini@telefonica.com') {
     res.status(403);
-    res.send({ error: '🤌🏽 You must be signed in as admin to access this' });
+    res.send({
+      error:
+        '🤌🏽 You must be signed in as admin to access this: ' +
+        session?.user?.email,
+    });
     res.end();
     return;
   }
