@@ -8,6 +8,8 @@ import Pusher from 'pusher-js';
 
 import { v4 as uuidv4 } from 'uuid';
 
+import { useSession } from 'next-auth/react';
+
 import type { AuthConfig } from '../../../typings/next';
 
 import type { BackMessage } from '../../../components/chat/model';
@@ -89,6 +91,7 @@ type MyPage = NextPage & { auth?: AuthConfig };
 const Chatboard: MyPage = () => {
   const [chats, setChats] = useState<Array<Chat>>([]);
   const [channels, setChannels] = useState<null | Pusher>(null);
+  const { status, data } = useSession({ required: true });
 
   useEffect(() => {
     const channels = new Pusher(process.env.NEXT_PUBLIC_PUSHER_APP_KEY!, {
@@ -142,6 +145,8 @@ const Chatboard: MyPage = () => {
           return newChats;
         });
       });
+
+      console.log(status, data);
 
       fetch('/api/backChat', {
         method: 'POST',
