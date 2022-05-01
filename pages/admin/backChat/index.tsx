@@ -148,7 +148,7 @@ const Chatboard: MyPage = () => {
         });
       });
 
-      fetch('/api/backChat', {
+      fetch('/api/auth/backChat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
