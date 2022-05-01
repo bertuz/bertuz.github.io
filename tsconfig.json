@@ -23,6 +23,9 @@
     "paths": {
       "@emotion/serialize": [
         "typings/@emotion/serialize"
+      ],
+      "next-auth/react": [
+        "typings/next-auth/react"
       ]
     }
   },

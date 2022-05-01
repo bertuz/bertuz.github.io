@@ -10,6 +10,7 @@ const {
   PUSHER_SECRET: channelAppSecret,
   NEXT_PUBLIC_PUSHER_CLUSTER_REGION: channelCluster,
   PUSHER_ENCRYPTION_MASTER_KEY: encryptionKey,
+  NEXT_PUBLIC_ADMIN_USER_ID: adminId,
 } = process.env;
 
 const pusher = new Pusher({
@@ -26,10 +27,7 @@ export default async function handler(
   res: NextApiResponse<any>
 ) {
   const session = await getSession({ req });
-
-  console.log('body> ' + JSON.stringify(req.body));
-
-  if (!session || session?.user?.email !== 'matteo.bertamini@telefonica.com') {
+  if (!session || session?.user?.id !== adminId) {
     res.status(403);
     res.send({
       error:

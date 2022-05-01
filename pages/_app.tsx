@@ -32,7 +32,7 @@ const Auth: FC<AuthProps> = ({ children, config }) => {
 
   if (
     config.role === 'admin' &&
-    data?.user?.email !== 'matteo.bertamini@telefonica.com'
+    data?.user?.id !== process.env.NEXT_PUBLIC_ADMIN_USER_ID
   ) {
     router.push(config.unauthorizedUrl);
     return <></>;

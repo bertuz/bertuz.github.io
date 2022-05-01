@@ -9,6 +9,7 @@ const {
   PUSHER_APP_ID: channelAppId,
   PUSHER_SECRET: channelAppSecret,
   NEXT_PUBLIC_PUSHER_CLUSTER_REGION: channelCluster,
+  NEXT_PUBLIC_ADMIN_USER_ID: adminId,
 } = process.env;
 
 const pusher = new Pusher({
@@ -27,7 +28,7 @@ export default async function handler(
 
   const session = await getSession({ req });
 
-  if (!session || session?.user?.email !== 'matteo.bertamini@telefonica.com') {
+  if (!session || session?.user?.id !== adminId) {
     res.status(403);
     res.send({
       error: '🤌🏽 You must be signed in as admin to access this',
