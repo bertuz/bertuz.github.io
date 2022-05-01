@@ -4,7 +4,7 @@ import AdminLoadingSkeleton from '../../../components/AdminLoadingSkeleton';
 
 import { useEffect, useState } from 'react';
 
-import Pusher from 'pusher-js/with-encryption';
+import Pusher from 'pusher-js';
 
 import { v4 as uuidv4 } from 'uuid';
 
