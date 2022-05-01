@@ -106,6 +106,8 @@ const Chatboard: MyPage = () => {
       return;
     }
 
+    console.log(status, data);
+
     // Subscribe to the appropriate channel
     const channel = channels.subscribe('private-support-channel');
 
@@ -145,8 +147,6 @@ const Chatboard: MyPage = () => {
           return newChats;
         });
       });
-
-      console.log(status, data);
 
       fetch('/api/backChat', {
         method: 'POST',
