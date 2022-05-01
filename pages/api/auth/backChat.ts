@@ -27,7 +27,7 @@ export default async function handler(
 ) {
   const session = await getSession({ req });
 
-  console.log('session> ' + session);
+  console.log('body> ' + req.body);
 
   if (!session || session?.user?.email !== 'matteo.bertamini@telefonica.com') {
     res.status(403);
@@ -46,7 +46,7 @@ export default async function handler(
     res.end();
   }
 
-  const socketId = req.body.id;
+  const socketId = req.body.socket_id;
   const channel = req.body.channel_name;
 
   const auth = pusher.authenticate(socketId, channel);
