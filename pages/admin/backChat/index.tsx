@@ -1,4 +1,10 @@
-import { MessageType } from '../../../components/chat/model';
+import {
+  ApiEvent,
+  BackEvent,
+  Channels,
+  FrontEvent,
+  MessageType,
+} from '../../../components/chat/model';
 
 import AdminLoadingSkeleton from '../../../components/AdminLoadingSkeleton';
 
@@ -10,7 +16,10 @@ import { v4 as uuidv4 } from 'uuid';
 
 import type { AuthConfig } from '../../../typings/next';
 
-import type { BackMessage } from '../../../components/chat/model';
+import type {
+  BackMessage,
+  ChatSessionRequest,
+} from '../../../components/chat/model';
 import type { NextPage } from 'next';
 
 type Chat = {
@@ -18,11 +27,7 @@ type Chat = {
   openedAt: number;
   messages: Array<string>;
 };
-type InitChat = {
-  id: string;
-  openedAt: number;
-  firstMessage: { id: string; message: string };
-};
+
 type Property = { chat: Chat; channels: Pusher };
 const BackChat = ({ chat, channels }: Property) => {
   const [backInput, setBackInput] = useState<string>('');
@@ -44,7 +49,7 @@ const BackChat = ({ chat, channels }: Property) => {
       type: MessageType.back,
       id: uuidv4(),
       timestamp: Date.now(),
-      payload: backInput,
+      text: backInput,
     };
 
     setBackInput('');
@@ -104,14 +109,14 @@ const Chatboard: MyPage = () => {
     }
 
     // Subscribe to the appropriate channel
-    const channel = channels.subscribe('private-support-channel');
+    const channel = channels.subscribe(Channels.PrivateSupportChannel);
 
     // Bind a callback function to an event within the subscribed channel
-    channel.bind('init-chat-req', (initChatData: InitChat) => {
-      const newChatChannel = channels.subscribe(initChatData.id);
-      newChatChannel.bind('client-send-message', (payload: any) => {
+    channel.bind(ApiEvent.initChatReq, (initChatData: ChatSessionRequest) => {
+      const newChatChannel = channels.subscribe(initChatData.sessionId);
+      newChatChannel.bind(FrontEvent.sendMessage, (payload: any) => {
         newChatChannel.trigger(
-          'client-back-front-message-ack',
+          BackEvent.frontMessageAck,
           JSON.stringify({ ackMessageId: payload.id })
         );
 
@@ -140,8 +145,8 @@ const Chatboard: MyPage = () => {
         },
 
         body: JSON.stringify({
-          id: initChatData.id,
-          message: initChatData.firstMessage,
+          sessionId: initChatData.sessionId,
+          message: initChatData.message,
         }),
       }).catch((err) => {
         console.error(err);
@@ -155,40 +160,14 @@ const Chatboard: MyPage = () => {
         return [
           ...previousChats,
           {
-            id: initChatData.id,
+            id: initChatData.sessionId,
             openedAt: initChatData.openedAt,
-            messages: [initChatData.firstMessage.message],
+            messages: [initChatData.message.text],
           },
         ];
       });
     });
   }, [channels]);
-
-  // if (status === 'unauthenticated') {
-  //   return (
-  //     <>
-  //       <h1>Nothing to see here 🤌🏽</h1>
-  //       <p>
-  //         <Link href="/api/auth/signin">
-  //           <a
-  //             tabIndex={0}
-  //             role="link"
-  //             onClick={(e) => {
-  //               e.preventDefault();
-  //               signIn('github');
-  //             }}
-  //             onKeyPress={(e) => {
-  //               e.preventDefault();
-  //               signIn('github');
-  //             }}
-  //           >
-  //             Login
-  //           </a>
-  //         </Link>
-  //       </p>
-  //     </>
-  //   );
-  // }
 
   if (!channels) {
     return <div>Loading...</div>;

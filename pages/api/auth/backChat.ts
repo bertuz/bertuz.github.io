@@ -1,6 +1,8 @@
-import Pusher from 'pusher';
+import { assertWithSessionOrEnd } from '../../../utils/api/auth';
 
-import { getSession } from 'next-auth/react';
+import { assertIsPostOrEnd } from '../../../utils/api/apiUtils';
+
+import Pusher from 'pusher';
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
@@ -10,7 +12,6 @@ const {
   PUSHER_SECRET: channelAppSecret,
   NEXT_PUBLIC_PUSHER_CLUSTER_REGION: channelCluster,
   PUSHER_ENCRYPTION_MASTER_KEY: encryptionKey,
-  NEXT_PUBLIC_ADMIN_USER_ID: adminId,
 } = process.env;
 
 const pusher = new Pusher({
@@ -22,26 +23,23 @@ const pusher = new Pusher({
   encryptionMasterKeyBase64: encryptionKey,
 });
 
+type BackChatAuthChannelRequest = NextApiRequest & {
+  body: {
+    socket_id: string;
+    channel_name: string;
+  };
+};
+
 export default async function handler(
-  req: NextApiRequest,
+  req: BackChatAuthChannelRequest,
   res: NextApiResponse<any>
 ) {
-  const session = await getSession({ req });
-  if (!session || session?.user?.id !== adminId) {
-    res.status(403);
-    res.send({
-      error:
-        '🤌🏽 You must be signed in as admin to access this: ' +
-        JSON.stringify(session),
-    });
-    res.end();
+  if (!(await assertWithSessionOrEnd(req, res, true))) {
     return;
   }
 
-  if (req.method !== 'POST') {
-    res.send('🤌🏽 what are you sending me?');
-    res.status(400);
-    res.end();
+  if (!assertIsPostOrEnd(req, res)) {
+    return;
   }
 
   const socketId = req.body.socket_id;

@@ -179,7 +179,7 @@ const Index = () => {
                   type: MessageType.system,
                   id: uuidv4(),
                   timestamp: Date.now(),
-                  payload: 'Reconnecting...',
+                  text: 'Reconnecting...',
                 } as SystemMessage,
               ];
             });
@@ -204,7 +204,7 @@ const Index = () => {
                 type: MessageType.system,
                 id: uuidv4(),
                 timestamp: Date.now(),
-                payload: 'Index unavailable',
+                text: 'Index unavailable',
               } as SystemMessage,
             ];
           });
@@ -227,7 +227,7 @@ const Index = () => {
       type: MessageType.front,
       id: uuidv4(),
       timestamp: Date.now(),
-      payload: userInput,
+      text: userInput,
       ack: false,
     };
 
@@ -246,7 +246,7 @@ const Index = () => {
           JSON.stringify({
             id: message.id,
             timestamp: message.timestamp,
-            payload: message.payload,
+            payload: message.text,
           } as FrontSendMessageEventBody)
         );
         break;
@@ -259,7 +259,7 @@ const Index = () => {
               type: MessageType.system,
               id: uuidv4(),
               timestamp: Date.now(),
-              payload: 'Connecting...',
+              text: 'Connecting...',
             } as SystemMessage,
             message,
           ];
@@ -309,7 +309,7 @@ const Index = () => {
                 id: uuidv4(),
                 timestamp: Date.now(),
                 type: MessageType.system,
-                payload: 'Connected.',
+                text: 'Connected.',
               } as SystemMessage,
             ];
           });
@@ -321,11 +321,10 @@ const Index = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-
         body: JSON.stringify({
-          id: channel?.name ?? '',
+          sessionId: channel?.name ?? '',
           openedAt: Date.now(),
-          payload: lastUserMessage,
+          message: { id: lastUserMessage?.id, text: lastUserMessage?.text },
         }),
       }).catch((err) => {
         setStatus(ChatState.Failed);
@@ -336,7 +335,7 @@ const Index = () => {
     //
     // normal flow events
     //
-    channel?.bind(BackEvent.messageSentFromBack, (message: BackMessage) => {
+    channel?.bind(BackEvent.sendMessage, (message: BackMessage) => {
       setChatHistory((previousHistory) => {
         return [...previousHistory, message];
       });
@@ -413,7 +412,7 @@ const Index = () => {
                 css={[classes.message, classes.userMessage]}
               >
                 <div css={[classes.messageContent, classes.userMessageContent]}>
-                  {frontMessage.payload}
+                  {frontMessage.text}
                 </div>
                 <div css={classes.messageMeta}>
                   {(frontMessage.ack && '✔️️') || '⏳'}{' '}
@@ -440,7 +439,7 @@ const Index = () => {
                   <div
                     css={[classes.messageContent, classes.backMessageContent]}
                   >
-                    {backMessage.payload}
+                    {backMessage.text}
                   </div>
                   <div css={classes.messageMeta}>
                     {backMessageDate.toLocaleTimeString([], {
@@ -463,7 +462,7 @@ const Index = () => {
                 <div
                   css={(classes.messageContent, classes.systemMessageContent)}
                 >
-                  {message.payload}
+                  {message.text}
                 </div>
               </div>
             );

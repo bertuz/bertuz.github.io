@@ -13,6 +13,7 @@
     "@types/express-useragent": "^1.0.2",
     "@types/uuid": "^8.3.4",
     "express-useragent": "^1.0.15",
+    "mongodb": "^4.5.0",
     "next": "12.1.0",
     "next-auth": "^4.3.4",
     "pusher": "^5.0.1",

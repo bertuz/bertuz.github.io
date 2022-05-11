@@ -1,7 +1,16 @@
+import { BackEvent, ChatSessionState } from '../../components/chat/model';
+
+import { assertWithSessionOrEnd } from '../../utils/api/auth';
+
+import { assertIsPostOrEnd } from '../../utils/api/apiUtils';
+
 import Pusher from 'pusher';
 
-import { getSession } from 'next-auth/react';
+import { MongoClient, ServerApiVersion } from 'mongodb';
 
+import type { Override } from '../../utils/types';
+
+import type { ChatSession } from '../../components/chat/model';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 const {
@@ -9,7 +18,8 @@ const {
   PUSHER_APP_ID: channelAppId,
   PUSHER_SECRET: channelAppSecret,
   NEXT_PUBLIC_PUSHER_CLUSTER_REGION: channelCluster,
-  NEXT_PUBLIC_ADMIN_USER_ID: adminId,
+  DB_URI: dbUri,
+  DB_DB_NAME: dbName,
 } = process.env;
 
 const pusher = new Pusher({
@@ -20,34 +30,59 @@ const pusher = new Pusher({
   useTLS: true,
 });
 
+type BackChatAckMessageRequest = Override<
+  NextApiRequest,
+  {
+    body: {
+      sessionId: string;
+      message: {
+        id: string;
+        message: string;
+      };
+    };
+  }
+>;
+
 export default async function handler(
-  req: NextApiRequest,
+  req: BackChatAckMessageRequest,
   res: NextApiResponse<any>
 ) {
   const data = req.body;
 
-  const session = await getSession({ req });
-
-  if (!session || session?.user?.id !== adminId) {
-    res.status(403);
-    res.send({
-      error: '🤌🏽 You must be signed in as admin to access this',
-    });
-    res.end();
+  if (!assertWithSessionOrEnd(req, res, true)) {
     return;
   }
 
-  if (req.method !== 'POST') {
-    res.send('🤌🏽 what are you sending me?');
-    res.status(400);
-    res.end();
+  if (!assertIsPostOrEnd(req, res)) {
+    return;
   }
 
+  const db = new MongoClient(dbUri!, { serverApi: ServerApiVersion.v1 });
+  db.connect(async (err) => {
+    const collection = db.db(dbName).collection('chat-sessions');
+    try {
+      if (err) throw err;
+
+      await collection.updateOne({ sessionId: data.sessionId }, <ChatSession>{
+        state: ChatSessionState.toBeAccepted,
+        firstMessage: { id: data.message.id, message: data.message.message },
+      });
+    } catch (err) {
+      console.error(err);
+
+      res.status(500);
+      res.send('KO');
+
+      res.end();
+    } finally {
+      db.close();
+    }
+  });
+
   pusher
-    .trigger(data.id, 'client-back-front-message-ack', {
+    .trigger(data.sessionId, BackEvent.frontMessageAck, {
       ackMessageId: data.message.id,
     })
-
     .then(() => {
       res.status(201);
       res.end();
