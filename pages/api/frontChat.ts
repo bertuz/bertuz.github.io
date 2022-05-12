@@ -52,26 +52,26 @@ export default async function handler(
   const db = new MongoClient(dbUri!, { serverApi: ServerApiVersion.v1 });
   db.connect(async (err) => {
     const collection = db.db(dbName).collection('chat-sessions');
-    try {
-      if (err) throw err;
+    // try {
+    if (err) throw err;
 
-      await collection.insertOne(<ChatSession>{
-        sessionId: data.sessionId,
-        openedAt: data.openedAt,
-        state: ChatSessionState.toBeAccepted,
-        firstMessage: { id: data.message.id, message: data.message.text },
-      });
-    } catch (err) {
-      console.error(err);
-
-      res.status(500);
-      res.send('KO');
-
-      res.end();
-      return;
-    } finally {
-      db.close();
-    }
+    await collection.insertOne(<ChatSession>{
+      sessionId: data.sessionId,
+      openedAt: data.openedAt,
+      state: ChatSessionState.toBeAccepted,
+      firstMessage: { id: data.message.id, message: data.message.text },
+    });
+    // } catch (err) {
+    //   console.error(err);
+    //
+    //   res.status(500);
+    //   res.send('KO');
+    //
+    //   res.end();
+    //   return;
+    // } finally {
+    db.close();
+    // }
   });
 
   pusher
