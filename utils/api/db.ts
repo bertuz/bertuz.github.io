@@ -1,12 +1,13 @@
 // Import the dependency.
-import { MongoClient } from 'mongodb';
+import { MongoClient, ServerApiVersion } from 'mongodb';
 
 import type { MongoClientOptions } from 'mongodb';
 const uri = process.env.DB_URI!;
 
 const options = {
-  useUnifiedTopology: true,
   useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverApi: ServerApiVersion.v1,
 } as MongoClientOptions;
 
 let client;
