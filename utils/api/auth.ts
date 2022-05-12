@@ -12,6 +12,7 @@ export const assertWithSessionOrEnd = async (
   const session = await getSession({ req });
 
   if (!session || (admin && session?.user?.id !== adminId)) {
+    console.log('SET!');
     res.status(403);
     res.send({
       error: '🤌🏽 You must be signed in as admin to access this',

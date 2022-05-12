@@ -87,7 +87,5 @@ export default async function handler(
   } catch (err) {
     console.error(err);
     await pusher.trigger(data.sessionId, ApiEvent.internalError, {});
-
-    res.end();
   }
 }
