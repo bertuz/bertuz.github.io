@@ -47,9 +47,6 @@ export default async function handler(
 ) {
   const data = req.body;
 
-  res.status(200);
-  res.end();
-
   try {
     const dbClient = await clientPromise;
     const collection = dbClient.db(dbName).collection('chat-sessions');
@@ -79,5 +76,6 @@ export default async function handler(
     console.error('ko> ' + err);
   }
 
-  return;
+  res.status(200);
+  res.end();
 }
