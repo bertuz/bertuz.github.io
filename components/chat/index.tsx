@@ -528,7 +528,7 @@ const Index = () => {
         style={{
           height:
             status == ChatState.WaitForFirstConnectingMessage
-              ? promptHeight ?? 'auto'
+              ? promptHeight || 'auto'
               : 0,
         }}
         css={classes.chatPromptDescription}
