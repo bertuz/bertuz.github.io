@@ -12,8 +12,6 @@ import clientPromise from '../../utils/api/db';
 
 import Pusher from 'pusher';
 
-import { MongoClient, ServerApiVersion } from 'mongodb';
-
 import type { Override } from '../../utils/types';
 
 import type { ChatSession } from '../../components/chat/model';
@@ -24,7 +22,6 @@ const {
   PUSHER_APP_ID: channelAppId,
   PUSHER_SECRET: channelAppSecret,
   NEXT_PUBLIC_PUSHER_CLUSTER_REGION: channelCluster,
-  DB_URI: dbUri,
   DB_DB_NAME: dbName,
 } = process.env;
 
