@@ -1,6 +1,6 @@
 import {
   ApiEvent,
-  // Channels,
+  Channels,
   ChatSessionState,
 } from '../../components/chat/model';
 import clientPromise from '../../utils/api/db';
@@ -63,24 +63,24 @@ export default async function handler(
 
     return;
   }
-  //
-  // // optimistic flow with fallback for graceful degradation
-  // // I send a failure via the channel in case the DB has problems
-  // pusher
-  //   .trigger(
-  //     Channels.PrivateSupportChannel,
-  //     ApiEvent.initChatReq,
-  //     JSON.stringify(data)
-  //   )
-  //   .then(() => {
-  //     res.send('OK');
-  //     res.end();
-  //   })
-  //   .catch((data) => {
-  //     res.send('KO');
-  //     res.end();
-  //     console.error('ko> ' + data);
-  //   });
+
+  // optimistic flow with fallback for graceful degradation
+  // I send a failure via the channel in case the DB has problems
+  pusher
+    .trigger(
+      Channels.PrivateSupportChannel,
+      ApiEvent.initChatReq,
+      JSON.stringify(data)
+    )
+    .then(() => {
+      res.send('OK');
+      res.end();
+    })
+    .catch((data) => {
+      res.send('KO');
+      res.end();
+      console.error('ko> ' + data);
+    });
 
   res.send('OK');
   res.end();
