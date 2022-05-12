@@ -37,6 +37,8 @@ enum ChatState {
   Reconnecting = 'reconnecting',
   Connected = 'connected',
   Offline = 'offline',
+  NotAvailableWaitForContact = 'not-available-wait-for-contact',
+  NotAvailable = 'not-available',
   Failed = 'failed',
 }
 type ConnectionState =
@@ -62,7 +64,11 @@ const shouldDisableInterface = (
   )
     return false;
 
-  if (lastSentMessage?.ack && state === ChatState.Connected) return false;
+  if (
+    state === ChatState.NotAvailableWaitForContact ||
+    (lastSentMessage?.ack && state === ChatState.Connected)
+  )
+    return false;
 
   return true;
 };
@@ -144,6 +150,10 @@ const getClasses = () => ({
     overflow: 'hidden',
   }),
   chatInput: css({ flex: '1 0 auto', marginRight: 10 }),
+  systemMessageAction: css({
+    paddingTop: dimensionInRem(0),
+    paddingBottom: dimensionInRem(0),
+  }),
 });
 
 const Index = () => {
@@ -154,8 +164,11 @@ const Index = () => {
   const [lastUserMessage, setLastUserMessage] = useState<FrontMessage | null>(
     null
   );
-  const [chatHistory, setChatHistory] = useState<Array<Message>>([]);
+  const [chatHistory, setChatHistory] = useState<
+    Array<Message | SystemMessage>
+  >([]);
   const [userInput, setUserInput] = useState<string>('');
+  const [timeoutId, setTimeoutId] = useState<number | null>(null);
   const classes = getClasses();
   const bottomHistoryRef = useRef<HTMLDivElement | null>(null);
   const inputTextRef = useRef<HTMLInputElement | null>(null);
@@ -224,6 +237,14 @@ const Index = () => {
     });
   };
 
+  const restart = () => {
+    setLastUserMessage(null);
+    setChatHistory([]);
+    setChannel(null);
+    setStatus(ChatState.WaitForFirstConnectingMessage);
+    setUserInput('');
+  };
+
   const sendMessage = () => {
     if (userInput.length === 0) {
       return;
@@ -256,6 +277,41 @@ const Index = () => {
           } as FrontSendMessageEventBody)
         );
         break;
+      case ChatState.NotAvailableWaitForContact:
+        setStatus(ChatState.NotAvailable);
+        setLastUserMessage(message);
+
+        fetch('/api/closeFrontChat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            sessionId: channel?.name ?? '',
+            contactDetails: lastUserMessage?.text ?? 'none.',
+          }),
+        })
+          .then(() => {
+            message.ack = true;
+            setLastUserMessage(message);
+            setChatHistory((previousMessages) => {
+              return [
+                ...previousMessages,
+                message,
+                {
+                  type: MessageType.system,
+                  id: uuidv4(),
+                  timestamp: Date.now(),
+                  text: 'Got it!',
+                } as SystemMessage,
+              ];
+            });
+          })
+          .catch((err) => {
+            setStatus(ChatState.Failed);
+            console.error(err);
+          });
+        break;
       case ChatState.WaitForFirstConnectingMessage:
         setStatus(ChatState.Connecting);
         setChatHistory((previousMessages) => {
@@ -271,6 +327,64 @@ const Index = () => {
           ];
         });
 
+        setTimeoutId(
+          window.setTimeout(() => {
+            setStatus(ChatState.NotAvailableWaitForContact);
+            setChatHistory((previousMessages) => {
+              return [
+                ...previousMessages,
+                {
+                  type: MessageType.system,
+                  id: uuidv4(),
+                  timestamp: Date.now(),
+                  text: 'I am not available now 🤔',
+                } as SystemMessage,
+                {
+                  type: MessageType.system,
+                  id: uuidv4(),
+                  timestamp: Date.now(),
+                  text: (
+                    <>
+                      <div>
+                        I&apos;ll read it later for sure. Leave your email or
+                        mobile and I&apos;ll text you back 😉
+                      </div>
+                      <div css={classes.systemMessageAction}>
+                        <a
+                          onKeyPress={() => {
+                            if (shouldDisableInterface(status, lastUserMessage))
+                              return;
+
+                            restart();
+                          }}
+                          onClick={() => {
+                            if (shouldDisableInterface(status, lastUserMessage))
+                              return;
+                            restart();
+                          }}
+                          tabIndex={0}
+                          role="button"
+                          aria-disabled={shouldDisableInterface(
+                            status,
+                            lastUserMessage
+                          )}
+                        >
+                          <Button
+                            caption="Restart the chat"
+                            disabled={shouldDisableInterface(
+                              status,
+                              lastUserMessage
+                            )}
+                          />
+                        </a>
+                      </div>
+                    </>
+                  ),
+                } as SystemMessage,
+              ];
+            });
+          }, 7000)
+        );
         startChannel();
         break;
 
@@ -307,6 +421,9 @@ const Index = () => {
         }
 
         if (status === ChatState.ConnectedOnFrontSide) {
+          if (timeoutId) {
+            window.clearTimeout(timeoutId);
+          }
           setStatus(ChatState.Connected);
           setChatHistory((previousMessages) => {
             return [

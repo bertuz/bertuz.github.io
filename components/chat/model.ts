@@ -21,16 +21,25 @@ export type FrontMessage = Override<
   }
 >;
 
-export function isAFrontMessage(message: Message): message is FrontMessage {
+export function isAFrontMessage(
+  message: Message | SystemMessage
+): message is FrontMessage {
   return message && message.type === MessageType.front;
 }
 
-export type BackMessage = Message & {
-  type: MessageType.back;
-};
-export type SystemMessage = Message & {
-  type: MessageType.system;
-};
+export type BackMessage = Override<
+  Message,
+  {
+    type: MessageType.back;
+  }
+>;
+export type SystemMessage = Override<
+  Message,
+  {
+    type: MessageType.system;
+    text: string | JSX.Element;
+  }
+>;
 
 // spawn by front and listened to by back
 export enum FrontEvent {
@@ -58,6 +67,7 @@ export enum BackEvent {
 export enum ChatSessionState {
   toBeAccepted = 'TO_BE_ACCEPTED',
   opened = 'OPENED',
+  closedByFront = 'CLOSED_BY_FRONT',
 }
 
 export type ChatSession = {
