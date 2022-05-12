@@ -113,6 +113,7 @@ const Chatboard: MyPage = () => {
 
     // Bind a callback function to an event within the subscribed channel
     channel.bind(ApiEvent.initChatReq, (initChatData: ChatSessionRequest) => {
+      console.log('> INIT CHAT REQ', initChatData);
       const newChatChannel = channels.subscribe(initChatData.sessionId);
       newChatChannel.bind(FrontEvent.sendMessage, (payload: any) => {
         newChatChannel.trigger(
