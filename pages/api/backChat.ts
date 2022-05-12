@@ -59,19 +59,17 @@ export default async function handler(
     return;
   }
 
-  pusher
-    .trigger(data.sessionId, BackEvent.frontMessageAck, {
+  try {
+    await pusher.trigger(data.sessionId, BackEvent.frontMessageAck, {
       ackMessageId: data.message.id,
-    })
-    .then(() => {
-      res.status(201);
-      res.end();
-    })
-    .catch(() => {
-      res.status(500);
-      res.send('Something went wrong');
-      res.end();
     });
+  } catch (error) {
+    res.status(500);
+    // todo DB update
+    res.send('Something went wrong');
+    res.end();
+    return;
+  }
 
   const dbClient = await clientPromise;
   const collection = dbClient.db(dbName).collection('chat-sessions');
@@ -87,5 +85,12 @@ export default async function handler(
   } catch (err) {
     console.error(err);
     await pusher.trigger(data.sessionId, ApiEvent.internalError, {});
+
+    res.status(500);
+    res.end();
+    return;
   }
+
+  res.status(201);
+  res.end();
 }

@@ -61,11 +61,11 @@ export default async function handler(
     console.error(err);
     pusher.trigger(data.sessionId, ApiEvent.internalError, {});
 
+    res.status(500);
+    res.end();
     return;
   }
 
-  // optimistic flow with fallback for graceful degradation
-  // I send a failure via the channel in case the DB has problems
   try {
     await pusher.trigger(
       Channels.PrivateSupportChannel,
@@ -74,8 +74,11 @@ export default async function handler(
     );
   } catch (err) {
     console.error('ko> ' + err);
+    res.status(500);
+    res.end();
+    return;
   }
 
-  res.status(200);
+  res.status(201);
   res.end();
 }
