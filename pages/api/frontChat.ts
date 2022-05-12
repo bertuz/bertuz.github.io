@@ -47,22 +47,25 @@ export default async function handler(
 ) {
   const data = req.body;
 
-  // try {
-  const dbClient = await clientPromise;
-  const collection = dbClient.db(dbName).collection('chat-sessions');
+  res.status(200);
+  res.end();
 
-  await collection.insertOne(<ChatSession>{
-    sessionId: data.sessionId,
-    openedAt: data.openedAt,
-    state: ChatSessionState.toBeAccepted,
-    firstMessage: { id: data.message.id, message: data.message.text },
-  });
-  // } catch (err) {
-  //   console.error(err);
-  //   pusher.trigger(data.sessionId, ApiEvent.internalError, {});
-  //
-  //   return;
-  // }
+  try {
+    const dbClient = await clientPromise;
+    const collection = dbClient.db(dbName).collection('chat-sessions');
+
+    await collection.insertOne(<ChatSession>{
+      sessionId: data.sessionId,
+      openedAt: data.openedAt,
+      state: ChatSessionState.toBeAccepted,
+      firstMessage: { id: data.message.id, message: data.message.text },
+    });
+  } catch (err) {
+    console.error(err);
+    pusher.trigger(data.sessionId, ApiEvent.internalError, {});
+
+    return;
+  }
 
   // optimistic flow with fallback for graceful degradation
   // I send a failure via the channel in case the DB has problems
@@ -73,15 +76,11 @@ export default async function handler(
       JSON.stringify(data)
     )
     .then(() => {
-      res.send('OK');
-      res.end();
+      // todo remove chat
     })
     .catch((data) => {
-      res.send('KO');
-      res.end();
       console.error('ko> ' + data);
     });
 
-  res.send('OK');
-  res.end();
+  return;
 }
