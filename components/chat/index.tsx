@@ -14,6 +14,8 @@ import { dimensionInRem } from '../../assets/styles/dimensions';
 
 import useDimensions from '../../utils/useDimensions';
 
+import * as ga from '../../lib/google-analytics';
+
 import { useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -246,6 +248,8 @@ const Index = () => {
   };
 
   const sendMessage = () => {
+    ga.click('chat-message-sent');
+
     if (userInput.length === 0) {
       return;
     }
@@ -626,7 +630,6 @@ const Index = () => {
         <a
           onKeyPress={() => {
             if (shouldDisableInterface(status, lastUserMessage)) return;
-
             sendMessage();
           }}
           onClick={() => {
