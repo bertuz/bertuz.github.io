@@ -14,7 +14,6 @@ import Pusher from 'pusher';
 
 import type { Override } from '../../utils/types';
 
-import type { ChatSession } from '../../components/chat/model';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 const {
