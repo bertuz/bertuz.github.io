@@ -47,26 +47,8 @@ export default async function handler(
 ) {
   const data = req.body;
 
-  try {
-    const dbClient = await clientPromise;
-    const collection = dbClient.db(dbName).collection('chat-sessions');
-
-    await collection.insertOne(<ChatSession>{
-      sessionId: data.sessionId,
-      openedAt: data.openedAt,
-      state: ChatSessionState.toBeAccepted,
-      firstMessage: { id: data.message.id, message: data.message.text },
-    });
-  } catch (err) {
-    console.error(err);
-
-    res.status(500);
-    res.send('KO');
-
-    res.end();
-    return;
-  }
-
+  // optimistic flow with fallback for graceful degradation
+  // I send a failure via the channel in case the DB has problems
   pusher
     .trigger(
       Channels.PrivateSupportChannel,
@@ -84,4 +66,22 @@ export default async function handler(
     });
 
   res.send('OK');
+  res.end();
+
+  try {
+    const dbClient = await clientPromise;
+    const collection = dbClient.db(dbName).collection('chat-sessions');
+
+    await collection.insertOne(<ChatSession>{
+      sessionId: data.sessionId,
+      openedAt: data.openedAt,
+      state: ChatSessionState.toBeAccepted,
+      firstMessage: { id: data.message.id, message: data.message.text },
+    });
+  } catch (err) {
+    console.error(err);
+    pusher.trigger(data.sessionId, ApiEvent.internalError, {});
+
+    return;
+  }
 }

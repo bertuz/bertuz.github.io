@@ -46,6 +46,7 @@ export type FrontSendMessageEventBody = {
 // spawn by api
 export enum ApiEvent {
   initChatReq = 'init-chat-req',
+  internalError = 'init-error',
 }
 
 // spawn by back/api and listened to by front

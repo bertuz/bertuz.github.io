@@ -1,32 +1,34 @@
+// Import the dependency.
 import { MongoClient } from 'mongodb';
-const uri = process.env.DB_URI;
-const options = {};
+
+import type { MongoClientOptions } from 'mongodb';
+const uri = process.env.MONGODB_URI!;
+
+const options = {
+  useUnifiedTopology: true,
+  useNewUrlParser: true,
+} as MongoClientOptions;
 
 let client;
 let clientPromise: Promise<MongoClient>;
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-let mongoGlobalPromise = global._mongoClientPromise;
+const globalWithMongoClientPromise = global as typeof globalThis & {
+  _mongoClientPromise: Promise<MongoClient>;
+};
 
 if (process.env.NODE_ENV === 'development') {
   // In development mode, use a global variable so that the value
   // is preserved across module reloads caused by HMR (hot module replacement).
-  if (!mongoGlobalPromise) {
+  if (!globalWithMongoClientPromise._mongoClientPromise) {
     client = new MongoClient(uri!, options);
-    mongoGlobalPromise = client.connect();
+    globalWithMongoClientPromise._mongoClientPromise = client.connect();
   }
-
-  clientPromise = mongoGlobalPromise;
+  clientPromise =
+    globalWithMongoClientPromise._mongoClientPromise as Promise<MongoClient>;
 } else {
   // In production mode, it's best to not use a global variable.
   client = new MongoClient(uri!, options);
   clientPromise = client.connect();
 }
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-global._mongoClientPromise = mongoGlobalPromise;
-
 // Export a module-scoped MongoClient promise. By doing this in a
 // separate module, the client can be shared across functions.
 export default clientPromise;

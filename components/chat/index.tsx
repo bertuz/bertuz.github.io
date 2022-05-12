@@ -1,4 +1,10 @@
-import { BackEvent, FrontEvent, isAFrontMessage, MessageType } from './model';
+import {
+  ApiEvent,
+  BackEvent,
+  FrontEvent,
+  isAFrontMessage,
+  MessageType,
+} from './model';
 
 import Button from '../button';
 
@@ -335,6 +341,19 @@ const Index = () => {
     //
     // normal flow events
     //
+    channel?.bind(ApiEvent.internalError, () => {
+      setChatHistory((previousHistory) => {
+        setStatus(ChatState.Failed);
+        const failedFeedback: Message = {
+          type: MessageType.system,
+          id: uuidv4(),
+          timestamp: Date.now(),
+          text: 'Something went wrong: disconnected.',
+        };
+        return [...previousHistory, failedFeedback];
+      });
+    });
+
     channel?.bind(BackEvent.sendMessage, (message: BackMessage) => {
       setChatHistory((previousHistory) => {
         return [...previousHistory, message];

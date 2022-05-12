@@ -1,8 +1,14 @@
-import { BackEvent, ChatSessionState } from '../../components/chat/model';
+import {
+  ApiEvent,
+  BackEvent,
+  ChatSessionState,
+} from '../../components/chat/model';
 
 import { assertWithSessionOrEnd } from '../../utils/api/auth';
 
 import { assertIsPostOrEnd } from '../../utils/api/apiUtils';
+
+import clientPromise from '../../utils/api/db';
 
 import Pusher from 'pusher';
 
@@ -57,28 +63,6 @@ export default async function handler(
     return;
   }
 
-  const db = new MongoClient(dbUri!, { serverApi: ServerApiVersion.v1 });
-  db.connect(async (err) => {
-    const collection = db.db(dbName).collection('chat-sessions');
-    try {
-      if (err) throw err;
-
-      await collection.updateOne({ sessionId: data.sessionId }, <ChatSession>{
-        state: ChatSessionState.toBeAccepted,
-        firstMessage: { id: data.message.id, message: data.message.message },
-      });
-    } catch (err) {
-      console.error(err);
-
-      res.status(500);
-      res.send('KO');
-
-      res.end();
-    } finally {
-      db.close();
-    }
-  });
-
   pusher
     .trigger(data.sessionId, BackEvent.frontMessageAck, {
       ackMessageId: data.message.id,
@@ -92,4 +76,22 @@ export default async function handler(
       res.send('Something went wrong');
       res.end();
     });
+
+  const dbClient = await clientPromise;
+  const collection = dbClient.db(dbName).collection('chat-sessions');
+  try {
+    await collection.updateOne({ sessionId: data.sessionId }, <ChatSession>{
+      state: ChatSessionState.toBeAccepted,
+      firstMessage: { id: data.message.id, message: data.message.message },
+    });
+  } catch (err) {
+    console.error(err);
+
+    res.status(500);
+    res.send('KO');
+
+    await pusher.trigger(data.sessionId, ApiEvent.internalError, {});
+
+    res.end();
+  }
 }
