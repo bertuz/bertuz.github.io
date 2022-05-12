@@ -287,6 +287,9 @@ const Home: NextPage = () => {
           <a
             href="https://www.amazon.it/photos/share/qFervNlenYwkjdQ1o26YOsWhld5fnsJ0t89xbcv2Vep"
             rel="noreferrer"
+            onClick={() => {
+              ga.click('photos');
+            }}
           >
             <div css={[classes.polaroid, classes.backPolaroid]}>
               <Camera css={classes.pic} />
