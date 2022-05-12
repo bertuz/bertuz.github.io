@@ -2,7 +2,7 @@
 import { MongoClient } from 'mongodb';
 
 import type { MongoClientOptions } from 'mongodb';
-const uri = process.env.MONGODB_URI!;
+const uri = process.env.DB_URI!;
 
 const options = {
   useUnifiedTopology: true,
