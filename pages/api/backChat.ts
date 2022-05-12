@@ -77,16 +77,16 @@ export default async function handler(
   const dbClient = await clientPromise;
   const collection = dbClient.db(dbName).collection('chat-sessions');
   try {
-    await collection.updateOne({ sessionId: data.sessionId }, <ChatSession>{
-      state: ChatSessionState.toBeAccepted,
-      firstMessage: { id: data.message.id, message: data.message.message },
-    });
+    await collection.updateOne(
+      { sessionId: data.sessionId },
+      {
+        $set: {
+          state: ChatSessionState.opened,
+        },
+      }
+    );
   } catch (err) {
     console.error(err);
-
-    res.status(500);
-    res.send('KO');
-
     await pusher.trigger(data.sessionId, ApiEvent.internalError, {});
 
     res.end();
