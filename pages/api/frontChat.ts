@@ -69,18 +69,15 @@ export default async function handler(
 
   // optimistic flow with fallback for graceful degradation
   // I send a failure via the channel in case the DB has problems
-  pusher
-    .trigger(
+  try {
+    await pusher.trigger(
       Channels.PrivateSupportChannel,
       ApiEvent.initChatReq,
       JSON.stringify(data)
-    )
-    .then(() => {
-      // todo remove chat
-    })
-    .catch((data) => {
-      console.error('ko> ' + data);
-    });
+    );
+  } catch (err) {
+    console.error('ko> ' + err);
+  }
 
   return;
 }
