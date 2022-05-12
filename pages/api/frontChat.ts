@@ -90,5 +90,5 @@ export default async function handler(
       console.error('ko> ' + data);
     });
 
-  res.send('KO');
+  res.send('OK');
 }
