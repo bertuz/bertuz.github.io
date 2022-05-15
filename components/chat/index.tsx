@@ -82,7 +82,6 @@ const openChannel = (
   connectionStateListener: (states: ConnectionStateChange) => void
 ): Channel => {
   const channelId = `private-${uuidv4()}`;
-
   const connection = new Pusher(process.env.NEXT_PUBLIC_PUSHER_APP_KEY!, {
     cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER_REGION,
     authEndpoint: '/api/auth-front-chat',
@@ -232,8 +231,6 @@ const Index = () => {
   const inputTextRef = useRef<HTMLInputElement | null>(null);
   const promptRef = useRef<HTMLParagraphElement | null>(null);
   const { height: promptHeight } = useDimensions(promptRef);
-  console.log('out chat status> ', chatStatus);
-  console.log('out channel status> ', connectionChannelStatus);
 
   useEffect(
     function handleConnectionChannelStatus() {
@@ -520,10 +517,16 @@ const Index = () => {
   const restart = () => {
     if (timeoutId) {
       window.clearTimeout(timeoutId);
+      setTimeoutId(null);
     }
     setLastUserMessage(null);
     setChatHistory([]);
+
+    channel?.disconnect();
     setChannel(null);
+    setConnectionChannelStatus(null);
+
+    setFirstMessageStatus('idle');
     setChatStatus(ChatState.WaitingForFirstMessageToConnect);
     setUserInput('');
   };
