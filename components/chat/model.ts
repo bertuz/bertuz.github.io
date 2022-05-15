@@ -18,6 +18,7 @@ export type FrontMessage = Override<
   {
     type: MessageType.front;
     ack: boolean;
+    savedOnBack?: boolean;
   }
 >;
 
