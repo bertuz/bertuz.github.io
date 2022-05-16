@@ -239,21 +239,41 @@ const Index = () => {
           setChatStatus(ChatState.WaitingForFirstMessageToConnect);
           break;
         case 'initialized':
-          setChatStatus(ChatState.Reconnecting);
+          setChatStatus((previousState) => {
+            if (previousState !== ChatState.NotAvailableWaitForLastMessage)
+              return ChatState.Reconnecting;
+
+            return previousState;
+          });
           break;
         case 'connecting':
           if (connectionChannelStatus.previous === 'connected') {
-            setChatStatus(ChatState.Reconnecting);
+            setChatStatus((previousState) => {
+              if (previousState !== ChatState.NotAvailableWaitForLastMessage)
+                return ChatState.Reconnecting;
+
+              return previousState;
+            });
             break;
           }
 
           if (connectionChannelStatus.previous === 'unavailable') {
-            setChatStatus(ChatState.Reconnecting);
+            setChatStatus((previousState) => {
+              if (previousState !== ChatState.NotAvailableWaitForLastMessage)
+                return ChatState.Reconnecting;
+
+              return previousState;
+            });
             break;
           }
 
           if (connectionChannelStatus.previous === 'initialized') {
-            setChatStatus(ChatState.Connecting);
+            setChatStatus((previousState) => {
+              if (previousState !== ChatState.NotAvailableWaitForLastMessage)
+                return ChatState.Connecting;
+
+              return previousState;
+            });
             break;
           }
           break;
