@@ -232,6 +232,18 @@ const Index = () => {
   const promptRef = useRef<HTMLParagraphElement | null>(null);
   const { height: promptHeight } = useDimensions(promptRef);
 
+  const handleChannelStateToReconnectingChatStatus = () => {
+    setChatStatus((previousState) => {
+      if (
+        previousState !== ChatState.NotAvailableWaitForLastMessage &&
+        previousState !== ChatState.Connecting
+      )
+        return ChatState.Reconnecting;
+
+      return previousState;
+    });
+  };
+
   useEffect(
     function handleConnectionChannelStatus() {
       switch (connectionChannelStatus?.current) {
@@ -239,31 +251,16 @@ const Index = () => {
           setChatStatus(ChatState.WaitingForFirstMessageToConnect);
           break;
         case 'initialized':
-          setChatStatus((previousState) => {
-            if (previousState !== ChatState.NotAvailableWaitForLastMessage)
-              return ChatState.Reconnecting;
-
-            return previousState;
-          });
+          handleChannelStateToReconnectingChatStatus();
           break;
         case 'connecting':
           if (connectionChannelStatus.previous === 'connected') {
-            setChatStatus((previousState) => {
-              if (previousState !== ChatState.NotAvailableWaitForLastMessage)
-                return ChatState.Reconnecting;
-
-              return previousState;
-            });
+            handleChannelStateToReconnectingChatStatus();
             break;
           }
 
           if (connectionChannelStatus.previous === 'unavailable') {
-            setChatStatus((previousState) => {
-              if (previousState !== ChatState.NotAvailableWaitForLastMessage)
-                return ChatState.Reconnecting;
-
-              return previousState;
-            });
+            handleChannelStateToReconnectingChatStatus();
             break;
           }
 
@@ -289,13 +286,17 @@ const Index = () => {
           break;
 
         case 'disconnected':
+          channel?.unbind_all();
+          channel?.pusher.connection.unbind_all();
           setChatStatus(ChatState.TerminatedByFront);
           break;
         case 'unavailable':
-          setChatStatus(ChatState.Reconnecting);
+          handleChannelStateToReconnectingChatStatus();
           break;
 
         default:
+          channel?.unbind_all();
+          channel?.pusher.connection.unbind_all();
           setChatStatus(ChatState.Failed);
           break;
       }
@@ -337,6 +338,7 @@ const Index = () => {
   useEffect(
     function setupConnectedChatWithBack() {
       if (chatStatus === ChatState.WaitingForFirstMessageToConnect) {
+        channel?.pusher.connection.unbind_all();
         channel?.unbind_all();
         return;
       }
@@ -525,6 +527,8 @@ const Index = () => {
     channel?.bind(BackEvent.frontMessageAck, firstAckCallback);
 
     const timeoutId = window.setTimeout(() => {
+      channel?.pusher.connection.unbind_all();
+      channel?.unbind_all();
       setChatStatus(ChatState.NotAvailableWaitForLastMessage);
     }, ACK_TIMEOUT);
     setTimeoutId(timeoutId);
@@ -576,7 +580,6 @@ const Index = () => {
           return [...previousMessages, message];
         });
         handleAckTimeoutNotAvailable(message);
-        // todo timeout for chat ack (not available wait for last message)
         channel?.trigger(
           FrontEvent.sendMessage,
           JSON.stringify({
