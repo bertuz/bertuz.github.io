@@ -1,6 +1,4 @@
-import type { NextApiRequest } from 'next';
-
-import type { Override, RequiredFieldsOnly } from '../../utils/types';
+import type { Override } from '../../utils/types';
 
 export const PRIVATE_BACK_SESSION_NAME = 'private-back-session';
 export enum MessageType {

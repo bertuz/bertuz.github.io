@@ -1,5 +1,3 @@
-import { assertWithSessionOrEnd } from '../../../../utils/api/auth';
-
 import runMiddleware, {
   getHasSessionOrErrorMiddleware,
   isPostOrErrorMiddleware,

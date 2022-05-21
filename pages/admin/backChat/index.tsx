@@ -2,7 +2,6 @@ import {
   Channels,
   ChatSessionOperation,
   FrontEvent,
-  MessageType,
   PRIVATE_BACK_SESSION_NAME,
 } from '../../../components/chat/model';
 
@@ -28,8 +27,6 @@ import type {
   BackEventSendMessage,
   BackAckForFrontMessage,
 } from '../../../components/chat/channelModel';
-
-import type { BackMessage } from '../../../components/chat/model';
 
 type Chat = {
   id: string;
@@ -58,10 +55,6 @@ const BackChat = ({ chat, channels }: Property) => {
       id: uuidv4(),
       timestamp: Date.now(),
       text: backInput,
-    };
-    const message: BackMessage = {
-      ...messageToSend,
-      type: MessageType.back,
     };
 
     setBackInput('');

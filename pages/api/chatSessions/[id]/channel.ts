@@ -2,10 +2,7 @@ import runMiddleware, {
   isPostOrErrorMiddleware,
 } from '../../../../utils/api/middleware';
 
-import {
-  ChatSessionState,
-  PRIVATE_BACK_SESSION_NAME,
-} from '../../../../components/chat/model';
+import { PRIVATE_BACK_SESSION_NAME } from '../../../../components/chat/model';
 
 import clientPromise from '../../../../utils/api/db';
 
