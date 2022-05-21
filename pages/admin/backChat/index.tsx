@@ -1,12 +1,14 @@
 import {
-  ApiEvent,
-  BackEvent,
   Channels,
+  ChatSessionOperation,
   FrontEvent,
   MessageType,
+  PRIVATE_BACK_SESSION_NAME,
 } from '../../../components/chat/model';
 
 import AdminLoadingSkeleton from '../../../components/AdminLoadingSkeleton';
+
+import { ApiEvent, BackEvent } from '../../../components/chat/channelModel';
 
 import { useEffect, useState } from 'react';
 
@@ -14,13 +16,20 @@ import Pusher from 'pusher-js';
 
 import { v4 as uuidv4 } from 'uuid';
 
+import axios from 'axios';
+
 import type { AuthConfig } from '../../../typings/next';
+import type { NextPage } from 'next';
+
+import type { AckFirstMessageRequestBody } from '../../../components/chat/apiModel';
 
 import type {
-  BackMessage,
-  ChatSessionRequest,
-} from '../../../components/chat/model';
-import type { NextPage } from 'next';
+  OpenEndBackChannelChatSessionBody,
+  BackEventSendMessage,
+  BackAckForFrontMessage,
+} from '../../../components/chat/channelModel';
+
+import type { BackMessage } from '../../../components/chat/model';
 
 type Chat = {
   id: string;
@@ -45,21 +54,30 @@ const BackChat = ({ chat, channels }: Property) => {
   };
 
   const sendMessage = () => {
-    const message: BackMessage = {
-      type: MessageType.back,
+    const messageToSend: BackEventSendMessage = {
       id: uuidv4(),
       timestamp: Date.now(),
       text: backInput,
+    };
+    const message: BackMessage = {
+      ...messageToSend,
+      type: MessageType.back,
     };
 
     setBackInput('');
 
     const channel = channels.subscribe(chat.id);
     if (channel.subscribed) {
-      channel.trigger('client-back-send-message', JSON.stringify(message));
+      channel.trigger(
+        BackEvent.sendMessage,
+        JSON.stringify(messageToSend as BackEventSendMessage)
+      );
     } else {
       channel.bind('pusher:subscription_succeeded', () => {
-        channel.trigger('client-back-send-message', JSON.stringify(message));
+        channel.trigger(
+          BackEvent.sendMessage,
+          JSON.stringify(messageToSend as BackEventSendMessage)
+        );
       });
     }
   };
@@ -98,11 +116,25 @@ const Chatboard: MyPage = () => {
   useEffect(() => {
     const channels = new Pusher(process.env.NEXT_PUBLIC_PUSHER_APP_KEY!, {
       cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER_REGION,
-      authEndpoint: '/api/auth/backChat',
+      authEndpoint: `/api/chatSessions/${PRIVATE_BACK_SESSION_NAME}/channel`,
     });
     setChannels(channels);
   }, []);
 
+  // useEffect(() => {
+  //   fetch('/api/chatSessions/chatSessions', {
+  //     method: 'GET',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //   })
+  //     .catch((err) => {
+  //       console.error(err);
+  //     })
+  //     .then((data) => {
+  //       console.log(data);
+  //     });
+  // }, []);
   useEffect(() => {
     if (!channels) {
       return;
@@ -112,62 +144,69 @@ const Chatboard: MyPage = () => {
     const channel = channels.subscribe(Channels.PrivateSupportChannel);
 
     // Bind a callback function to an event within the subscribed channel
-    channel.bind(ApiEvent.initChatReq, (initChatData: ChatSessionRequest) => {
-      console.log('> INIT CHAT REQ', initChatData);
-      const newChatChannel = channels.subscribe(initChatData.sessionId);
-      newChatChannel.bind(FrontEvent.sendMessage, (payload: any) => {
-        newChatChannel.trigger(
-          BackEvent.frontMessageAck,
-          JSON.stringify({ ackMessageId: payload.id })
-        );
-
-        setChats((previousChats) => {
-          const newChats = [...previousChats];
-
-          const updatedChatIndex = newChats.findIndex(
-            (chat) => chat.id === newChatChannel.name
+    channel.bind(
+      ApiEvent.openEndBackChannelChatSession,
+      (initChatData: OpenEndBackChannelChatSessionBody) => {
+        console.log('> INIT CHAT REQ', initChatData);
+        const newChatChannel = channels.subscribe(initChatData.sessionId);
+        newChatChannel.bind(FrontEvent.sendMessage, (payload: any) => {
+          const messageAckBody: BackAckForFrontMessage = {
+            messageId: payload.id,
+          };
+          newChatChannel.trigger(
+            BackEvent.frontMessageAck,
+            JSON.stringify(messageAckBody)
           );
 
-          newChats[updatedChatIndex] = { ...previousChats[updatedChatIndex] };
-          newChats[updatedChatIndex].messages = [
-            ...previousChats[updatedChatIndex].messages,
-          ];
+          setChats((previousChats) => {
+            const newChats = [...previousChats];
 
-          newChats[updatedChatIndex].messages.push(payload.payload);
+            const updatedChatIndex = newChats.findIndex(
+              (chat) => chat.id === newChatChannel.name
+            );
 
-          return newChats;
+            newChats[updatedChatIndex] = { ...previousChats[updatedChatIndex] };
+            newChats[updatedChatIndex].messages = [
+              ...previousChats[updatedChatIndex].messages,
+            ];
+
+            newChats[updatedChatIndex].messages.push(payload.payload);
+
+            return newChats;
+          });
         });
-      });
 
-      fetch('/api/backChat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        axios
+          .post<null, null, AckFirstMessageRequestBody>(
+            `/api/chatSessions/${initChatData.sessionId}`,
+            {
+              operation: ChatSessionOperation.ackFirstMessage,
+              messageId: initChatData.firstMessage.id,
+            }
+          )
+          .then(() => {
+            console.log('ack sent.');
+          })
+          .catch((err) => {
+            console.error(err);
+          });
 
-        body: JSON.stringify({
-          sessionId: initChatData.sessionId,
-          message: initChatData.message,
-        }),
-      }).catch((err) => {
-        console.error(err);
-      });
+        // todo subscribe updates
+        // const chat = channels.subscribe(data.id);
+        // channel.trigger('message-sent-ack', 'hola! He recibido el mensaje :o)');
 
-      // todo subscribe updates
-      // const chat = channels.subscribe(data.id);
-      // channel.trigger('message-sent-ack', 'hola! He recibido el mensaje :o)');
-
-      setChats((previousChats) => {
-        return [
-          ...previousChats,
-          {
-            id: initChatData.sessionId,
-            openedAt: initChatData.openedAt,
-            messages: [initChatData.message.text],
-          },
-        ];
-      });
-    });
+        setChats((previousChats) => {
+          return [
+            ...previousChats,
+            {
+              id: initChatData.sessionId,
+              openedAt: initChatData.firstMessage.timestamp,
+              messages: [initChatData.firstMessage.text],
+            },
+          ];
+        });
+      }
+    );
   }, [channels]);
 
   if (!channels) {

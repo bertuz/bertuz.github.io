@@ -1,16 +1,22 @@
-import type { Override } from '../../utils/types';
+import type { NextApiRequest } from 'next';
 
+import type { Override, RequiredFieldsOnly } from '../../utils/types';
+
+export const PRIVATE_BACK_SESSION_NAME = 'private-back-session';
 export enum MessageType {
   front,
   back,
   system,
 }
 
-export type Message = {
-  type: MessageType;
+export type MessageBase = {
   id: string;
   timestamp: number;
   text: string;
+};
+
+export type Message = MessageBase & {
+  type: MessageType;
 };
 
 export type FrontMessage = Override<
@@ -34,6 +40,7 @@ export type BackMessage = Override<
     type: MessageType.back;
   }
 >;
+
 export type SystemMessage = Override<
   Message,
   {
@@ -47,45 +54,54 @@ export enum FrontEvent {
   sendMessage = 'client-front-send-message',
 }
 
-export type FrontSendMessageEventBody = {
-  id: string;
-  timestamp: number;
-  payload: string;
-};
-
-// spawn by api
-export enum ApiEvent {
-  initChatReq = 'init-chat-req',
-  internalError = 'init-error',
-}
-
-// spawn by back/api and listened to by front
-export enum BackEvent {
-  frontMessageAck = 'client-back-front-message-ack',
-  sendMessage = 'client-back-send-message',
-}
-
 export enum ChatSessionState {
-  toBeAccepted = 'TO_BE_ACCEPTED',
+  // front registered the intention of opening the session with a specific ID
+  required = 'SESSION_REQUIRED',
+  // channel auth requested on front side for the specific session ID. It will try to open up the pusher channel
+  channelRequested = 'SESSION_CHANNEL_REQUESTED',
+  // channel opened on front end. It will send the first message to open up the back end channel. This state should not be present on DB, it's front only
+  channelFrontEndOpened = 'SESSION_CHANNEL_FRONT_END_OPENED',
+  // the first message has been sent from the front, stored on DB, and informed the back to open up its end and ack the message
+  channelBackEndOpening = 'SESSION_CHANNEL_BACK_END_OPENING',
+  // the back has successfully opened its end for the session and acked the first message to the front (via api)
   opened = 'OPENED',
   closedByFront = 'CLOSED_BY_FRONT',
+  closedByBack = 'CLOSED_BY_BACK',
+  closedForError = 'CLOSED_FOR_ERROR',
 }
 
-export type ChatSession = {
+type ChatSessionBase = {
   sessionId: string;
   openedAt: number;
-  state: ChatSessionState;
-  firstMessage: { id: string; message: string };
+  closedAt?: number;
 };
 
-export type ChatSessionRequest = {
-  sessionId: string;
-  openedAt: number;
-  message: {
-    id: string;
-    text: string;
-  };
-};
+export type ChatSession =
+  | (ChatSessionBase & {
+      state:
+        | ChatSessionState.required
+        | ChatSessionState.channelRequested
+        | ChatSessionState.channelFrontEndOpened;
+    })
+  | (ChatSessionBase & {
+      state:
+        | ChatSessionState.channelBackEndOpening
+        | ChatSessionState.opened
+        | ChatSessionState.closedByBack
+        | ChatSessionState.closedForError;
+      firstMessage: MessageBase;
+    })
+  | (ChatSessionBase & {
+      state: ChatSessionState.closedByFront;
+      firstMessage: MessageBase;
+      frontClosingMessage: MessageBase;
+    });
+
+export enum ChatSessionOperation {
+  openBackEnd = 'open-back-end',
+  ackFirstMessage = 'ack-first-message',
+  closeFromFront = 'close-from-front',
+}
 
 export enum Channels {
   PrivateSupportChannel = 'private-support-channel',

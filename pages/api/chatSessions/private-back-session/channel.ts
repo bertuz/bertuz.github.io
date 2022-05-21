@@ -1,6 +1,9 @@
-import { assertWithSessionOrEnd } from '../../../utils/api/auth';
+import { assertWithSessionOrEnd } from '../../../../utils/api/auth';
 
-import { assertIsPostOrEnd } from '../../../utils/api/apiUtils';
+import runMiddleware, {
+  getHasSessionOrErrorMiddleware,
+  isPostOrErrorMiddleware,
+} from '../../../../utils/api/middleware';
 
 import Pusher from 'pusher';
 
@@ -34,13 +37,8 @@ export default async function handler(
   req: BackChatAuthChannelRequest,
   res: NextApiResponse<any>
 ) {
-  if (!(await assertWithSessionOrEnd(req, res, true))) {
-    return;
-  }
-
-  if (!assertIsPostOrEnd(req, res)) {
-    return;
-  }
+  runMiddleware(req, res, isPostOrErrorMiddleware);
+  runMiddleware(req, res, getHasSessionOrErrorMiddleware(true));
 
   const socketId = req.body.socket_id;
   const channel = req.body.channel_name;

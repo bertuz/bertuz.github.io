@@ -1,10 +1,11 @@
 import {
-  ApiEvent,
-  BackEvent,
+  ChatSessionOperation,
   FrontEvent,
   isAFrontMessage,
   MessageType,
 } from './model';
+
+import { ApiEvent, BackEvent } from './channelModel';
 
 import Button from '../button';
 
@@ -16,30 +17,42 @@ import useDimensions from '../../utils/useDimensions';
 
 import * as ga from '../../lib/google-analytics';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 import Pusher from 'pusher-js';
 
 import { css } from '@emotion/react';
 
+import axios from 'axios';
+
 import type { Channel } from 'pusher-js';
+import type {
+  BackAckForFrontMessage,
+  BackEventSendMessage,
+  FrontSendMessageEventBody,
+} from './channelModel';
 import type {
   BackMessage,
   FrontMessage,
-  FrontSendMessageEventBody,
   Message,
   SystemMessage,
 } from './model';
 
+import type {
+  ChatSessionRequestBody,
+  CloseSessionFromFrontRequestBody,
+  OpenBackEndRequestBody,
+} from './apiModel';
+
 enum ChatState {
-  WaitingForFirstMessageToConnect = 'waiting-first-message-to-connect',
+  WaitingForFirstMessageToBoot = 'waiting-first-message-to-boot',
   Connecting = 'connecting',
   Connected = 'connected',
   Reconnecting = 'reconnecting',
   Offline = 'offline',
   NotAvailableWaitForLastMessage = 'not-available-wait-for-last-message',
-  TerminatedByFront = 'terminated-by-front',
+  Terminated = 'terminated',
   Failed = 'failed',
 }
 
@@ -56,7 +69,7 @@ type ConnectionStateChange = {
   previous: ConnectionState;
   current: ConnectionState;
 };
-type AckForFrontMessage = { ackMessageId: string };
+
 const ACK_TIMEOUT = 7000;
 
 const shouldDisableInterface = (
@@ -65,7 +78,7 @@ const shouldDisableInterface = (
 ): boolean => {
   if (
     lastSentMessage === null &&
-    state === ChatState.WaitingForFirstMessageToConnect
+    state === ChatState.WaitingForFirstMessageToBoot
   )
     return false;
 
@@ -79,12 +92,12 @@ const shouldDisableInterface = (
 };
 
 const openChannel = (
+  channelId: string,
   connectionStateListener: (states: ConnectionStateChange) => void
 ): Channel => {
-  const channelId = `private-${uuidv4()}`;
   const connection = new Pusher(process.env.NEXT_PUBLIC_PUSHER_APP_KEY!, {
     cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER_REGION,
-    authEndpoint: '/api/auth-front-chat',
+    authEndpoint: `/api/chatSessions/${channelId}/channel`,
   });
 
   const channel = connection.subscribe(channelId);
@@ -170,61 +183,102 @@ const getClasses = () => ({
 });
 
 const sendFirstMessageAndWaitForAck = (
+  sessionId: string,
   channel: Channel,
-  firstUserMessage: FrontMessage
+  firstUserMessage: FrontMessage,
+  callbackMessageSent: () => void
 ) => {
   return new Promise((res, rej) => {
-    channel.bind(BackEvent.frontMessageAck, (payload: AckForFrontMessage) => {
-      channel?.unbind(BackEvent.frontMessageAck);
-      if (firstUserMessage.id === payload.ackMessageId) {
-        firstUserMessage.ack = true;
-        res(payload);
-        return;
-      } else {
-        rej(payload);
-        return;
-      }
-    });
+    if (sessionId !== channel.name) {
+      rej();
+      return;
+    }
 
-    fetch('/api/frontChat', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        sessionId: channel?.name ?? '',
-        openedAt: Date.now(),
-        message: { id: firstUserMessage.id, text: firstUserMessage.text },
-      }),
-    })
+    channel.bind(
+      BackEvent.frontMessageAck,
+      (payload: BackAckForFrontMessage) => {
+        channel?.unbind(BackEvent.frontMessageAck);
+        if (firstUserMessage.id === payload.messageId) {
+          firstUserMessage.ack = true;
+          res(payload);
+          return;
+        } else {
+          rej(payload);
+          return;
+        }
+      }
+    );
+
+    axios
+      .post<null, null, OpenBackEndRequestBody>(
+        `/api/chatSessions/${sessionId}`,
+        {
+          operation: ChatSessionOperation.openBackEnd,
+          firstMessage: firstUserMessage,
+        }
+      )
+      .then(() => {
+        firstUserMessage.savedOnBack = true;
+        callbackMessageSent();
+      })
       .catch((err) => {
         channel?.unbind(BackEvent.frontMessageAck);
         console.error(err);
         rej(err);
-      })
-      .then(() => {
-        firstUserMessage.savedOnBack = true;
       });
   });
 };
 
+const handleAckTimeoutNotAvailable = (
+  messageToWaitForAck: FrontMessage,
+  channel: Channel,
+  onTimeoutTriggered: (timeoutId: number) => void,
+  onTimeoutAck: () => void
+) => {
+  const ackCallback = (payload: BackAckForFrontMessage) => {
+    if (payload.messageId === messageToWaitForAck.id) {
+      if (timeoutId) {
+        window.clearTimeout(timeoutId);
+      }
+      channel?.unbind(BackEvent.frontMessageAck, ackCallback);
+    }
+  };
+
+  channel?.bind(BackEvent.frontMessageAck, ackCallback);
+
+  const timeoutId = window.setTimeout(() => {
+    channel?.pusher.connection.unbind_all();
+    channel?.unbind_all();
+    onTimeoutAck();
+  }, ACK_TIMEOUT);
+  onTimeoutTriggered(timeoutId);
+};
+
+type FirstFrontMessage = {
+  status: 'waiting-to-be-sent' | 'to-be-sent' | 'sending' | 'sent' | 'acked';
+  message: FrontMessage;
+};
+
 const Index = () => {
   const [chatStatus, setChatStatus] = useState<ChatState>(
-    ChatState.WaitingForFirstMessageToConnect
+    ChatState.WaitingForFirstMessageToBoot
   );
-  const [connectionChannelStatus, setConnectionChannelStatus] =
-    useState<ConnectionStateChange | null>(null);
-  const [firstMessageStatus, setFirstMessageStatus] = useState<
-    'idle' | 'to-be-sent' | 'sent' | 'acked'
-  >('idle');
-  const [channel, setChannel] = useState<Channel | null>(null);
+  const [firstMessage, setFirstMessage] = useState<FirstFrontMessage | null>(
+    null
+  );
   const [lastUserMessage, setLastUserMessage] = useState<FrontMessage | null>(
     null
   );
+  const [userInput, setUserInput] = useState<string>('');
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [restartIntention, setRestartIntention] = useState<boolean>(false);
+
+  const [connectionChannelStatus, setConnectionChannelStatus] =
+    useState<ConnectionStateChange | null>(null);
+  const [channel, setChannel] = useState<Channel | null>(null);
   const [chatHistory, setChatHistory] = useState<
     Array<Message | SystemMessage>
   >([]);
-  const [userInput, setUserInput] = useState<string>('');
   const [timeoutId, setTimeoutId] = useState<number | null>(null);
   const classes = getClasses();
   const bottomHistoryRef = useRef<HTMLDivElement | null>(null);
@@ -244,11 +298,40 @@ const Index = () => {
     });
   };
 
+  const endChatToFailState = useCallback(() => {
+    channel?.unbind_all();
+    channel?.pusher.connection.unbind_all();
+    setChatStatus(ChatState.Failed);
+  }, [channel]);
+
+  useEffect(() => {
+    if (!restartIntention) {
+      return;
+    }
+
+    setRestartIntention(false);
+    channel?.disconnect();
+    if (timeoutId) {
+      window.clearTimeout(timeoutId);
+      setTimeoutId(null);
+    }
+    setLastUserMessage(null);
+    setChatHistory([]);
+
+    setChannel(null);
+    setConnectionChannelStatus(null);
+    setFirstMessage(null);
+    setSessionId(null);
+
+    setChatStatus(ChatState.WaitingForFirstMessageToBoot);
+    setUserInput('');
+  }, [channel, timeoutId, restartIntention]);
+
   useEffect(
     function handleConnectionChannelStatus() {
       switch (connectionChannelStatus?.current) {
         case undefined:
-          setChatStatus(ChatState.WaitingForFirstMessageToConnect);
+          // setChatStatus(ChatState.WaitingForFirstMessageToBoot);
           break;
         case 'initialized':
           handleChannelStateToReconnectingChatStatus();
@@ -275,11 +358,14 @@ const Index = () => {
           }
           break;
         case 'connected':
-          if (firstMessageStatus === 'idle') {
-            setFirstMessageStatus('to-be-sent');
+          if (firstMessage?.status === 'waiting-to-be-sent') {
+            setFirstMessage({
+              status: 'to-be-sent',
+              message: firstMessage.message,
+            });
             break;
           }
-          if (firstMessageStatus === 'acked') {
+          if (firstMessage?.status === 'acked') {
             setChatStatus(ChatState.Connected);
             break;
           }
@@ -288,117 +374,121 @@ const Index = () => {
         case 'disconnected':
           channel?.unbind_all();
           channel?.pusher.connection.unbind_all();
-          setChatStatus(ChatState.TerminatedByFront);
+          setChatStatus(ChatState.Terminated);
           break;
         case 'unavailable':
           handleChannelStateToReconnectingChatStatus();
           break;
 
         default:
-          channel?.unbind_all();
-          channel?.pusher.connection.unbind_all();
-          setChatStatus(ChatState.Failed);
+          endChatToFailState();
           break;
       }
     },
-    [connectionChannelStatus, firstMessageStatus]
+    [channel, connectionChannelStatus, endChatToFailState, firstMessage]
   );
 
   useEffect(
-    function handleConnectionWithBack() {
+    function handleBootConnectionWithBack() {
       if (chatStatus !== ChatState.Connecting) {
         return;
       }
 
-      if (channel === null || lastUserMessage === null) {
-        setChatStatus(ChatState.Failed);
+      if (channel === null || firstMessage === null || sessionId === null) {
         return;
       }
 
-      if (firstMessageStatus === 'to-be-sent') {
-        setFirstMessageStatus('sent');
-        handleAckTimeoutNotAvailable(lastUserMessage);
-        sendFirstMessageAndWaitForAck(channel, lastUserMessage)
+      if (firstMessage.status === 'to-be-sent') {
+        setFirstMessage({ status: 'sent', message: firstMessage.message });
+        handleAckTimeoutNotAvailable(
+          firstMessage.message,
+          channel,
+          setTimeoutId,
+          () => {
+            setTimeoutId(null);
+            setChatStatus((prevState) => {
+              return prevState !== ChatState.Failed
+                ? ChatState.NotAvailableWaitForLastMessage
+                : ChatState.Failed;
+            });
+          }
+        );
+        sendFirstMessageAndWaitForAck(
+          sessionId,
+          channel,
+          firstMessage.message,
+          () => {
+            setFirstMessage({ status: 'sent', message: firstMessage.message });
+          }
+        )
           .then(() => {
-            setFirstMessageStatus('acked');
+            setFirstMessage({ status: 'acked', message: firstMessage.message });
+            setChatHistory((previousHistory) => {
+              const ackedMessageIndex = previousHistory.findIndex(
+                (message) => message.id === firstMessage.message.id
+              );
+              const newHistory = [...previousHistory];
+              const frontMessageToAck = newHistory[ackedMessageIndex];
+
+              if (isAFrontMessage(frontMessageToAck)) {
+                frontMessageToAck.ack = true;
+              }
+              return newHistory;
+            });
           })
           .catch(() => {
-            setChatStatus(ChatState.Failed);
+            endChatToFailState();
           });
         return;
       }
 
-      if (firstMessageStatus === 'acked') {
-        setChatStatus(ChatState.Connected);
-      }
-    },
-    [channel, chatStatus, firstMessageStatus, lastUserMessage]
-  );
-
-  useEffect(
-    function setupConnectedChatWithBack() {
-      if (chatStatus === ChatState.WaitingForFirstMessageToConnect) {
-        channel?.pusher.connection.unbind_all();
-        channel?.unbind_all();
-        return;
-      }
-
-      if (chatStatus !== ChatState.Connected) {
-        return;
-      }
-
-      if (!channel) {
-        setChatStatus(ChatState.Failed);
+      if (firstMessage.status !== 'acked') {
         return;
       }
 
       channel.unbind(BackEvent.frontMessageAck);
-      channel.bind(BackEvent.frontMessageAck, (payload: AckForFrontMessage) => {
-        setChatHistory((previousHistory) => {
-          const ackedMessageIndex = previousHistory.findIndex(
-            (message) => message.id === payload.ackMessageId
-          );
-          const newHistory = [...previousHistory];
-          const frontMessageToAck = newHistory[ackedMessageIndex];
+      channel.bind(
+        BackEvent.frontMessageAck,
+        (payload: BackAckForFrontMessage) => {
+          setChatHistory((previousHistory) => {
+            const ackedMessageIndex = previousHistory.findIndex(
+              (message) => message.id === payload.messageId
+            );
+            const newHistory = [...previousHistory];
+            const frontMessageToAck = newHistory[ackedMessageIndex];
 
-          if (isAFrontMessage(frontMessageToAck)) {
-            frontMessageToAck.ack = true;
-          }
+            if (isAFrontMessage(frontMessageToAck)) {
+              frontMessageToAck.ack = true;
+            }
 
-          return newHistory;
-        });
+            return newHistory;
+          });
 
-        setLastUserMessage((previousLastUserMessage) => {
-          if (previousLastUserMessage?.id === payload.ackMessageId) {
-            previousLastUserMessage.ack = true;
-          }
+          setLastUserMessage((previousLastUserMessage) => {
+            if (previousLastUserMessage?.id === payload.messageId) {
+              previousLastUserMessage.ack = true;
+            }
 
-          return previousLastUserMessage;
-        });
-      });
+            return previousLastUserMessage;
+          });
+        }
+      );
 
       channel.unbind(BackEvent.sendMessage);
-      channel?.bind(BackEvent.sendMessage, (message: BackMessage) => {
+      channel?.bind(BackEvent.sendMessage, (message: BackEventSendMessage) => {
+        const messageReceived: BackMessage = {
+          ...message,
+          type: MessageType.back,
+        };
         setChatHistory((previousHistory) => {
-          return [...previousHistory, message];
+          return [...previousHistory, messageReceived];
         });
       });
 
       channel.unbind(ApiEvent.internalError);
-      channel?.bind(ApiEvent.internalError, () => {
-        setChatHistory((previousHistory) => {
-          setChatStatus(ChatState.Failed);
-          const failedFeedback: Message = {
-            type: MessageType.system,
-            id: uuidv4(),
-            timestamp: Date.now(),
-            text: 'Something went wrong: disconnected.',
-          };
-          return [...previousHistory, failedFeedback];
-        });
-      });
+      channel?.bind(ApiEvent.internalError, endChatToFailState);
     },
-    [channel, chatStatus]
+    [sessionId, channel, chatStatus, firstMessage, endChatToFailState]
   );
 
   useEffect(
@@ -406,6 +496,15 @@ const Index = () => {
       switch (chatStatus) {
         case ChatState.Connecting:
           setChatHistory((previousMessages) => {
+            if (
+              previousMessages[previousMessages.length - 1]?.type ===
+                MessageType.system &&
+              previousMessages[previousMessages.length - 1].text ===
+                'Connecting'
+            ) {
+              return previousMessages;
+            }
+
             return [
               ...previousMessages,
               {
@@ -473,14 +572,14 @@ const Index = () => {
                 text: (
                   <>
                     <a
-                      onKeyDown={restart}
-                      onClick={restart}
+                      onKeyDown={() => {
+                        setRestartIntention(true);
+                      }}
+                      onClick={() => {
+                        setRestartIntention(true);
+                      }}
                       tabIndex={0}
                       role="button"
-                      aria-disabled={shouldDisableInterface(
-                        chatStatus,
-                        lastUserMessage
-                      )}
                     >
                       <Button caption="Restart the chat" />
                     </a>
@@ -514,47 +613,6 @@ const Index = () => {
     [chatStatus]
   );
 
-  const handleAckTimeoutNotAvailable = (messageToWaitForAck: FrontMessage) => {
-    const firstAckCallback = (payload: AckForFrontMessage) => {
-      if (payload.ackMessageId === messageToWaitForAck.id) {
-        if (timeoutId) {
-          window.clearTimeout(timeoutId);
-        }
-        channel?.unbind(BackEvent.frontMessageAck, firstAckCallback);
-      }
-    };
-
-    channel?.bind(BackEvent.frontMessageAck, firstAckCallback);
-
-    const timeoutId = window.setTimeout(() => {
-      channel?.pusher.connection.unbind_all();
-      channel?.unbind_all();
-      setChatStatus(ChatState.NotAvailableWaitForLastMessage);
-    }, ACK_TIMEOUT);
-    setTimeoutId(timeoutId);
-  };
-
-  const startChannel = () => {
-    setChannel(openChannel(setConnectionChannelStatus));
-  };
-
-  const restart = () => {
-    if (timeoutId) {
-      window.clearTimeout(timeoutId);
-      setTimeoutId(null);
-    }
-    setLastUserMessage(null);
-    setChatHistory([]);
-
-    channel?.disconnect();
-    setChannel(null);
-    setConnectionChannelStatus(null);
-
-    setFirstMessageStatus('idle');
-    setChatStatus(ChatState.WaitingForFirstMessageToConnect);
-    setUserInput('');
-  };
-
   const sendMessage = () => {
     ga.click('chat-message-sent');
 
@@ -574,12 +632,30 @@ const Index = () => {
     setUserInput('');
 
     switch (chatStatus) {
-      case ChatState.Connected:
-        setLastUserMessage(message);
+      case ChatState.WaitingForFirstMessageToBoot:
         setChatHistory((previousMessages) => {
           return [...previousMessages, message];
         });
-        handleAckTimeoutNotAvailable(message);
+        startSession(message);
+        break;
+      case ChatState.Connected:
+        if (!channel) {
+          endChatToFailState();
+          return;
+        }
+
+        setChatHistory((previousMessages) => {
+          return [...previousMessages, message];
+        });
+        handleAckTimeoutNotAvailable(message, channel, setTimeoutId, () => {
+          setTimeoutId(null);
+          setChatStatus((prevState) => {
+            return prevState !== ChatState.Failed
+              ? ChatState.NotAvailableWaitForLastMessage
+              : ChatState.Failed;
+          });
+        });
+
         channel?.trigger(
           FrontEvent.sendMessage,
           JSON.stringify({
@@ -590,18 +666,19 @@ const Index = () => {
         );
         break;
       case ChatState.NotAvailableWaitForLastMessage:
-        setLastUserMessage(message);
-
-        fetch('/api/closeFrontChat', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            sessionId: channel?.name ?? '',
-            contactDetails: message?.text ?? 'none.',
-          }),
-        })
+        axios
+          .post<null, null, CloseSessionFromFrontRequestBody>(
+            `/api/chatSessions/${channel?.name ?? ''}`,
+            {
+              operation: ChatSessionOperation.closeFromFront,
+              // todo exact type
+              message: {
+                id: message.id,
+                timestamp: message.timestamp,
+                text: message.text,
+              },
+            }
+          )
           .then(() => {
             message.ack = true;
             setLastUserMessage(message);
@@ -620,24 +697,44 @@ const Index = () => {
             setChatStatus(ChatState.Offline);
           })
           .catch((err) => {
-            setChatStatus(ChatState.Failed);
+            endChatToFailState();
             console.error(err);
           });
         break;
-      case ChatState.WaitingForFirstMessageToConnect:
-        setChatStatus(ChatState.Connecting);
-        setChatHistory((previousMessages) => {
-          return [...previousMessages, message];
-        });
-        startChannel();
-        break;
-
       default:
+        endChatToFailState();
         throw new Error(
           `The message cannot be sent when the chat status is ${chatStatus}`
         );
         break;
     }
+  };
+
+  const startSession = (firstMessage: FrontMessage) => {
+    setChatStatus(ChatState.Connecting);
+    const sessionId = `private-${uuidv4()}`;
+
+    if (firstMessage === null) {
+      endChatToFailState();
+      return;
+    }
+
+    setFirstMessage({
+      status: 'waiting-to-be-sent',
+      message: firstMessage,
+    });
+    setSessionId(sessionId);
+
+    axios
+      .post<null, null, ChatSessionRequestBody>('/api/chatSessions', {
+        sessionId: sessionId,
+        openedAt: Date.now(),
+      })
+      .then(() => {
+        const channel = openChannel(sessionId, setConnectionChannelStatus);
+        setChannel(channel);
+      })
+      .catch(endChatToFailState);
   };
 
   const messagesBox = useRef(null);
@@ -669,7 +766,7 @@ const Index = () => {
         ref={promptRef}
         style={{
           height:
-            chatStatus == ChatState.WaitingForFirstMessageToConnect
+            chatStatus == ChatState.WaitingForFirstMessageToBoot
               ? promptHeight || 'auto'
               : 0,
         }}
