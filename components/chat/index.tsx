@@ -552,6 +552,27 @@ const Index = () => {
                 timestamp: Date.now(),
                 text: 'An unexpected error occurred.',
               } as SystemMessage,
+              {
+                type: MessageType.system,
+                id: uuidv4(),
+                timestamp: Date.now(),
+                text: (
+                  <>
+                    <a
+                      onKeyDown={() => {
+                        setRestartIntention(true);
+                      }}
+                      onClick={() => {
+                        setRestartIntention(true);
+                      }}
+                      tabIndex={0}
+                      role="button"
+                    >
+                      <Button caption="Restart the chat" />
+                    </a>
+                  </>
+                ),
+              },
             ];
           });
           break;
