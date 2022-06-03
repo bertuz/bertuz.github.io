@@ -114,20 +114,34 @@ const Chatboard: MyPage = () => {
     setChannels(channels);
   }, []);
 
-  // useEffect(() => {
-  //   fetch('/api/chatSessions/chatSessions', {
-  //     method: 'GET',
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //     },
-  //   })
-  //     .catch((err) => {
-  //       console.error(err);
-  //     })
-  //     .then((data) => {
-  //       console.log(data);
-  //     });
-  // }, []);
+  useEffect(
+    function getSessionsOnceIHaveChannel() {
+      if (!channels) {
+        return;
+      }
+      channels.connection.bind('state_change', (state: { current: string }) => {
+        if (state.current !== 'connected') {
+          return;
+        }
+
+        channels.unbind('connected');
+
+        fetch('/api/chatSessions', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+          .catch((err) => {
+            console.error(err);
+          })
+          .then((data) => {
+            console.log(data);
+          });
+      });
+    },
+    [channels]
+  );
   useEffect(() => {
     if (!channels) {
       return;

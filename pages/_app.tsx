@@ -1,4 +1,5 @@
 import '../styles/globals.css';
+
 import * as ga from '../lib/google-analytics';
 
 import Head from 'next/head';
@@ -11,6 +12,8 @@ import { useEffect } from 'react';
 
 import { SessionProvider, useSession } from 'next-auth/react';
 
+import type { MySession } from './api/auth/[...nextauth]';
+
 import type { AuthenticatedPageConfig } from '../typings/next';
 
 import type { NextPageWithConfig } from 'next';
@@ -20,8 +23,10 @@ import type { FC, ReactNode } from 'react';
 import type { AppProps } from 'next/app';
 
 type AuthProps = { children: ReactNode; config: AuthenticatedPageConfig };
+
 const Auth: FC<AuthProps> = ({ children, config }) => {
   const { status, data } = useSession({ required: true });
+  const sessionData = data as MySession;
   const router = useRouter();
 
   if (status === 'loading') {
@@ -32,7 +37,7 @@ const Auth: FC<AuthProps> = ({ children, config }) => {
 
   if (
     config.role === 'admin' &&
-    data?.user?.id !== process.env.NEXT_PUBLIC_ADMIN_USER_ID
+    !sessionData.scope.includes('front/admin:access')
   ) {
     router.push(config.unauthorizedUrl);
     return <></>;

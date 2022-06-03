@@ -189,7 +189,11 @@ async function handleAckFirstMessage(
   req: AckFirstMessageRequest,
   res: NextApiResponse<Pusher.AuthResponse | string>
 ) {
-  runMiddleware(req, res, getHasSessionOrErrorMiddleware(true));
+  runMiddleware(
+    req,
+    res,
+    getHasSessionOrErrorMiddleware('chatSessions/[id]/ack-first-message:post')
+  );
 
   const { id: sessionId } = req.query;
   const { messageId } = req.body;

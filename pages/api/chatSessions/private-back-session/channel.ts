@@ -36,7 +36,11 @@ export default async function handler(
   res: NextApiResponse<any>
 ) {
   runMiddleware(req, res, isPostOrErrorMiddleware);
-  runMiddleware(req, res, getHasSessionOrErrorMiddleware(true));
+  runMiddleware(
+    req,
+    res,
+    getHasSessionOrErrorMiddleware('private-back-session:post')
+  );
 
   const socketId = req.body.socket_id;
   const channel = req.body.channel_name;

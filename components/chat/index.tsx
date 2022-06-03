@@ -218,7 +218,6 @@ const sendFirstMessageAndWaitForAck = (
         }
       )
       .then(() => {
-        firstUserMessage.savedOnBack = true;
         callbackMessageSent();
       })
       .catch((err) => {
@@ -331,7 +330,6 @@ const Index = () => {
     function handleConnectionChannelStatus() {
       switch (connectionChannelStatus?.current) {
         case undefined:
-          // setChatStatus(ChatState.WaitingForFirstMessageToBoot);
           break;
         case 'initialized':
           handleChannelStateToReconnectingChatStatus();
@@ -405,6 +403,30 @@ const Index = () => {
           channel,
           setTimeoutId,
           () => {
+            setFirstMessage((oldFirstMessage) => {
+              if (!oldFirstMessage) {
+                return null;
+              }
+
+              return {
+                ...oldFirstMessage,
+                message: { ...oldFirstMessage.message, ack: true },
+              };
+            });
+
+            // todo DRY!
+            setChatHistory((previousHistory) => {
+              const ackedMessageIndex = previousHistory.findIndex(
+                (message) => message.id === firstMessage.message.id
+              );
+              const newHistory = [...previousHistory];
+              const frontMessageToAck = newHistory[ackedMessageIndex];
+
+              if (isAFrontMessage(frontMessageToAck)) {
+                frontMessageToAck.ack = true;
+              }
+              return newHistory;
+            });
             setTimeoutId(null);
             setChatStatus((prevState) => {
               return prevState !== ChatState.Failed
@@ -811,7 +833,7 @@ const Index = () => {
                   {frontMessage.text}
                 </div>
                 <div css={classes.messageMeta}>
-                  {((frontMessage.ack || frontMessage.savedOnBack) && (
+                  {(frontMessage.ack && (
                     <img
                       css={classes.messageReceivedIcon}
                       src="/tick.svg"

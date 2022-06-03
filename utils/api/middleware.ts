@@ -1,5 +1,11 @@
 import { getSession } from 'next-auth/react';
 
+import { getToken } from 'next-auth/jwt';
+
+import type { MySession } from '../../pages/api/auth/[...nextauth]';
+
+// import { SessionStore } from 'next-auth/core/lib/cookie';
+
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 export type HTTPMethod = 'POST' | 'GET' | 'DELETE';
@@ -39,20 +45,37 @@ export const isDeleteOrErrorMiddleware = (
   return isOneOfMethodsMiddleware(['DELETE'])(req, res, handleResult);
 };
 
-const { NEXT_PUBLIC_ADMIN_USER_ID: adminId } = process.env;
-
-export const getHasSessionOrErrorMiddleware = (admin = false) => {
+export const getHasSessionOrErrorMiddleware = (scope?: string) => {
   return async (
     req: NextApiRequest,
     res: NextApiResponse,
     handleResult: (result: any) => void
   ): Promise<void> => {
-    const session = await getSession({ req });
+    // const token = await getToken({
+    //   req,
+    //   cookieName: 'next-auth.session-token',
+    // });
+    // console.log('token check?', token);
 
-    if (!session || (admin && session?.user?.id !== adminId)) {
+    const a = await getToken({ req, raw: true });
+    console.log('ba sessionnn?> ', a);
+    // const sessionStore = new SessionStore(
+    //   {
+    //     name: 'next-auth.session-token',
+    //     options: { httpOnly: true, sameSite: 'lax', path: '/', secure: false },
+    //   },
+    //   req,
+    //   null
+    // );
+
+    const session = (await getSession({ req })) as MySession;
+    console.log('ba> ', session);
+
+    if (!session || (scope && !session.scope.includes(scope))) {
       res.status(403);
       res.send({
-        error: '🤌🏽 You must be signed in as admin to access this',
+        error:
+          '🤌🏽 You must be signed in and have with the right privileges to access this',
       });
       res.end();
       handleResult(new Error('You must be signed in as admin to access this'));
