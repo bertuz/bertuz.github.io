@@ -545,9 +545,11 @@ const Chatboard: MyPage = () => {
   );
 
   const [chatsHints, setChatsHints] = useState<Map<string, Chat>>(new Map());
-  const { data: storedSessionChats, error: errorStoredSessionChats } = useSWR<
-    Array<ChatSession>
-  >('/api/chatSessions', chatSessionsFetcher);
+  // todo , error: errorStoredSessionChats
+  const { data: storedSessionChats } = useSWR<Array<ChatSession>>(
+    '/api/chatSessions',
+    chatSessionsFetcher
+  );
 
   useEffect(
     function syncChatsWithBackend() {
