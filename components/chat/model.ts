@@ -108,6 +108,7 @@ export enum ChatSessionOperation {
   openBackEnd = 'open-back-end',
   ackFirstMessage = 'ack-first-message',
   closeFromFront = 'close-from-front',
+  closeFromBack = 'close-from-back',
 }
 
 export enum Channels {

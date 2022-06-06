@@ -42,12 +42,15 @@ import type {
   OpenEndBackChannelChatSessionBody,
 } from '../../../components/chat/channelModel';
 import type {
+  BackMessage,
   ChatSession,
   Message,
-  BackMessage,
 } from '../../../components/chat/model';
 
-import type { AckFirstMessageRequestBody } from '../../../components/chat/apiModel';
+import type {
+  AckFirstMessageRequestBody,
+  CloseChatSessionFromBackRequestBody,
+} from '../../../components/chat/apiModel';
 
 import type { AuthConfig } from '../../../typings/next';
 import type { NextPage } from 'next';
@@ -120,7 +123,7 @@ const getClasses = () => ({
     textAlign: 'right',
   }),
   backMessageContent: css({
-    backgroundColor: colors.sugarPaperBlue,
+    backgroundColor: colors.senape,
     borderRadius: '18px 18px 3px 18px',
   }),
   messageContent: css({
@@ -146,7 +149,8 @@ const shouldShowCloseButton = (chatSessionState: ChatSessionState) => {
     chatSessionState === ChatSessionState.closedByFront ||
     chatSessionState === ChatSessionState.closedByBack ||
     chatSessionState === ChatSessionState.closedForError ||
-    chatSessionState === ChatSessionState.channelBackEndDangling
+    chatSessionState === ChatSessionState.channelBackEndDangling ||
+    chatSessionState === ChatSessionState.opened
   ) {
     return true;
   }
@@ -165,6 +169,7 @@ const shouldDisableUserInput = (chatSessionState: ChatSessionState) => {
 type Property = {
   chatSessionHint: Chat;
   channels: Pusher;
+  onChatClosed: (chatSessionId: string) => void;
 };
 
 const isChatSessionClosed = (chatSessionState: ChatSessionState) =>
@@ -172,7 +177,11 @@ const isChatSessionClosed = (chatSessionState: ChatSessionState) =>
   chatSessionState === ChatSessionState.closedByFront ||
   chatSessionState === ChatSessionState.closedForError;
 
-const BackChatSession = ({ chatSessionHint, channels }: Property) => {
+const BackChatSession = ({
+  chatSessionHint,
+  channels,
+  onChatClosed,
+}: Property) => {
   const [backInput, setBackInput] = useState<string>('');
   const [chatSession, setChatSession] = useState<ChatSession>(chatSessionHint);
   const [firstAckSent, setFirstAckSent] = useState<boolean>(false);
@@ -182,7 +191,7 @@ const BackChatSession = ({ chatSessionHint, channels }: Property) => {
   useEffect(() => {
     setChatSession((currentChatSession) => {
       if (currentChatSession.state !== chatSessionHint.state) {
-        // check what's the most fresh state. This way, we avoid a watermark and it's even safier
+        // check what's the most fresh state. This way, we avoid a watermark and it's even safer
         if (
           isChatSessionClosed(chatSessionHint.state) &&
           !isChatSessionClosed(currentChatSession.state)
@@ -195,6 +204,24 @@ const BackChatSession = ({ chatSessionHint, channels }: Property) => {
       return currentChatSession;
     });
   }, [chatSessionHint]);
+
+  useEffect(
+    function handleMessagesIfClosedByFront() {
+      if (chatSession.state === ChatSessionState.closedByFront) {
+        setMessages((currentMessages) => {
+          if (currentMessages[0]?.id !== chatSession.firstMessage.id) {
+            return [
+              { ...chatSession.firstMessage, type: MessageType.front },
+              ...currentMessages,
+            ];
+          }
+
+          return currentMessages;
+        });
+      }
+    },
+    [chatSession.state]
+  );
 
   useEffect(
     function checkDanglingState() {
@@ -286,7 +313,7 @@ const BackChatSession = ({ chatSessionHint, channels }: Property) => {
       .catch((err) => {
         console.error(err);
       });
-  }, [chatSession, firstAckSent]);
+  }, [channels, chatSession, firstAckSent]);
 
   const stateDescription = useMemo<string>(() => {
     switch (chatSession.state) {
@@ -303,7 +330,7 @@ const BackChatSession = ({ chatSessionHint, channels }: Property) => {
         return 'Opened';
         break;
       default:
-        return 'other';
+        return chatSession.state;
         break;
     }
   }, [chatSession]);
@@ -355,7 +382,16 @@ const BackChatSession = ({ chatSessionHint, channels }: Property) => {
   };
 
   const handleCloseChatSession = () => {
-    alert('sadfkjfds');
+    axios
+      .post<null, null, CloseChatSessionFromBackRequestBody>(
+        `/api/chatSessions/${chatSession.sessionId}`,
+        { operation: ChatSessionOperation.closeFromBack }
+      )
+      .catch(() => {
+        // todo manage this
+      });
+
+    onChatClosed(chatSession.sessionId);
   };
 
   return (
@@ -378,7 +414,7 @@ const BackChatSession = ({ chatSessionHint, channels }: Property) => {
         >
           {stateDescription}
           <br />
-          {chatSessionHint.sessionId}
+          {new Date(chatSessionHint.openedAt).toLocaleString()}
         </div>
         {shouldShowCloseButton(chatSessionHint.state) && (
           <div>
@@ -616,71 +652,20 @@ const Chatboard: MyPage = () => {
             });
             return newChats;
           });
-
-          // const newChatChannel = connectionChannels.subscribe(
-          //   initChatData.sessionId
-          // );
-          //       newChatChannel.bind(FrontEvent.sendMessage, (payload: any) => {
-          //         const messageAckBody: BackAckForFrontMessage = {
-          //           messageId: payload.id,
-          //         };
-          //         newChatChannel.trigger(
-          //           BackEvent.frontMessageAck,
-          //           JSON.stringify(messageAckBody)
-          //         );
-          //
-          //         setChats((previousChats) => {
-          //           const newChats = [...previousChats];
-          //
-          //           const updatedChatIndex = newChats.findIndex(
-          //             (chat) => chat.id === newChatChannel.name
-          //           );
-          //
-          //           newChats[updatedChatIndex] = { ...previousChats[updatedChatIndex] };
-          //           newChats[updatedChatIndex].messages = [
-          //             ...previousChats[updatedChatIndex].messages,
-          //           ];
-          //
-          //           newChats[updatedChatIndex].messages.push(payload.payload);
-          //
-          //           return newChats;
-          //         });
-          //       });
-          //
-          //       axios
-          //         .post<null, null, AckFirstMessageRequestBody>(
-          //           `/api/chatSessions/${initChatData.sessionId}`,
-          //           {
-          //             operation: ChatSessionOperation.ackFirstMessage,
-          //             messageId: initChatData.firstMessage.id,
-          //           }
-          //         )
-          //         .then(() => {
-          //           console.log('ack sent.');
-          //         })
-          //         .catch((err) => {
-          //           console.error(err);
-          //         });
-          //
-          //       // todo subscribe updates
-          //       // const chat = channels.subscribe(data.id);
-          //       // channel.trigger('message-sent-ack', 'hola! He recibido el mensaje :o)');
-          //
-          //       setChats((previousChats) => {
-          //         return [
-          //           ...previousChats,
-          //           {
-          //             id: initChatData.sessionId,
-          //             openedAt: initChatData.firstMessage.timestamp,
-          //             messages: [initChatData.firstMessage.text],
-          //           },
-          //         ];
-          //       });
         }
       );
     },
     [connectionChannels]
   );
+
+  const handleChatClosed = (chatSessionId: string) => {
+    setChatsHints((prevState) => {
+      const newState = new Map(prevState);
+      newState.delete(chatSessionId);
+
+      return newState;
+    });
+  };
 
   if (
     (boardState !== BoardState.Connected && chatsHints.size === 0) ||
@@ -706,6 +691,7 @@ const Chatboard: MyPage = () => {
               key={key}
               chatSessionHint={chatSessionHint}
               channels={connectionChannels}
+              onChatClosed={handleChatClosed}
             />
           ))}
       </main>

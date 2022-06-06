@@ -17,7 +17,7 @@ import useDimensions from '../../utils/useDimensions';
 
 import * as ga from '../../lib/google-analytics';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 import Pusher from 'pusher-js';
@@ -295,11 +295,16 @@ const Index = () => {
     });
   };
 
-  const endChatToFailState = useCallback(() => {
-    channel?.unbind_all();
-    channel?.pusher.connection.unbind_all();
-    setChatStatus(ChatState.Failed);
-  }, [channel]);
+  useEffect(() => {
+    if (
+      chatStatus === ChatState.Failed ||
+      chatStatus === ChatState.Terminated ||
+      chatStatus === ChatState.Offline
+    ) {
+      channel?.unbind_all();
+      channel?.pusher.connection.unbind_all();
+    }
+  }, [chatStatus, channel]);
 
   useEffect(() => {
     if (!restartIntention) {
@@ -377,11 +382,11 @@ const Index = () => {
           break;
 
         default:
-          endChatToFailState();
+          setChatStatus(ChatState.Failed);
           break;
       }
     },
-    [channel, connectionChannelStatus, endChatToFailState, firstMessage]
+    [channel, connectionChannelStatus, firstMessage]
   );
 
   useEffect(
@@ -457,7 +462,7 @@ const Index = () => {
             });
           })
           .catch(() => {
-            endChatToFailState();
+            setChatStatus(ChatState.Failed);
           });
         return;
       }
@@ -506,10 +511,30 @@ const Index = () => {
         });
       });
 
+      channel?.unbind(ApiEvent.closedChatSession);
+      channel?.bind(ApiEvent.closedChatSession, () => {
+        channel?.unbind_all();
+        channel?.pusher.connection.unbind_all();
+        setChatHistory((previousMessages) => {
+          return [
+            ...previousMessages,
+            {
+              type: MessageType.system,
+              id: uuidv4(),
+              timestamp: Date.now(),
+              text: 'Chat closed by Matteo',
+            } as SystemMessage,
+          ];
+        });
+        setChatStatus(ChatState.Offline);
+      });
+
       channel.unbind(ApiEvent.internalError);
-      channel?.bind(ApiEvent.internalError, endChatToFailState);
+      channel?.bind(ApiEvent.internalError, () => {
+        setChatStatus(ChatState.Failed);
+      });
     },
-    [sessionId, channel, chatStatus, firstMessage, endChatToFailState]
+    [sessionId, channel, chatStatus, firstMessage]
   );
 
   useEffect(
@@ -682,7 +707,7 @@ const Index = () => {
         break;
       case ChatState.Connected:
         if (!channel) {
-          endChatToFailState();
+          setChatStatus(ChatState.Failed);
           return;
         }
 
@@ -713,7 +738,6 @@ const Index = () => {
             `/api/chatSessions/${channel?.name ?? ''}`,
             {
               operation: ChatSessionOperation.closeFromFront,
-              // todo exact type
               message: {
                 id: message.id,
                 timestamp: message.timestamp,
@@ -739,12 +763,12 @@ const Index = () => {
             setChatStatus(ChatState.Offline);
           })
           .catch((err) => {
-            endChatToFailState();
+            setChatStatus(ChatState.Failed);
             console.error(err);
           });
         break;
       default:
-        endChatToFailState();
+        setChatStatus(ChatState.Failed);
         throw new Error(
           `The message cannot be sent when the chat status is ${chatStatus}`
         );
@@ -757,7 +781,7 @@ const Index = () => {
     const sessionId = `private-${uuidv4()}`;
 
     if (firstMessage === null) {
-      endChatToFailState();
+      setChatStatus(ChatState.Failed);
       return;
     }
 
@@ -776,7 +800,9 @@ const Index = () => {
         const channel = openChannel(sessionId, setConnectionChannelStatus);
         setChannel(channel);
       })
-      .catch(endChatToFailState);
+      .catch(() => {
+        setChatStatus(ChatState.Failed);
+      });
   };
 
   const messagesBox = useRef(null);

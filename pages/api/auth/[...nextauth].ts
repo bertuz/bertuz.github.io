@@ -114,7 +114,9 @@ const callbacks: Partial<CallbacksOptions> = {
           ...[
             'private-back-session:post',
             'chatSessions/[id]/ack-first-message:post',
+            'chatSessions/[id]:post',
             'chatSessions:post',
+            'chatSessions:get',
             'front/admin:access',
           ]
         );

@@ -55,7 +55,7 @@ async function getHandler(
   req: InitFrontChatNextApiRequest,
   res: NextApiResponse<Array<ChatSession>>
 ) {
-  runMiddleware(req, res, getHasSessionOrErrorMiddleware('chatSessions:post'));
+  runMiddleware(req, res, getHasSessionOrErrorMiddleware('chatSessions:get'));
 
   try {
     const dbClient = await clientPromise;

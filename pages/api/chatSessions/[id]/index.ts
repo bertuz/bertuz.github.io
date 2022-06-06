@@ -5,6 +5,7 @@ import runMiddleware, {
 
 import {
   Channels,
+  ChatSessionOperation,
   ChatSessionState,
   PRIVATE_BACK_SESSION_NAME,
 } from '../../../../components/chat/model';
@@ -16,14 +17,15 @@ import { ApiEvent, BackEvent } from '../../../../components/chat/channelModel';
 import Pusher from 'pusher';
 
 import type {
-  OpenEndBackChannelChatSessionBody,
-  BackAckForFrontMessage,
-} from '../../../../components/chat/channelModel';
-
-import type {
+  CloseChatSessionFromBackRequestBody,
   AckFirstMessageRequestBody,
   OpenBackEndRequestBody,
 } from '../../../../components/chat/apiModel';
+
+import type {
+  OpenEndBackChannelChatSessionBody,
+  BackAckForFrontMessage,
+} from '../../../../components/chat/channelModel';
 
 import type { OptionalId } from 'mongodb';
 
@@ -50,12 +52,6 @@ const pusher = new Pusher({
   secret: channelAppSecret || '',
   cluster: channelCluster || '',
 });
-
-enum ChatSessionOperation {
-  openBackEnd = 'open-back-end',
-  ackFirstMessage = 'ack-first-message',
-  closeFromFront = 'close-from-front',
-}
 
 type OpenBackEndRequest = Override<
   NextApiRequest,
@@ -91,10 +87,23 @@ type CloseSessionFromFrontRequest = Override<
   }
 >;
 
+type CloseSessionFromBackRequest = Override<
+  NextApiRequest,
+  {
+    body: CloseChatSessionFromBackRequestBody;
+  }
+>;
+
 function isCloseSessionFromFrontRequest(
   req: NextApiRequest
 ): req is AckFirstMessageRequest {
   return req?.body?.operation === ChatSessionOperation.closeFromFront;
+}
+
+function isCloseSessionFromBackRequest(
+  req: NextApiRequest
+): req is AckFirstMessageRequest {
+  return req?.body?.operation === ChatSessionOperation.closeFromBack;
 }
 
 type ChatSessionRequest = OpenBackEndRequest | AckFirstMessageRequest;
@@ -305,6 +314,51 @@ async function handleCloseSessionFromFront(
   res.end();
 }
 
+async function handleCloseSessionFromBack(
+  req: CloseSessionFromBackRequest,
+  res: NextApiResponse<Pusher.AuthResponse | string>
+) {
+  runMiddleware(
+    req,
+    res,
+    getHasSessionOrErrorMiddleware('chatSessions/[id]:post')
+  );
+
+  const { id: sessionId } = req.query;
+
+  try {
+    const dbClient = await clientPromise;
+    const collection = dbClient
+      .db(dbName)
+      .collection<OptionalId<ChatSession>>('chat-sessions');
+
+    await collection.updateOne(
+      { sessionId },
+      {
+        $set: {
+          state: ChatSessionState.closedByBack,
+        },
+      }
+    );
+  } catch (err) {
+    await pusher.trigger(sessionId, ApiEvent.internalError, {});
+    await pusher.trigger(
+      Channels.PrivateSupportChannel,
+      ApiEvent.closedChatSession,
+      JSON.stringify(sessionId)
+    );
+
+    res.status(500);
+    res.end();
+    return;
+  }
+
+  await pusher.trigger(sessionId, ApiEvent.closedChatSession, {});
+
+  res.status(200);
+  res.end();
+}
+
 export default async function handler(
   req: ChatSessionRequest,
   res: NextApiResponse<Pusher.AuthResponse | string>
@@ -321,6 +375,10 @@ export default async function handler(
 
   if (isCloseSessionFromFrontRequest(req)) {
     return handleCloseSessionFromFront(req, res);
+  }
+
+  if (isCloseSessionFromBackRequest(req)) {
+    return handleCloseSessionFromBack(req, res);
   }
 
   res.status(400);

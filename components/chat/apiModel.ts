@@ -21,3 +21,7 @@ export type AckFirstMessageRequestBody = {
   operation: ChatSessionOperation.ackFirstMessage;
   messageId: string;
 };
+
+export type CloseChatSessionFromBackRequestBody = {
+  operation: ChatSessionOperation.closeFromBack;
+};
