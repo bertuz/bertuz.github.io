@@ -1,7 +1,6 @@
 import runMiddleware, {
   getHasSessionOrErrorMiddleware,
   isOneOfMethodsMiddleware,
-  isPostOrErrorMiddleware,
 } from '../../../utils/api/middleware';
 import clientPromise from '../../../utils/api/db';
 
