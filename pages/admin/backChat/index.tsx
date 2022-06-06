@@ -1,55 +1,319 @@
 import {
   Channels,
   ChatSessionOperation,
+  ChatSessionState,
   FrontEvent,
+  isABackMessage,
+  isAFrontMessage,
+  MessageType,
   PRIVATE_BACK_SESSION_NAME,
 } from '../../../components/chat/model';
 
 import AdminLoadingSkeleton from '../../../components/AdminLoadingSkeleton';
 
-import { ApiEvent, BackEvent } from '../../../components/chat/channelModel';
+import colors from '../../../assets/styles/colors';
 
-import { useEffect, useState } from 'react';
+import { dimensionInRem } from '../../../assets/styles/dimensions';
 
-import Pusher from 'pusher-js';
+import Button from '../../../components/button';
+
+import {
+  ACK_TIMEOUT_IN_MS_FOR_BACKEND,
+  ApiEvent,
+  BackEvent,
+} from '../../../components/chat/channelModel';
 
 import { v4 as uuidv4 } from 'uuid';
 
+import { useEffect, useMemo, useState } from 'react';
+
+import Pusher from 'pusher-js';
+
 import axios from 'axios';
+
+import useSWR from 'swr';
+
+import { css, Global } from '@emotion/react';
+
+import type {
+  BackAckForFrontMessage,
+  BackEventSendMessage,
+  FrontSendMessageEventBody,
+  OpenEndBackChannelChatSessionBody,
+} from '../../../components/chat/channelModel';
+import type {
+  ChatSession,
+  Message,
+  BackMessage,
+} from '../../../components/chat/model';
+
+import type { AckFirstMessageRequestBody } from '../../../components/chat/apiModel';
 
 import type { AuthConfig } from '../../../typings/next';
 import type { NextPage } from 'next';
 
-import type { AckFirstMessageRequestBody } from '../../../components/chat/apiModel';
-
-import type {
-  OpenEndBackChannelChatSessionBody,
-  BackEventSendMessage,
-  BackAckForFrontMessage,
-} from '../../../components/chat/channelModel';
-
-type Chat = {
-  id: string;
-  openedAt: number;
-  messages: Array<string>;
+type Chat = ChatSession & {
+  messages: Array<Message>;
 };
 
-type Property = { chat: Chat; channels: Pusher };
-const BackChat = ({ chat, channels }: Property) => {
-  const [backInput, setBackInput] = useState<string>('');
+enum BoardState {
+  Connecting = 'connecting',
+  Connected = 'connected',
+  Reconnecting = 'reconnecting',
+  Offline = 'offline',
+  Failed = 'failed',
+}
 
+const getClasses = () => ({
+  topBar: css({
+    position: 'fixed',
+    backgroundColor: colors.senape,
+    width: '100%',
+    height: dimensionInRem(3),
+    top: 0,
+    display: 'flex',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    padding: `0 ${dimensionInRem(0)}`,
+  }),
+  globalStyles: css({
+    body: {
+      backgroundColor: colors.sugarPaperBlue,
+      fontFamily: 'Alegreya-Sans',
+      fontSize: dimensionInRem(0),
+      paddingTop: '70px',
+    },
+  }),
+  sessionsBoard: css({
+    display: 'flex',
+    flexDirection: 'row-reverse',
+    width: '100%',
+    flexWrap: 'wrap',
+    justifyContent: 'space-around',
+  }),
+  chatSession: css({
+    borderRadius: '5px',
+    border: `2px solid ${colors.darkerGrey}`,
+    boxSizing: 'border-box',
+    width: 400,
+    height: 500,
+    marginBottom: 15,
+    display: 'flex',
+    padding: 0,
+    flexDirection: 'column',
+  }),
+  chatSessionFocused: css({
+    borderWidth: `4px`,
+    borderColor: colors.almostBlack,
+  }),
+  message: css({
+    flex: '0 0 auto',
+    marginBottom: 5,
+    textAlign: 'justify',
+    textjustify: 'inter-word',
+    hyphens: 'auto',
+  }),
+  frontMessage: css({
+    textAlign: 'left',
+  }),
+  backMessage: css({
+    textAlign: 'right',
+  }),
+  backMessageContent: css({
+    backgroundColor: colors.sugarPaperBlue,
+    borderRadius: '18px 18px 3px 18px',
+  }),
+  messageContent: css({
+    display: 'inline-block',
+    maxWidth: 270,
+    padding: 5,
+  }),
+  frontMessageContent: css({
+    backgroundColor: colors.pastelViolet,
+    borderRadius: '18px 18px 18px 3px',
+  }),
+  messageMeta: css({
+    fontFamily: 'Alegreya-Sans',
+    fontSize: dimensionInRem(-1),
+    textAlign: 'right',
+    color: colors.darkerGrey,
+    paddingTop: '5px',
+  }),
+});
+
+const shouldShowCloseButton = (chatSessionState: ChatSessionState) => {
+  if (
+    chatSessionState === ChatSessionState.closedByFront ||
+    chatSessionState === ChatSessionState.closedByBack ||
+    chatSessionState === ChatSessionState.closedForError ||
+    chatSessionState === ChatSessionState.channelBackEndDangling
+  ) {
+    return true;
+  }
+
+  return false;
+};
+
+const shouldDisableUserInput = (chatSessionState: ChatSessionState) => {
+  if (chatSessionState !== ChatSessionState.opened) {
+    return true;
+  }
+
+  return false;
+};
+
+type Property = {
+  chatSessionHint: Chat;
+  channels: Pusher;
+};
+
+const isChatSessionClosed = (chatSessionState: ChatSessionState) =>
+  chatSessionState === ChatSessionState.closedByBack ||
+  chatSessionState === ChatSessionState.closedByFront ||
+  chatSessionState === ChatSessionState.closedForError;
+
+const BackChatSession = ({ chatSessionHint, channels }: Property) => {
+  const [backInput, setBackInput] = useState<string>('');
+  const [chatSession, setChatSession] = useState<ChatSession>(chatSessionHint);
+  const [firstAckSent, setFirstAckSent] = useState<boolean>(false);
+  const [onFocus, setOnFocus] = useState<boolean>(false);
+  const [messages, setMessages] = useState<Array<Message>>([]);
+
+  useEffect(() => {
+    setChatSession((currentChatSession) => {
+      if (currentChatSession.state !== chatSessionHint.state) {
+        // check what's the most fresh state. This way, we avoid a watermark and it's even safier
+        if (
+          isChatSessionClosed(chatSessionHint.state) &&
+          !isChatSessionClosed(currentChatSession.state)
+        ) {
+          return chatSessionHint;
+        }
+
+        return currentChatSession;
+      }
+      return currentChatSession;
+    });
+  }, [chatSessionHint]);
+
+  useEffect(
+    function checkDanglingState() {
+      const now = Date.now();
+      if (chatSession.state !== ChatSessionState.channelBackEndOpening) {
+        return;
+      }
+
+      if (now - chatSession.openedAt >= ACK_TIMEOUT_IN_MS_FOR_BACKEND) {
+        setChatSession({
+          ...chatSession,
+          state: ChatSessionState.channelBackEndDangling,
+        });
+        return;
+      }
+
+      const timeoutID = window.setTimeout(() => {
+        setChatSession({
+          ...chatSession,
+          state: ChatSessionState.channelBackEndDangling,
+        });
+      }, now - chatSession.openedAt);
+
+      return () => {
+        window.clearTimeout(timeoutID);
+      };
+    },
+    [chatSession]
+  );
+
+  useEffect(() => {
+    if (chatSession.state !== ChatSessionState.channelBackEndOpening) {
+      return;
+    }
+
+    if (firstAckSent) {
+      return;
+    }
+
+    setFirstAckSent(true);
+
+    const newChatChannel = channels.subscribe(chatSession.sessionId);
+    newChatChannel.bind(
+      FrontEvent.sendMessage,
+      (payload: FrontSendMessageEventBody) => {
+        const messageAckBody: BackAckForFrontMessage = {
+          messageId: payload.id,
+        };
+        newChatChannel.trigger(
+          BackEvent.frontMessageAck,
+          JSON.stringify(messageAckBody)
+        );
+        setMessages((previousMessages) => {
+          return [
+            ...previousMessages,
+            {
+              id: payload.id,
+              timestamp: payload.timestamp,
+              text: payload.payload,
+              type: MessageType.front,
+            },
+          ];
+        });
+      }
+    );
+
+    axios
+      .post<null, null, AckFirstMessageRequestBody>(
+        `/api/chatSessions/${chatSession.sessionId}`,
+        {
+          operation: ChatSessionOperation.ackFirstMessage,
+          messageId: chatSession.firstMessage.id,
+        }
+      )
+      .then(() => {
+        setChatSession((currentChatSession) => {
+          const newChatSession = { ...currentChatSession };
+          newChatSession.state = ChatSessionState.opened;
+
+          return newChatSession;
+        });
+        setMessages((currentMessages) => {
+          return [
+            ...currentMessages,
+            { ...chatSession.firstMessage, type: MessageType.front },
+          ];
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  }, [chatSession, firstAckSent]);
+
+  const stateDescription = useMemo<string>(() => {
+    switch (chatSession.state) {
+      case ChatSessionState.closedByFront:
+        return 'Closed by front';
+        break;
+      case ChatSessionState.channelBackEndOpening:
+        return 'Connecting with a new chat request...';
+        break;
+      case ChatSessionState.channelBackEndDangling:
+        return 'Dangling session';
+        break;
+      case ChatSessionState.opened:
+        return 'Opened';
+        break;
+      default:
+        return 'other';
+        break;
+    }
+  }, [chatSession]);
+
+  const classes = getClasses();
   const handleChangeBackInput = (
     event: React.ChangeEvent<HTMLInputElement>
   ): void => {
     setBackInput(event.target.value);
   };
-
-  const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
-      sendMessage();
-    }
-  };
-
   const sendMessage = () => {
     const messageToSend: BackEventSendMessage = {
       id: uuidv4(),
@@ -59,12 +323,21 @@ const BackChat = ({ chat, channels }: Property) => {
 
     setBackInput('');
 
-    const channel = channels.subscribe(chat.id);
+    const channel = channels?.subscribe(chatSession.sessionId);
     if (channel.subscribed) {
-      channel.trigger(
+      const sent = channel.trigger(
         BackEvent.sendMessage,
         JSON.stringify(messageToSend as BackEventSendMessage)
       );
+
+      if (sent) {
+        setMessages((currentMessages) => {
+          return [
+            ...currentMessages,
+            { ...messageToSend, type: MessageType.back } as BackMessage,
+          ];
+        });
+      }
     } else {
       channel.bind('pusher:subscription_succeeded', () => {
         channel.trigger(
@@ -75,26 +348,149 @@ const BackChat = ({ chat, channels }: Property) => {
     }
   };
 
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      sendMessage();
+    }
+  };
+
+  const handleCloseChatSession = () => {
+    alert('sadfkjfds');
+  };
+
   return (
-    <div
-      style={{
-        border: '1px solid blue',
-        marginRight: 15,
-        marginBottom: 15,
-        flex: '0 0 300px',
-      }}
+    <article
+      css={[classes.chatSession, onFocus ? classes.chatSessionFocused : null]}
     >
-      {chat.messages.map((message, index) => (
-        <div key={index}>{message}</div>
-      ))}
-      <br />
-      <input
-        type="text"
-        onChange={handleChangeBackInput}
-        value={backInput}
-        onKeyPress={handleKeyPress}
-      />
-    </div>
+      <div
+        css={{
+          display: 'flex',
+          justifyContent: 'flex-end',
+          alignItems: 'center',
+        }}
+      >
+        <div
+          css={{
+            fontSize: dimensionInRem(-1),
+            textAlign: 'center',
+            flex: '1 0 auto',
+          }}
+        >
+          {stateDescription}
+          <br />
+          {chatSessionHint.sessionId}
+        </div>
+        {shouldShowCloseButton(chatSessionHint.state) && (
+          <div>
+            <a
+              onKeyPress={() => {
+                // if (shouldDisableInterface(chatStatus, lastUserMessage)) return;
+                // sendMessage();
+              }}
+              onClick={handleCloseChatSession}
+              tabIndex={0}
+              role="button"
+              aria-disabled={false}
+            >
+              <Button caption="X" disabled={false} />
+            </a>
+          </div>
+        )}
+      </div>
+      <div
+        css={{
+          padding: dimensionInRem(0),
+          flex: '1 1 auto',
+          overflow: 'scroll',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        {messages.map((message) => {
+          if (isAFrontMessage(message)) {
+            return (
+              <div
+                key={message.id}
+                css={[classes.message, classes.frontMessage]}
+              >
+                <div
+                  css={[classes.messageContent, classes.frontMessageContent]}
+                >
+                  {message.text}
+                </div>
+                <div css={classes.messageMeta}>
+                  {new Date(message.timestamp).toLocaleTimeString([], {
+                    hour12: false,
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                </div>
+              </div>
+            );
+          }
+
+          if (isABackMessage(message)) {
+            return (
+              <div
+                key={message.id}
+                css={[classes.message, classes.backMessage]}
+              >
+                <div css={[classes.messageContent, classes.backMessageContent]}>
+                  {message.text}
+                </div>
+                <div css={classes.messageMeta}>
+                  {new Date(message.timestamp).toLocaleTimeString([], {
+                    hour12: false,
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                </div>
+              </div>
+            );
+          }
+        })}
+        {chatSessionHint.state === ChatSessionState.closedByFront &&
+          chatSessionHint?.frontClosingMessage && (
+            <div
+              key={chatSessionHint.frontClosingMessage.id}
+              css={[classes.message, classes.frontMessage]}
+            >
+              <div style={{ display: 'inline-block' }}>
+                <div
+                  css={[classes.messageContent, classes.frontMessageContent]}
+                >
+                  {chatSessionHint.frontClosingMessage.text}
+                </div>
+                <div css={classes.messageMeta}>
+                  {new Date(
+                    chatSessionHint.frontClosingMessage.timestamp
+                  ).toLocaleTimeString([], {
+                    hour12: false,
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+      </div>
+      <div css={{ flex: '0 0 auto' }}>
+        <input
+          css={{ width: '100%', boxSizing: 'border-box' }}
+          type="text"
+          onChange={handleChangeBackInput}
+          value={backInput}
+          onKeyPress={handleKeyPress}
+          onFocus={() => {
+            setOnFocus(true);
+          }}
+          onBlur={() => {
+            setOnFocus(false);
+          }}
+          disabled={shouldDisableUserInput(chatSessionHint.state)}
+        />
+      </div>
+    </article>
   );
 };
 
@@ -102,138 +498,223 @@ const BackChat = ({ chat, channels }: Property) => {
 
 type MyPage = NextPage & { auth?: AuthConfig };
 
-const Chatboard: MyPage = () => {
-  const [chats, setChats] = useState<Array<Chat>>([]);
-  const [channels, setChannels] = useState<null | Pusher>(null);
+const chatSessionsFetcher = (url: string) =>
+  axios.get(url).then((res) => res.data);
 
-  useEffect(() => {
-    const channels = new Pusher(process.env.NEXT_PUBLIC_PUSHER_APP_KEY!, {
-      cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER_REGION,
-      authEndpoint: `/api/chatSessions/${PRIVATE_BACK_SESSION_NAME}/channel`,
-    });
-    setChannels(channels);
-  }, []);
+const Chatboard: MyPage = () => {
+  const [connectionChannels, setConnectionConnectionChannels] =
+    useState<null | Pusher>(null);
+  const [boardState, setBoardState] = useState<BoardState>(
+    BoardState.Connecting
+  );
+
+  const [chatsHints, setChatsHints] = useState<Map<string, Chat>>(new Map());
+  const { data: storedSessionChats, error: errorStoredSessionChats } = useSWR<
+    Array<ChatSession>
+  >('/api/chatSessions', chatSessionsFetcher);
 
   useEffect(
-    function getSessionsOnceIHaveChannel() {
-      if (!channels) {
+    function syncChatsWithBackend() {
+      if (storedSessionChats === undefined) {
         return;
       }
-      channels.connection.bind('state_change', (state: { current: string }) => {
-        if (state.current !== 'connected') {
-          return;
+
+      setChatsHints((chatsToUpdate) => {
+        let updated = chatsToUpdate.size === 0;
+        const updatedChatsToReturn = new Map<string, Chat>();
+        for (const storedSessionChat of storedSessionChats) {
+          let chatToUpdate = chatsToUpdate.get(storedSessionChat.sessionId) ?? {
+            ...storedSessionChat,
+            messages: [],
+          };
+
+          if (storedSessionChat.state !== chatToUpdate.state) {
+            chatToUpdate = { ...chatToUpdate, ...storedSessionChat };
+            updated = true;
+          }
+
+          updatedChatsToReturn.set(chatToUpdate.sessionId, chatToUpdate);
         }
 
-        channels.unbind('connected');
-
-        fetch('/api/chatSessions', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        })
-          .catch((err) => {
-            console.error(err);
-          })
-          .then((data) => {
-            console.log(data);
-          });
+        return updated ? updatedChatsToReturn : chatsToUpdate;
       });
     },
-    [channels]
+    [storedSessionChats]
   );
+
   useEffect(() => {
-    if (!channels) {
-      return;
-    }
-
-    // Subscribe to the appropriate channel
-    const channel = channels.subscribe(Channels.PrivateSupportChannel);
-
-    // Bind a callback function to an event within the subscribed channel
-    channel.bind(
-      ApiEvent.openEndBackChannelChatSession,
-      (initChatData: OpenEndBackChannelChatSessionBody) => {
-        console.log('> INIT CHAT REQ', initChatData);
-        const newChatChannel = channels.subscribe(initChatData.sessionId);
-        newChatChannel.bind(FrontEvent.sendMessage, (payload: any) => {
-          const messageAckBody: BackAckForFrontMessage = {
-            messageId: payload.id,
-          };
-          newChatChannel.trigger(
-            BackEvent.frontMessageAck,
-            JSON.stringify(messageAckBody)
-          );
-
-          setChats((previousChats) => {
-            const newChats = [...previousChats];
-
-            const updatedChatIndex = newChats.findIndex(
-              (chat) => chat.id === newChatChannel.name
-            );
-
-            newChats[updatedChatIndex] = { ...previousChats[updatedChatIndex] };
-            newChats[updatedChatIndex].messages = [
-              ...previousChats[updatedChatIndex].messages,
-            ];
-
-            newChats[updatedChatIndex].messages.push(payload.payload);
-
-            return newChats;
-          });
-        });
-
-        axios
-          .post<null, null, AckFirstMessageRequestBody>(
-            `/api/chatSessions/${initChatData.sessionId}`,
-            {
-              operation: ChatSessionOperation.ackFirstMessage,
-              messageId: initChatData.firstMessage.id,
-            }
-          )
-          .then(() => {
-            console.log('ack sent.');
-          })
-          .catch((err) => {
-            console.error(err);
-          });
-
-        // todo subscribe updates
-        // const chat = channels.subscribe(data.id);
-        // channel.trigger('message-sent-ack', 'hola! He recibido el mensaje :o)');
-
-        setChats((previousChats) => {
-          return [
-            ...previousChats,
-            {
-              id: initChatData.sessionId,
-              openedAt: initChatData.firstMessage.timestamp,
-              messages: [initChatData.firstMessage.text],
-            },
-          ];
-        });
+    const connectionChannel = new Pusher(
+      process.env.NEXT_PUBLIC_PUSHER_APP_KEY!,
+      {
+        cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER_REGION,
+        authEndpoint: `/api/chatSessions/${PRIVATE_BACK_SESSION_NAME}/channel`,
       }
     );
-  }, [channels]);
+    setConnectionConnectionChannels(connectionChannel);
 
-  if (!channels) {
-    return <div>Loading...</div>;
+    connectionChannel.connection.bind(
+      'state_change',
+      function mapConnectionChannelStateToBoardState(state: {
+        current: string;
+        previous: string;
+      }) {
+        switch (state.current) {
+          case 'unavailable':
+          case 'connecting':
+            if (
+              state.previous === 'connected' ||
+              state.previous === 'connecting'
+            ) {
+              setBoardState(BoardState.Reconnecting);
+              break;
+            }
+
+            setBoardState(BoardState.Connecting);
+            break;
+          case 'connected':
+            setBoardState(BoardState.Connected);
+            break;
+          case 'disconnected':
+            setBoardState(BoardState.Offline);
+            break;
+          default:
+            setBoardState(BoardState.Failed);
+            break;
+        }
+      }
+    );
+  }, []);
+
+  const classes = getClasses();
+
+  useEffect(
+    function listenToNewChatRequests() {
+      if (!connectionChannels) {
+        return;
+      }
+
+      // Subscribe to the appropriate channel
+      const channel = connectionChannels.subscribe(
+        Channels.PrivateSupportChannel
+      );
+
+      // Bind a callback function to an event within the subscribed channel
+      channel.bind(
+        ApiEvent.openEndBackChannelChatSession,
+        (initChatData: OpenEndBackChannelChatSessionBody) => {
+          setChatsHints((previousChats) => {
+            if (previousChats.has(initChatData.sessionId)) {
+              return previousChats;
+            }
+            const newChats = new Map<string, Chat>(previousChats);
+            newChats.set(initChatData.sessionId, {
+              sessionId: initChatData.sessionId,
+              state: ChatSessionState.channelBackEndOpening,
+              openedAt: initChatData.firstMessage.timestamp,
+              firstMessage: initChatData.firstMessage,
+              messages: [],
+            });
+            return newChats;
+          });
+
+          // const newChatChannel = connectionChannels.subscribe(
+          //   initChatData.sessionId
+          // );
+          //       newChatChannel.bind(FrontEvent.sendMessage, (payload: any) => {
+          //         const messageAckBody: BackAckForFrontMessage = {
+          //           messageId: payload.id,
+          //         };
+          //         newChatChannel.trigger(
+          //           BackEvent.frontMessageAck,
+          //           JSON.stringify(messageAckBody)
+          //         );
+          //
+          //         setChats((previousChats) => {
+          //           const newChats = [...previousChats];
+          //
+          //           const updatedChatIndex = newChats.findIndex(
+          //             (chat) => chat.id === newChatChannel.name
+          //           );
+          //
+          //           newChats[updatedChatIndex] = { ...previousChats[updatedChatIndex] };
+          //           newChats[updatedChatIndex].messages = [
+          //             ...previousChats[updatedChatIndex].messages,
+          //           ];
+          //
+          //           newChats[updatedChatIndex].messages.push(payload.payload);
+          //
+          //           return newChats;
+          //         });
+          //       });
+          //
+          //       axios
+          //         .post<null, null, AckFirstMessageRequestBody>(
+          //           `/api/chatSessions/${initChatData.sessionId}`,
+          //           {
+          //             operation: ChatSessionOperation.ackFirstMessage,
+          //             messageId: initChatData.firstMessage.id,
+          //           }
+          //         )
+          //         .then(() => {
+          //           console.log('ack sent.');
+          //         })
+          //         .catch((err) => {
+          //           console.error(err);
+          //         });
+          //
+          //       // todo subscribe updates
+          //       // const chat = channels.subscribe(data.id);
+          //       // channel.trigger('message-sent-ack', 'hola! He recibido el mensaje :o)');
+          //
+          //       setChats((previousChats) => {
+          //         return [
+          //           ...previousChats,
+          //           {
+          //             id: initChatData.sessionId,
+          //             openedAt: initChatData.firstMessage.timestamp,
+          //             messages: [initChatData.firstMessage.text],
+          //           },
+          //         ];
+          //       });
+        }
+      );
+    },
+    [connectionChannels]
+  );
+
+  if (
+    (boardState !== BoardState.Connected && chatsHints.size === 0) ||
+    connectionChannels === null
+  ) {
+    return <div>Loading chats...</div>;
   }
 
   return (
     <>
-      Total chats: {chats.length}
-      <div style={{ display: 'flex', width: '100%', flexWrap: 'wrap' }}>
-        {chats.map((chat) => (
-          <BackChat chat={chat} key={chat.id} channels={channels} />
-        ))}
-      </div>
+      <Global styles={[classes.globalStyles]} />
+      <aside css={classes.topBar}>
+        <div>Total chats: {chatsHints.size}</div>
+        <div css={css({ marginLeft: '30px' })}>{boardState}</div>
+      </aside>
+      <main css={classes.sessionsBoard}>
+        {[...chatsHints]
+          .sort((chatA: [string, Chat], chatB: [string, Chat]) => {
+            return chatB[1].openedAt - chatA[1].openedAt;
+          })
+          .map(([key, chatSessionHint]) => (
+            <BackChatSession
+              key={key}
+              chatSessionHint={chatSessionHint}
+              channels={connectionChannels}
+            />
+          ))}
+      </main>
     </>
   );
 };
 
 Chatboard.auth = {
-  role: 'admin',
+  scope: 'front/admin:access',
   loading: <AdminLoadingSkeleton />,
   unauthorizedUrl: '/admin/login-with-different-user', // redirect to this url
 };

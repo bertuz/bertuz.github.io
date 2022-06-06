@@ -38,6 +38,12 @@ export type BackMessage = Override<
   }
 >;
 
+export function isABackMessage(
+  message: Message | SystemMessage
+): message is BackMessage {
+  return message && message.type === MessageType.back;
+}
+
 export type SystemMessage = Override<
   Message,
   {
@@ -60,6 +66,9 @@ export enum ChatSessionState {
   channelFrontEndOpened = 'SESSION_CHANNEL_FRONT_END_OPENED',
   // the first message has been sent from the front, stored on DB, and informed the back to open up its end and ack the message
   channelBackEndOpening = 'SESSION_CHANNEL_BACK_END_OPENING',
+  // the timeout from the front has been reached, so only a last closing message could be received from front.
+  // this state can only occur on the back chat by checking if it's channelBackEndOpening and the timeout has been reached
+  channelBackEndDangling = 'SESSION_CHANNEL_BACK_END_DANGLING',
   // the back has successfully opened its end for the session and acked the first message to the front (via api)
   opened = 'OPENED',
   closedByFront = 'CLOSED_BY_FRONT',
@@ -83,6 +92,7 @@ export type ChatSession =
   | (ChatSessionBase & {
       state:
         | ChatSessionState.channelBackEndOpening
+        | ChatSessionState.channelBackEndDangling
         | ChatSessionState.opened
         | ChatSessionState.closedByBack
         | ChatSessionState.closedForError;

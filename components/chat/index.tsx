@@ -5,7 +5,7 @@ import {
   MessageType,
 } from './model';
 
-import { ApiEvent, BackEvent } from './channelModel';
+import { ACK_TIMEOUT_IN_MS, ApiEvent, BackEvent } from './channelModel';
 
 import Button from '../button';
 
@@ -69,8 +69,6 @@ type ConnectionStateChange = {
   previous: ConnectionState;
   current: ConnectionState;
 };
-
-const ACK_TIMEOUT = 7000;
 
 const shouldDisableInterface = (
   state: ChatState,
@@ -249,7 +247,7 @@ const handleAckTimeoutNotAvailable = (
     channel?.pusher.connection.unbind_all();
     channel?.unbind_all();
     onTimeoutAck();
-  }, ACK_TIMEOUT);
+  }, ACK_TIMEOUT_IN_MS);
   onTimeoutTriggered(timeoutId);
 };
 
@@ -497,6 +495,7 @@ const Index = () => {
       );
 
       channel.unbind(BackEvent.sendMessage);
+      // todo ack to be sent
       channel?.bind(BackEvent.sendMessage, (message: BackEventSendMessage) => {
         const messageReceived: BackMessage = {
           ...message,
@@ -820,20 +819,17 @@ const Index = () => {
       </p>
       <div css={classes.messagesBox} ref={messagesBox}>
         {chatHistory.map((message) => {
-          if (message.type === MessageType.front) {
-            const frontMessage = message as FrontMessage;
-            const frontMessageDate = new Date(frontMessage.timestamp);
-
+          if (isAFrontMessage(message)) {
             return (
               <div
                 key={message.id}
                 css={[classes.message, classes.userMessage]}
               >
                 <div css={[classes.messageContent, classes.userMessageContent]}>
-                  {frontMessage.text}
+                  {message.text}
                 </div>
                 <div css={classes.messageMeta}>
-                  {(frontMessage.ack && (
+                  {(message.ack && (
                     <img
                       css={classes.messageReceivedIcon}
                       src="/tick.svg"
@@ -846,7 +842,7 @@ const Index = () => {
                       alt="Sending"
                     />
                   )}{' '}
-                  {frontMessageDate.toLocaleTimeString([], {
+                  {new Date(message.timestamp).toLocaleTimeString([], {
                     hour12: false,
                     hour: '2-digit',
                     minute: '2-digit',

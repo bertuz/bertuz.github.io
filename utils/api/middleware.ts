@@ -51,25 +51,7 @@ export const getHasSessionOrErrorMiddleware = (scope?: string) => {
     res: NextApiResponse,
     handleResult: (result: any) => void
   ): Promise<void> => {
-    // const token = await getToken({
-    //   req,
-    //   cookieName: 'next-auth.session-token',
-    // });
-    // console.log('token check?', token);
-
-    const a = await getToken({ req, raw: true });
-    console.log('ba sessionnn?> ', a);
-    // const sessionStore = new SessionStore(
-    //   {
-    //     name: 'next-auth.session-token',
-    //     options: { httpOnly: true, sameSite: 'lax', path: '/', secure: false },
-    //   },
-    //   req,
-    //   null
-    // );
-
     const session = (await getSession({ req })) as MySession;
-    console.log('ba> ', session);
 
     if (!session || (scope && !session.scope.includes(scope))) {
       res.status(403);
@@ -78,7 +60,11 @@ export const getHasSessionOrErrorMiddleware = (scope?: string) => {
           '🤌🏽 You must be signed in and have with the right privileges to access this',
       });
       res.end();
-      handleResult(new Error('You must be signed in as admin to access this'));
+      handleResult(
+        new Error(
+          'You must be signed in and have the right privileges to access this'
+        )
+      );
       return;
     }
   };

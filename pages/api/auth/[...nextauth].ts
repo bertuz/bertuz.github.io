@@ -114,6 +114,7 @@ const callbacks: Partial<CallbacksOptions> = {
           ...[
             'private-back-session:post',
             'chatSessions/[id]/ack-first-message:post',
+            'chatSessions:post',
             'front/admin:access',
           ]
         );
@@ -137,6 +138,7 @@ const callbacks: Partial<CallbacksOptions> = {
   },
   session: async function ({ session, token: jwtClaims }) {
     session.scope = jwtClaims.scope;
+    session.expires = new Date(jwtClaims.exp as number).toISOString();
 
     return session;
   },

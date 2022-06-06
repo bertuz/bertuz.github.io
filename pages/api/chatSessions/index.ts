@@ -1,4 +1,6 @@
 import runMiddleware, {
+  getHasSessionOrErrorMiddleware,
+  isOneOfMethodsMiddleware,
   isPostOrErrorMiddleware,
 } from '../../../utils/api/middleware';
 import clientPromise from '../../../utils/api/db';
@@ -49,14 +51,51 @@ async function postHandler(
   res.end();
 }
 
+async function getHandler(
+  req: InitFrontChatNextApiRequest,
+  res: NextApiResponse<Array<ChatSession>>
+) {
+  runMiddleware(req, res, getHasSessionOrErrorMiddleware('chatSessions:post'));
+
+  try {
+    const dbClient = await clientPromise;
+    const agg = [
+      {
+        $match: {
+          state: {
+            $not: {
+              $in: ['CLOSED_BY_BACK', 'CLOSED_FOR_ERROR'],
+            },
+          },
+        },
+      },
+    ];
+    const collection = dbClient
+      .db(dbName)
+      .collection<OptionalId<ChatSession>>('chat-sessions');
+    const cursor = collection.aggregate<ChatSession>(agg);
+    res.status(200);
+    res.send(await cursor.toArray());
+  } catch (err) {
+    res.status(500);
+    res.end();
+    return;
+  }
+
+  res.status(201);
+  res.end();
+}
+
 export default async function handler(
   req: InitFrontChatNextApiRequest,
-  res: NextApiResponse<null>
+  res: NextApiResponse<null | Array<ChatSession>>
 ) {
-  runMiddleware(req, res, isPostOrErrorMiddleware);
+  runMiddleware(req, res, isOneOfMethodsMiddleware(['GET', 'POST']));
 
   if (req.method === 'POST') {
     postHandler(req, res);
     return;
   }
+
+  getHandler(req, res);
 }

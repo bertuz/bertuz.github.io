@@ -1,17 +1,19 @@
-import type { NextPage } from 'n  ext';
+import type { NextPage } from 'next';
 
-export type AuthenticatedRole = 'admin' | 'user';
-export type AuthRole = AuthenticatedRole | 'free';
+export type AuthenticatedScope =
+  | null
+  | 'front/admin:access'
+  | 'front/user:access';
 
 export type AuthenticatedPageConfig = {
-  role: AuthenticatedRole;
+  scope: AuthenticatedScope;
   loading?: React.ReactElement;
   unauthorizedUrl: string;
 };
 
 export type AuthConfig =
   | {
-      role: 'free';
+      scope: null;
     }
   | AuthenticatedPageConfig;
 

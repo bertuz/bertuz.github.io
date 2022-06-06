@@ -27,3 +27,6 @@ export type OpenEndBackChannelChatSessionBody = {
 export type BackEventSendMessage = MessageBase;
 
 export type BackAckForFrontMessage = { messageId: string };
+
+export const ACK_TIMEOUT_IN_MS = 7000;
+export const ACK_TIMEOUT_IN_MS_FOR_BACKEND = ACK_TIMEOUT_IN_MS - 1000;

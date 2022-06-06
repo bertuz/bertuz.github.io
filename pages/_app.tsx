@@ -35,10 +35,7 @@ const Auth: FC<AuthProps> = ({ children, config }) => {
     } else return <>⏳ One moment...</>;
   }
 
-  if (
-    config.role === 'admin' &&
-    !sessionData.scope.includes('front/admin:access')
-  ) {
+  if (config.scope && !sessionData.scope.includes(config.scope)) {
     router.push(config.unauthorizedUrl);
     return <></>;
   }
@@ -52,7 +49,6 @@ type AppPropsWithConfig = AppProps & {
 
 const MyApp = ({ Component, pageProps }: AppPropsWithConfig): ReactNode => {
   const router = useRouter();
-  const isPrivate = (Component.auth?.role ?? 'free') !== 'free';
 
   useEffect(() => {
     const handleRouteChange = (url: string) => {
@@ -87,7 +83,7 @@ const MyApp = ({ Component, pageProps }: AppPropsWithConfig): ReactNode => {
       </Script>
 
       <SessionProvider session={pageProps.session}>
-        {isPrivate ? (
+        {Component?.auth && Component.auth.scope !== null ? (
           <Auth config={Component.auth}>
             <Component {...pageProps} />
           </Auth>
