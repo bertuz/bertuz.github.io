@@ -21,7 +21,7 @@ const LoginWithDifferentUser: LoginWithDifferentUserPage = () => {
 };
 
 LoginWithDifferentUser.auth = {
-  role: 'free',
+  scope: null,
 };
 
 export default LoginWithDifferentUser;
