@@ -1,3 +1,5 @@
+import jwsKeys from '../../../utils/env/jwsKeys';
+
 import NextAuth from 'next-auth';
 
 import GithubProvider from 'next-auth/providers/github';
@@ -37,7 +39,6 @@ const MAX_JWT_VALIDITY_IN_MS = 10 * 60 * 1000;
 const MIN_JWT_RENEW_IN_MS = MAX_JWT_VALIDITY_IN_MS - 5 * 60 * 1000;
 
 async function refreshAccessToken(jwtClaims: JWTClaims): Promise<JWTClaims> {
-  console.log('> REFRESH!');
   try {
     const url =
       'https://github.com/login/oauth/access_token?' +
@@ -77,7 +78,7 @@ async function refreshAccessToken(jwtClaims: JWTClaims): Promise<JWTClaims> {
       exp: newExp,
       refreshToken: newRefreshToken ?? jwtClaims.refreshToken, // Fall back to old refresh token
     };
-    console.log(ret);
+
     return ret;
   } catch (error) {
     console.error(error);
@@ -146,6 +147,17 @@ const callbacks: Partial<CallbacksOptions> = {
   },
 };
 
+async function getKeystore(): Promise<{
+  keyStore: JWK.KeyStore;
+  kidJWS: string;
+  kidJWE: string;
+}> {
+  const keys = jwsKeys();
+  const keyStore = await JWK.asKeyStore(keys.JWS_KEYS);
+
+  return { keyStore, kidJWS: keys.JWS_KID, kidJWE: keys.JWE_KID };
+}
+
 export default NextAuth({
   providers: [
     GithubProvider({
@@ -158,19 +170,15 @@ export default NextAuth({
   jwt: {
     async encode(params: JWTEncodeParams): Promise<string> {
       const { token: jwtClaims } = params;
+      const { keyStore, kidJWS, kidJWE } = await getKeystore();
 
-      // this is actually DECODE
-      const keyStore = await JWK.asKeyStore(process.env.JWS_KEYS ?? '');
-
-      const encoded = await JWS.createSign(
-        keyStore.get(process.env.JWS_KID ?? '')
-      )
+      const encoded = await JWS.createSign(keyStore.get(kidJWS))
         .update(JSON.stringify(jwtClaims))
         .final();
 
       const encrypted = await JWE.createEncrypt(
         { format: 'compact' },
-        keyStore.get('encrypt1')
+        keyStore.get(kidJWE)
       )
         .update(JSON.stringify(encoded))
         .final();
@@ -178,9 +186,9 @@ export default NextAuth({
       return JSON.stringify(encrypted);
     },
     async decode(params: JWTDecodeParams): Promise<JWT | null> {
-      const { token: rawJWE = '{}' } = params;
+      const { keyStore } = await getKeystore();
 
-      const keyStore = await JWK.asKeyStore(process.env.JWS_KEYS ?? '');
+      const { token: rawJWE = '{}' } = params;
       const jwe = JSON.parse(rawJWE);
 
       const decryptedJWEPayload = await JWE.createDecrypt(keyStore).decrypt(
