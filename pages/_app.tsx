@@ -2,6 +2,8 @@ import '../styles/globals.css';
 
 import * as ga from '../lib/google-analytics';
 
+import { MIN_JWT_RENEW_IN_MS } from '../models/auth';
+
 import Head from 'next/head';
 
 import Script from 'next/script';
@@ -51,7 +53,7 @@ const MyApp = ({ Component, pageProps }: AppPropsWithConfig): ReactNode => {
   const router = useRouter();
 
   useEffect(() => {
-    const handleRouteChange = (url: string) => {
+    const handleRouteChange = (url: string): void => {
       ga.pageview(url);
     };
 
@@ -82,7 +84,10 @@ const MyApp = ({ Component, pageProps }: AppPropsWithConfig): ReactNode => {
         `}
       </Script>
 
-      <SessionProvider session={pageProps.session}>
+      <SessionProvider
+        session={pageProps.session}
+        refetchInterval={MIN_JWT_RENEW_IN_MS / 1000}
+      >
         {Component?.auth && Component.auth.scope !== null ? (
           <Auth config={Component.auth}>
             <Component {...pageProps} />

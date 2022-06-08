@@ -1,5 +1,10 @@
 import jwsKeys from '../../../utils/env/jwsKeys';
 
+import {
+  MAX_JWT_VALIDITY_IN_MS,
+  MIN_JWT_RENEW_IN_MS,
+} from '../../../models/auth';
+
 import NextAuth from 'next-auth';
 
 import GithubProvider from 'next-auth/providers/github';
@@ -31,12 +36,6 @@ type JWTClaims = JWT & {
   aud: string;
   scope: Array<string>;
 };
-
-const MAX_JWT_VALIDITY_IN_MS = 10 * 60 * 1000;
-// JWT validity is tied to the access-refresh tokens for simplcity, which are stored inside as claim.
-// since the JWT is supposed to be renew in the last 5 minutes of its validity window time,
-// it means that the refresh token should be always valid longer than > 5min
-const MIN_JWT_RENEW_IN_MS = MAX_JWT_VALIDITY_IN_MS - 5 * 60 * 1000;
 
 async function refreshAccessToken(jwtClaims: JWTClaims): Promise<JWTClaims> {
   try {
@@ -141,7 +140,7 @@ const callbacks: Partial<CallbacksOptions> = {
   },
   session: async function ({ session, token: jwtClaims }) {
     session.scope = jwtClaims.scope;
-    session.expires = new Date(jwtClaims.exp as number).toISOString();
+    session.expires = new Date((jwtClaims.exp as number) * 1000).toISOString();
 
     return session;
   },
