@@ -1,6 +1,6 @@
 import colors from '../assets/styles/colors';
 
-import breakpoints from '../assets/styles/breakpoints';
+import breakpoints, { MAX_MOBILE_WIDTH_PX } from '../assets/styles/breakpoints';
 
 import { dimensionInRem } from '../assets/styles/dimensions';
 
@@ -15,22 +15,42 @@ import Camera from '../public/camera.svg';
 
 import Chat from '../components/chat';
 
-import { useEffect, useMemo, useState } from 'react';
-import { css } from '@emotion/react';
+import Face from '../public/smiley-face.svg';
+import Laptop from '../public/mac.svg';
+import Balloon from '../public/balloon.svg';
+
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { css, keyframes } from '@emotion/react';
 
 import Link from 'next/link';
 
 import type { NextPage } from 'next';
 
+const backgroundColors: Record<string, [string, string, string]> = {
+  presentation: [colors.pastelViolet, colors.senape, colors.pastelVioletDark],
+  description: [colors.vividBlue, colors.mountainGrey, colors.almostWhite],
+  work: [colors.vividRed, colors.sugarPaperBlue, colors.almostWhite],
+  chat: [colors.vividBlue, colors.mountainGrey, colors.almostWhite],
+};
+
+const nodFaceKeyframes = keyframes({
+  from: { marginTop: 0 },
+  to: { marginTop: '10px' },
+});
+
 // todo adopt csslint when available https://github.com/emotion-js/emotion/issues/2695
-const getClasses = (showMac: boolean) => ({
+const getClasses = (
+  showMac: boolean,
+  showingSection: 'presentation' | 'description' | 'work' | 'chat'
+) => ({
   asideColumn: css({
+    transition: 'all 0.4s ease-in-out',
     position: 'fixed',
     bottom: 0,
     left: 0,
     top: 0,
     width: '50vw',
-    backgroundColor: colors.pastelViolet,
+    backgroundColor: backgroundColors[showingSection][0] ?? colors.senape,
     [breakpoints.maxMobile]: {
       display: 'none',
     },
@@ -48,14 +68,40 @@ const getClasses = (showMac: boolean) => ({
   }),
   smileyFace: {
     width: '100%',
+    color: 'white',
   },
   laptop: css({
     position: 'absolute',
     width: '100%',
-    transform: showMac ? 'translate(-100%, 70%)' : 'translate(-100vw, 100vh)',
+    height: '100%',
+    transform: showMac ? 'translate(-100%, 25%)' : 'translate(-100vw, 100vh)',
     transition: 'all 0.2s ease-in-out',
+    stroke: `${backgroundColors[showingSection][2]} !important`,
+    strokeWidth: '2',
+    fill: backgroundColors[showingSection][0],
+  }),
+  balloon: css({
+    position: 'absolute',
+    width: '80%',
+    height: '80%',
+    transform:
+      showingSection === 'chat'
+        ? 'translate(-10%, -50%) rotate(20deg)'
+        : 'translate(-100vw, 100vh)',
+    transition: 'all 0.2s ease-in-out',
+    stroke: `${backgroundColors[showingSection][2]} !important`,
+    strokeWidth: '2',
+    fill: backgroundColors[showingSection][0],
+  }),
+  face: css({
+    height: '100%',
+    width: '100%',
+    fill: `${backgroundColors[showingSection][2]} !important`,
+    strokeWidth: '3 !important',
+    animation: `${nodFaceKeyframes} 3s alternate infinite;`,
   }),
   mainContent: css({
+    backgroundColor: colors.white,
     padding: 0,
     margin: 0,
     paddingLeft: '50vw',
@@ -63,6 +109,18 @@ const getClasses = (showMac: boolean) => ({
       paddingLeft: 0,
     },
   }),
+  card: css({
+    transition: 'all 0.2s ease-in-out',
+    padding: 24,
+    paddingLeft: 48,
+    opacity: 0.3,
+    backgroundColor: colors.white,
+  }),
+  cardFocused: {
+    opacity: 1,
+    paddingLeft: 24,
+    backgroundColor: backgroundColors[showingSection][1] ?? colors.senape,
+  },
   presentationCard: css({
     position: 'relative',
     overflow: 'hidden',
@@ -72,7 +130,6 @@ const getClasses = (showMac: boolean) => ({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
-    backgroundColor: colors.senape,
     [breakpoints.maxMobile]: {
       height: '35vh',
     },
@@ -95,7 +152,9 @@ const getClasses = (showMac: boolean) => ({
     fontFamily: "'Alegreya SC', serif",
   }),
   descriptionCard: css({
+    opacity: 0.5,
     padding: 24,
+    paddingLeft: 48,
     backgroundColor: colors.mountainGrey,
     fontFamily: "'Alegreya', serif",
   }),
@@ -105,9 +164,18 @@ const getClasses = (showMac: boolean) => ({
     hyphens: 'auto',
   }),
   workCard: css({
-    backgroundColor: colors.sugarPaperBlue,
-    padding: 24,
     fontFamily: "'Alegreya', serif",
+  }),
+  chatCard: css({
+    backgroundColor: colors.mountainGrey,
+    minHeight: '33vh',
+    opacity: 0.5,
+    padding: 24,
+    paddingLeft: 48,
+    fontFamily: "'Alegreya', serif",
+  }),
+  chatWrapper: css({
+    marginTop: dimensionInRem(0),
   }),
   footer: css({
     display: 'block',
@@ -119,9 +187,6 @@ const getClasses = (showMac: boolean) => ({
     textTransform: 'uppercase',
     margin: 0,
     padding: 24,
-  }),
-  chatWrapper: css({
-    marginTop: dimensionInRem(0),
   }),
   polaroid: css({
     position: 'absolute',
@@ -230,18 +295,63 @@ const getClasses = (showMac: boolean) => ({
 
 const Home: NextPage = () => {
   const [showMac, setShowMac] = useState(false);
+  const [showingSection, setShowingSection] = useState<
+    'presentation' | 'description' | 'work' | 'chat'
+  >('presentation');
   const classes = useMemo(() => {
-    return getClasses(showMac);
-  }, [showMac]);
+    return getClasses(showMac, showingSection);
+  }, [showMac, showingSection]);
+  const descriptionCardRef = useRef<HTMLElement | null>(null);
+  const workCardRef = useRef<HTMLElement | null>(null);
+  const chatCardRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     function updatePosition() {
-      if ((window.scrollY ?? 0) > 200) {
+      const windowHeight: number = isNaN(window.innerHeight)
+        ? // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          window.clientHeight
+        : window.innerHeight;
+      const windowWidth: number = isNaN(window.innerWidth)
+        ? // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          window.clientWidth
+        : window.innerWidth;
+
+      if (
+        windowHeight -
+          (chatCardRef?.current?.getBoundingClientRect()?.top ?? 0) >
+        windowHeight / 3
+      ) {
         setShowMac(true);
+        setShowingSection('chat');
+        return;
+      }
+
+      if (
+        windowHeight -
+          (workCardRef?.current?.getBoundingClientRect()?.top ?? 0) >
+        windowHeight / 3
+      ) {
+        setShowMac(true);
+        setShowingSection('work');
+        return;
+      }
+
+      if (
+        windowHeight -
+          (descriptionCardRef?.current?.getBoundingClientRect()?.top ?? 0) >
+        (windowWidth > MAX_MOBILE_WIDTH_PX
+          ? windowHeight / 3
+          : (windowHeight * 3) / 4)
+      ) {
+        setShowMac(true);
+        setShowingSection('description');
         return;
       }
 
       setShowMac(false);
+      setShowingSection('presentation');
     }
 
     window.addEventListener('scroll', updatePosition);
@@ -253,26 +363,23 @@ const Home: NextPage = () => {
   return (
     <>
       <aside css={classes.asideColumn} role="presentation">
-        {/* todo https://stackoverflow.com/questions/71719915/how-to-make-next-js-load-images-from-public-source-with-default-img-element */}
+        {/*/!* todo https://stackoverflow.com/questions/71719915/how-to-make-next-js-load-images-from-public-source-with-default-img-element *!/*/}
         <div css={classes.centralScene}>
-          <div>
-            <img
-              css={classes.smileyFace}
-              src="/smiley-face.svg"
-              alt="Presentation logo"
-              role="presentation"
-            />
-            <img
-              css={classes.laptop}
-              src="/mac.svg"
-              alt="mac"
-              role="presentation"
-            />
+          <div css={{ position: 'relative', width: '100%', height: '100%' }}>
+            <Face css={classes.face}></Face>
+            <Laptop css={classes.laptop} />
+            <Balloon css={classes.balloon} />
           </div>
         </div>
       </aside>
       <main css={classes.mainContent}>
-        <article css={classes.presentationCard}>
+        <article
+          css={[
+            classes.card,
+            classes.presentationCard,
+            showingSection === 'presentation' ? classes.cardFocused : null,
+          ]}
+        >
           <div>
             <img
               src="/smiley-face.svg"
@@ -302,7 +409,14 @@ const Home: NextPage = () => {
             </div>
           </a>
         </article>
-        <article css={classes.descriptionCard}>
+        <article
+          ref={descriptionCardRef}
+          css={[
+            classes.card,
+            classes.descriptionCard,
+            showingSection === 'description' ? classes.cardFocused : null,
+          ]}
+        >
           <h2>Toolbox</h2>
           <p css={classes.presentationDescription}>
             I like the idea of a developer as an artisan who loves and cares its
@@ -342,7 +456,14 @@ const Home: NextPage = () => {
             </li>
           </ul>
         </article>
-        <article css={classes.workCard}>
+        <article
+          ref={workCardRef}
+          css={[
+            classes.card,
+            classes.workCard,
+            showingSection === 'work' ? classes.cardFocused : null,
+          ]}
+        >
           <h2 id="work-experience">Work Experience</h2>
           <CVExperienceItem>
             <Link href="/api/cv" prefetch>
@@ -458,7 +579,14 @@ const Home: NextPage = () => {
           </CVExperienceItem>
         </article>
 
-        <article css={classes.descriptionCard}>
+        <article
+          ref={chatCardRef}
+          css={[
+            classes.card,
+            classes.chatCard,
+            showingSection === 'chat' ? classes.cardFocused : null,
+          ]}
+        >
           <h2 id="chat-with-me">Chat with me</h2>
           <div css={classes.chatWrapper}>
             <Chat />

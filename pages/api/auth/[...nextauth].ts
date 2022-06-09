@@ -136,7 +136,7 @@ const callbacks: Partial<CallbacksOptions> = {
     }
 
     // JWT within the refresh-expiring time window, trying to refresh it
-    return refreshAccessToken(jwtAssertionsToReturn);
+    return await refreshAccessToken(jwtAssertionsToReturn);
   },
   session: async function ({ session, token: jwtClaims }) {
     session.scope = jwtClaims.scope;
