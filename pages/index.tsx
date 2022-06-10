@@ -595,11 +595,6 @@ const Home: NextPage = () => {
         <div css={classes.footer}>
           <p css={classes.footerContent}>Matteo Bertamini 2022</p>
         </div>
-        {/*<article style="height: 70vh; background-color: #DDF4C8; flex-shrink: 0; padding: 20px;">*/}
-        {/*    <p style="font-family: 'Alegreya', serif; font-size: 1.2em;">*/}
-        {/*        Come near, ladies and gentlemen!*/}
-        {/*    </p>*/}
-        {/*</article>*/}
       </main>
     </>
   );

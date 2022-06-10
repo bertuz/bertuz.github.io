@@ -161,6 +161,7 @@ const getClasses = () => ({
     width: '100%',
     maxWidth: 500,
     display: 'flex',
+    flexWrap: 'wrap',
     marginRight: 20,
     boxSizing: 'border-box',
   }),
@@ -169,11 +170,12 @@ const getClasses = () => ({
     display: 'block',
     overflow: 'hidden',
   }),
-  chatInput: css({ flex: '1 0 auto', marginRight: 10 }),
+  chatInput: css({ width: 150, flex: '1 0 100px', marginRight: 10 }),
   messageReceivedIcon: css({
     height: dimensionInRem(-1),
     verticalAlign: 'baseline',
   }),
+  sendButton: css({ flex: '0 1 auto' }),
   messageSendingIcon: css({
     width: dimensionInRem(2),
     verticalAlign: 'sub',
@@ -940,6 +942,7 @@ const Index = () => {
           onKeyPress={handleKeyPress}
         />
         <a
+          css={classes.sendButton}
           onKeyPress={() => {
             if (shouldDisableInterface(chatStatus, lastUserMessage)) return;
             sendMessage();
