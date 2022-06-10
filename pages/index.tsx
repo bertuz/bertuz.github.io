@@ -69,6 +69,7 @@ const getClasses = (
   smileyFace: {
     width: '100%',
     color: 'white',
+    zIndex: '1',
   },
   laptop: css({
     position: 'absolute',
@@ -79,19 +80,21 @@ const getClasses = (
     stroke: `${backgroundColors[showingSection][2]} !important`,
     strokeWidth: '2',
     fill: backgroundColors[showingSection][0],
+    zIndex: '1',
   }),
   balloon: css({
     position: 'absolute',
     width: '80%',
     height: '80%',
+    transition: 'all 0.5s cubic-bezier(1,1,.61,1.45)',
     transform:
       showingSection === 'chat'
         ? 'translate(-10%, -50%) rotate(20deg)'
-        : 'translate(-100vw, 100vh)',
-    transition: 'all 0.2s ease-in-out',
+        : 'translate(-70%, 20%) rotate(90deg) scaleX(0) scaleY(0)',
     stroke: `${backgroundColors[showingSection][2]} !important`,
     strokeWidth: '2',
     fill: backgroundColors[showingSection][0],
+    zIndex: '0',
   }),
   face: css({
     height: '100%',
