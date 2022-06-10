@@ -20,7 +20,7 @@ import type { AuthenticatedPageConfig } from '../typings/next';
 
 import type { NextPageWithConfig } from 'next';
 
-import type { FC, ReactNode } from 'react';
+import type { FC, ReactNode, ReactElement } from 'react';
 
 import type { AppProps } from 'next/app';
 

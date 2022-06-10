@@ -317,7 +317,6 @@ const Home: NextPage = () => {
           // @ts-ignore
           window.clientWidth
         : window.innerWidth;
-
       if (
         windowHeight -
           (chatCardRef?.current?.getBoundingClientRect()?.top ?? 0) >
