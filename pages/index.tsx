@@ -101,7 +101,7 @@ const getClasses = (
     width: '100%',
     fill: `${backgroundColors[showingSection][2]} !important`,
     strokeWidth: '3 !important',
-    animation: `${nodFaceKeyframes} 3s alternate infinite;`,
+    animation: `${nodFaceKeyframes} 3s alternate infinite !important`,
   }),
   mainContent: css({
     backgroundColor: colors.white,
