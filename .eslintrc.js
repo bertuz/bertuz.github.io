@@ -12,6 +12,12 @@ module.exports = {
     'prettier',
     'plugin:prettier/recommended',
   ],
+  globals: {
+    page: true,
+    browser: true,
+    context: true,
+    jestPuppeteer: true,
+  },
   overrides: [
     {
       files: ['**/*.ts', '**/*.tsx'],

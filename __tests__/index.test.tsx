@@ -7,7 +7,6 @@ describe('Home', () => {
     render(<Button caption="ciao" iconPath="." />);
 
     const heading = await screen.findByText('ciao');
-
     expect(heading).toBeInTheDocument();
   });
 });
