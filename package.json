@@ -16,6 +16,7 @@
     "@types/node-jose": "^1.1.10",
     "@types/uuid": "^8.3.4",
     "axios": "^0.27.2",
+    "docker-chromium": "https://github.com/bertuz/docker-chromium.git",
     "express-useragent": "^1.0.15",
     "jest-environment-jsdom": "^28.1.1",
     "jwk-to-pem": "^2.0.5",
