@@ -1,12 +1,13 @@
 import 'expect-puppeteer';
-import { toMatchImageSnapshot } from 'jest-image-snapshot';
+import puppeteer from 'puppeteer';
 
-expect.extend({ toMatchImageSnapshot });
+const { viewport, userAgent } = puppeteer.devices['iPhone X'];
 
 jest.setTimeout(300000);
 
 describe('Google', () => {
   beforeAll(async () => {
+    await page.emulate({ viewport, userAgent });
     await page.goto('http://localhost:3000');
   });
 

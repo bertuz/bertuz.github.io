@@ -39,11 +39,13 @@ module.exports = {
       ],
       setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
     },
-
     {
       displayName: 'regression',
       testMatch: ['<rootDir>/**/__tests__/**/*.screentest.ts'],
       preset: 'jest-puppeteer-docker',
+      globalSetup: './jest.puppeteer.setup.js',
+      setupFilesAfterEnv: ['<rootDir>/jest-with-puppeteer.setup.js'],
+      // globalTeardown: './teardown.js',
     },
   ],
 };
