@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/setup-node@v1
         with:
-          node-version: 17.0.0
+          node-version: lts/Fermium
       - uses: actions/checkout@v1
       - run: npm install -g yarn
       - run: cd ..
