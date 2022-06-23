@@ -4,7 +4,11 @@ module.exports = {
     headless: process.env.HEADLESS,
     ignoreHTTPSErrors: true,
     slowMo: process.env.HEADLESS ? 0 : 50,
-    args: ['--font-render-hinting=none', '--disable-font-subpixel-positioning'],
+    args: [
+      '--font-render-hinting=none',
+      '--disable-font-subpixel-positioning',
+      '--force-color-profile=generic-rgb',
+    ],
   },
   server: {
     command: 'yarn start',
