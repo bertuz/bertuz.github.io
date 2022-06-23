@@ -3,7 +3,7 @@ module.exports = {
   launch: {
     headless: true,
     ignoreHTTPSErrors: true,
-    slowMo: true,
+    // slowMo: true,
   },
   server: {
     command: 'yarn dev',
