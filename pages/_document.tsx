@@ -58,6 +58,8 @@ const fontStyles = css(`
   src: url("/fonts/Roboto-Medium.ttf") format("ttf");
   font-display: swap;
 }
+
+* { -webkit-font-smoothing: antialiased !important; }
 `);
 
 const globalStyles = css({
