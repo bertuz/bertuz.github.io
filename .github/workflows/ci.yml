@@ -32,5 +32,11 @@ jobs:
       - name: 🍏 The job has succeeded
         if: ${{ success() }}
         run: echo "🍏 This job's status is ${{ job.status }}."
+      - name: Uploading failing screenshots
+        if: ${{ !success() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: failing-screenshots
+          path: __tests__/__image_snapshots__/__diff_output__
       - name: Job status
         run: echo "🍏 This job's status is ${{ job.status }}."
