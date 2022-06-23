@@ -10,7 +10,7 @@ jest.setTimeout(300000);
 
 describe('Google', () => {
   beforeAll(async () => {
-    await page.emulate({ viewport, userAgent: testUserAgent(userAgent) });
+    await page.emulate({ viewport, userAgent: userAgent });
     await page.goto('http://localhost:3000');
   });
 
