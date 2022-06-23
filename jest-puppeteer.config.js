@@ -6,7 +6,7 @@ module.exports = {
     slowMo: process.env.HEADLESS ? 0 : 50,
   },
   server: {
-    command: 'yarn dev',
+    command: 'yarn start',
     port: 3000,
   },
 };

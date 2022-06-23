@@ -19,6 +19,8 @@ import Face from '../public/smiley-face.svg';
 import Laptop from '../public/mac.svg';
 import Balloon from '../public/balloon.svg';
 
+import { isRunningAcceptanceTest } from '../dev/tests/userAgent';
+
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { css, keyframes } from '@emotion/react';
 
@@ -384,7 +386,11 @@ const Home: NextPage = () => {
         >
           <div>
             <img
-              src="/smiley-face.svg"
+              src={
+                isRunningAcceptanceTest()
+                  ? '/smiley-face-static.svg'
+                  : '/smiley-face.svg'
+              }
               css={classes.presentationCardLogo}
               alt="Presentation logo"
               role="presentation"
