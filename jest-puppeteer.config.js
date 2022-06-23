@@ -8,6 +8,9 @@ module.exports = {
       '--font-render-hinting=none',
       '--disable-font-subpixel-positioning',
       '--force-color-profile=generic-rgb',
+      '--enable-font-antialiasing=false',
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
     ],
   },
   server: {

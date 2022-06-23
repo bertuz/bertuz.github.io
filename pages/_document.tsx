@@ -59,7 +59,9 @@ const fontStyles = css(`
   font-display: swap;
 }
 
-* { -webkit-font-smoothing: antialiased !important; }
+* { -webkit-font-smoothing: antialiased !important;
+text-rendering: geometricprecision !important; }
+ 
 `);
 
 const globalStyles = css({
