@@ -122,9 +122,9 @@ const getClasses = (
     backgroundColor: colors.white,
   }),
   cardFocused: {
-    opacity: 1,
-    paddingLeft: 24,
-    backgroundColor: backgroundColors[showingSection][1] ?? colors.senape,
+    // opacity: 1,
+    // paddingLeft: 24,
+    // backgroundColor: backgroundColors[showingSection][1] ?? colors.senape,
   },
   presentationCard: css({
     position: 'relative',
