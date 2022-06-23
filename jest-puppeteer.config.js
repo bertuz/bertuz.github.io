@@ -1,9 +1,9 @@
 // jest-puppeteer.config.js
 module.exports = {
   launch: {
-    headless: process.env.HEADLESS,
+    headless: true,
     ignoreHTTPSErrors: true,
-    slowMo: process.env.HEADLESS ? 0 : 50,
+    slowMo: true,
   },
   server: {
     command: 'yarn dev',
