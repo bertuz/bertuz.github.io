@@ -22,7 +22,7 @@ describe('Google', () => {
 
     await autoScroll(page);
 
-    image = await page.screenshot({ fullPage: true }); // Compare the taken screenshot with the baseline screenshot (if exists), or create it (else)
+    image = await page.screenshot({ fullPage: false }); // Compare the taken screenshot with the baseline screenshot (if exists), or create it (else)
     expect(image).toMatchImageSnapshot();
     // await jestPuppeteer.debug();
   });
