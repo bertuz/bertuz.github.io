@@ -95,6 +95,7 @@ const globalStyles = css({
       fontSize: dimensionInRem(0),
     },
   },
+  '*': { fontSmoothing: 'antialiased' },
 });
 
 export default function Document() {
