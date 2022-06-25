@@ -1,4 +1,4 @@
-name: TestDocker
+name: dock
 
 on:
   workflow_dispatch:
