@@ -1,4 +1,4 @@
-name: CI
+name: TestDocker
 
 on:
   workflow_dispatch:
