@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "export TEST_ENV='acceptance' && jest"
+    "test": "export TEST_ENV='acceptance' && yarn build && jest"
   },
   "dependencies": {
     "@emotion/react": "^11.8.2",
