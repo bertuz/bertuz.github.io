@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14.19.1
+      - uses: actions/checkout@v1
+      - run: npm install -g yarn
+      - run: cd ..
+      - run: yarn install --dev
+      - run: yarn build
+      - run: echo "🔬 Testing the repo"
+      - name: Pulling docker testing image with chromium
+        uses: djbender/docker-buildx-pull-or-build@v0.3
+        with:
+          docker_username: ${{ secrets.DOCKERHUB_USER }}
+          docker_password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          image: bertuz/docker-chromium
+      - run: yarn test
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v2
+        with:
+          name: code-coverage-report
+          path: testres.json
+      - name: Uploading failing screenshots
+        if: ${{ !success() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: failing-screenshots
+          path: __screenshot-tests__/__image_snapshots__/__diff_output__
