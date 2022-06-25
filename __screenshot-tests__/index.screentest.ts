@@ -2,9 +2,10 @@
 // @ts-ignore
 describe('Google', () => {
   beforeAll(async () => {
+    console.log(`http://${process.env.TEST_URL}:3000`);
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    await page.goto('http://host.docker.internal:3000');
+    await page.goto(`http://${process.env.TEST_URL}:3000`);
   });
 
   it('should display "google" text on page', async () => {
