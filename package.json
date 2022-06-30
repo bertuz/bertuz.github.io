@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "export TEST_ENV='acceptance' && export TEST_URL=$(hostname | awk '{print $1}') && yarn build && jest"
+    "test": "export TEST_ENV='acceptance' && export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true && export DOCKER_CHROMIUM_USE_IMAGE='bertuz/docker-chromium:chromium103.0.5060.53' && export TEST_URL=$(hostname | awk '{print $1}') && yarn build && jest"
   },
   "dependencies": {
     "@emotion/react": "^11.8.2",
@@ -37,7 +37,7 @@
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^14.2.0",
-    "docker-chromium": "https://github.com/bertuz/docker-chromium.git",
+    "docker-chromium": "https://github.com/bertuz/docker-chromium-img.git#explicit-platform",
     "@types/node": "17.0.21",
     "@types/react": "18.0.12",
     "@typescript-eslint/eslint-plugin": "^5.16.0",
@@ -52,7 +52,7 @@
     "eslint-plugin-react-hooks": "^4.3.0",
     "jest": "^28.1.1",
     "jest-image-snapshot": "^5.1.0",
-    "jest-puppeteer-docker": "^1.4.2",
+    "jest-puppeteer-docker": "https://github.com/bertuz/jest-puppeteer-docker.git#docker-chromium-with-img",
     "prettier": "^2.6.1",
     "puppeteer": "^15.1.0",
     "puppeteer-extensions": "^1.0.3",

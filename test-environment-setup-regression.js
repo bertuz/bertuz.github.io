@@ -27,5 +27,4 @@ global.extensions = initExtensions(global.page);
 global.runSetup = async () => {
   await global.page.goto(`http://${process.env.TEST_URL}:3000`);
   await global.extensions.turnOffAnimations();
-  await global.page.goto(`http://${process.env.TEST_URL}:3000`);
 };

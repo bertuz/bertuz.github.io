@@ -3009,9 +3009,17 @@ dir-glob@^3.0.1:
   dependencies:
     path-type "^4.0.0"
 
-docker-chromium@^1.4.2, "docker-chromium@https://github.com/bertuz/docker-chromium.git":
+"docker-chromium@git+https://github.com/bertuz/docker-chromium.git#specify-docker-image":
   version "1.4.2"
-  resolved "https://github.com/bertuz/docker-chromium.git#d7462f13805af0eed0c85767fdcc17c90572f58b"
+  resolved "git+https://github.com/bertuz/docker-chromium.git#817f8719adb990cd24adfa89d4b89805829fb30d"
+  dependencies:
+    colors "^1.4.0"
+    request "^2.88.2"
+    request-promise-native "^1.0.8"
+
+"docker-chromium@https://github.com/bertuz/docker-chromium-img.git#explicit-platform":
+  version "1.4.2"
+  resolved "https://github.com/bertuz/docker-chromium-img.git#0e70b1de850eccec9fa5a91d50d080aa7b195ea7"
   dependencies:
     colors "^1.4.0"
     request "^2.88.2"
@@ -4710,12 +4718,11 @@ jest-pnp-resolver@^1.2.2:
   resolved "https://registry.yarnpkg.com/jest-pnp-resolver/-/jest-pnp-resolver-1.2.2.tgz#b704ac0ae028a89108a4d040b3f919dfddc8e33c"
   integrity sha512-olV41bKSMm8BdnuMsewT4jqlZ8+3TCARAXjZGT9jcoSnrfUnRCqnMoF9XEeoWjbzObpqF9dRhHQj0Xb9QdF6/w==
 
-jest-puppeteer-docker@^1.4.2:
+"jest-puppeteer-docker@https://github.com/bertuz/jest-puppeteer-docker.git#docker-chromium-with-img":
   version "1.4.2"
-  resolved "https://registry.yarnpkg.com/jest-puppeteer-docker/-/jest-puppeteer-docker-1.4.2.tgz#b0a62e0bb8314d6b11a1e0c0c247693641763baf"
-  integrity sha512-7mCl2XGqfOn5tK+i/j0gXCbQxeIWeAwY5jcLFlWu8FWF23Ncb86xoU8DzNNV9ZpXavBIh+NQzHoPRN7lerMEgQ==
+  resolved "https://github.com/bertuz/jest-puppeteer-docker.git#169dd512e57eb56aee67397e325ad6fac8db8871"
   dependencies:
-    docker-chromium "^1.4.2"
+    docker-chromium "git+https://github.com/bertuz/docker-chromium.git#specify-docker-image"
     find-node-modules "^2.0.0"
     jest-puppeteer "^4.4.0"
 
