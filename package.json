@@ -53,7 +53,7 @@
     "eslint-plugin-react-hooks": "^4.3.0",
     "jest": "^28.1.1",
     "jest-image-snapshot": "^5.1.0",
-    "jest-puppeteer-docker": "https://github.com/bertuz/jest-puppeteer-docker.git#docker-chromium-with-img",
+    "jest-puppeteer-docker": "https://github.com/bertuz/jest-puppeteer-docker.git#specify-docker-build",
     "prettier": "^2.6.1",
     "puppeteer": "^15.1.0",
     "puppeteer-extensions": "^1.0.3",

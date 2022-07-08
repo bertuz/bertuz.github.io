@@ -1,4 +1,5 @@
 const getConfig = require('jest-puppeteer-docker/lib/config');
+const path = require('path');
 
 const baseConfig = getConfig();
 const customConfig = Object.assign({}, baseConfig);
@@ -8,7 +9,10 @@ customConfig.connect.defaultViewport = {
   height: 600,
 };
 
-customConfig.useImage = 'bertuz/docker-chromium:chromium103.0.5060.53';
+customConfig.useDockerBuild = {
+  dockerFile: 'Dockerfile',
+  contextPath: path.join(__dirname, 'dev', 'dockerbuild-test'),
+};
 
 customConfig.server = {
   command: 'yarn start',
