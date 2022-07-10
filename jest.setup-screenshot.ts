@@ -7,7 +7,7 @@ import { configureToMatchImageSnapshot } from 'jest-image-snapshot';
 jest.setTimeout(10000);
 
 const toMatchImageSnapshot = configureToMatchImageSnapshot({
-  failureThreshold: 0.01,
+  failureThreshold: 0.0,
   failureThresholdType: 'percent',
 });
 
