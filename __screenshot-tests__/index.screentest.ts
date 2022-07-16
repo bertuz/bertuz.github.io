@@ -8,12 +8,8 @@ describe('The Home page', () => {
   it('should be shown according to the design', async () => {
     await openPage('/', Device.desktop);
 
-    await page.evaluate(() => {
-      window.scrollTo(0, 50);
-    });
-
-    await page.evaluate(() => {
-      window.scrollTo(0, 0);
+    await new Promise((res) => {
+      setTimeout(res, 2000);
     });
 
     expect(await page.screenshot()).toMatchImageSnapshot();

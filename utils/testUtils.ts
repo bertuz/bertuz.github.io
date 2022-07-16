@@ -57,14 +57,13 @@ const openPage = async (path: string, device: Device) => {
     `Mozilla/5.0 (Macintosh; Intel Mac OS X x.y; rv:42.0) Gecko/20100101 Firefox/42.0 ${SUFFIX_USER_AGENT_TEST}`
   );
 
+  if (deviceDetails[device]?.viewPort !== undefined) {
+    await page.setViewport(deviceDetails[device]?.viewPort as Viewport);
+  }
   await page.goto(`${BASE_TEST_URL}/${path}`, {
     waitUntil: 'domcontentloaded',
   });
   overrideAnimationCssToStatic();
-
-  if (deviceDetails[device]?.viewPort !== undefined) {
-    await page.setViewport(deviceDetails[device]?.viewPort as Viewport);
-  }
 
   await page.evaluate(() => {
     window.scrollTo(0, 0);
