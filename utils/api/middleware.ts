@@ -1,10 +1,6 @@
 import { getSession } from 'next-auth/react';
 
-import { getToken } from 'next-auth/jwt';
-
 import type { MySession } from '../../pages/api/auth/[...nextauth]';
-
-// import { SessionStore } from 'next-auth/core/lib/cookie';
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 

@@ -19,6 +19,8 @@ import Face from '../public/smiley-face.svg';
 import Laptop from '../public/mac.svg';
 import Balloon from '../public/balloon.svg';
 
+import isTestEnvironment from '../utils/isTestEnvironment';
+
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { css, keyframes } from '@emotion/react';
 
@@ -41,10 +43,11 @@ const nodFaceKeyframes = keyframes({
 // todo adopt csslint when available https://github.com/emotion-js/emotion/issues/2695
 const getClasses = (
   showMac: boolean,
-  showingSection: 'presentation' | 'description' | 'work' | 'chat'
+  showingSection: 'presentation' | 'description' | 'work' | 'chat',
+  shouldAnimate: boolean
 ) => ({
   asideColumn: css({
-    transition: 'all 0.4s ease-in-out',
+    transition: shouldAnimate ? 'all 0.4s ease-in-out' : undefined,
     position: 'fixed',
     bottom: 0,
     left: 0,
@@ -61,22 +64,22 @@ const getClasses = (
     height: showMac ? '35%' : '45%',
     left: showMac ? '33%' : '25%',
     top: '35%',
-    transition: 'all 0.2s ease-in-out',
+    transition: shouldAnimate ? 'all 0.2s ease-in-out' : undefined,
     '& > div': {
       position: 'relative',
     },
   }),
-  smileyFace: {
+  smileyFace: css({
     width: '100%',
     color: 'white',
     zIndex: '1',
-  },
+  }),
   laptop: css({
     position: 'absolute',
     width: '100%',
     height: '100%',
     transform: showMac ? 'translate(-100%, 25%)' : 'translate(-100vw, 100vh)',
-    transition: 'all 0.2s ease-in-out',
+    transition: shouldAnimate ? 'all 0.2s ease-in-out' : undefined,
     stroke: `${backgroundColors[showingSection][2]} !important`,
     strokeWidth: '2',
     fill: backgroundColors[showingSection][0],
@@ -86,7 +89,9 @@ const getClasses = (
     position: 'absolute',
     width: '80%',
     height: '80%',
-    transition: 'all 0.5s cubic-bezier(1,1,.61,1.45)',
+    transition: shouldAnimate
+      ? 'all 0.5s cubic-bezier(1,1,.61,1.45)'
+      : undefined,
     transform:
       showingSection === 'chat'
         ? 'translate(-10%, -50%) rotate(20deg)'
@@ -101,7 +106,9 @@ const getClasses = (
     width: '100%',
     fill: `${backgroundColors[showingSection][2]} !important`,
     strokeWidth: '3 !important',
-    animation: `${nodFaceKeyframes} 3s alternate infinite !important`,
+    animation: shouldAnimate
+      ? `${nodFaceKeyframes} 3s alternate infinite !important`
+      : undefined,
   }),
   mainContent: css({
     backgroundColor: colors.white,
@@ -113,7 +120,7 @@ const getClasses = (
     },
   }),
   card: css({
-    transition: 'all 0.2s ease-in-out',
+    transition: shouldAnimate ? 'all 0.2s ease-in-out' : undefined,
     padding: 24,
     paddingLeft: 48,
     opacity: 0.3,
@@ -199,7 +206,7 @@ const getClasses = (
     border: '15px solid ' + colors.mountainGrey,
     borderBottom: '55px solid ' + colors.mountainGrey,
     boxShadow: '3px 1px 33px -4px rgba(0,0,0,0.75)',
-    transition: 'all 0.2s ease-in-out',
+    transition: shouldAnimate ? 'all 0.2s ease-in-out' : undefined,
     [breakpoints.maxMobile]: {
       height: 25,
       width: 25,
@@ -213,9 +220,11 @@ const getClasses = (
     right: 80,
     rotate: '-15deg',
     backgroundColor: colors.pastelViolet,
-    '&:hover': {
-      transform: 'translate(-10px, -10px)',
-    },
+    '&:hover': shouldAnimate
+      ? {
+          transform: 'translate(-10px, -10px)',
+        }
+      : undefined,
     svg: {
       '& > *': {
         stroke: '#795E98FF !important',
@@ -240,10 +249,12 @@ const getClasses = (
     right: 40,
     rotate: '-5deg',
     backgroundColor: colors.sugarPaperBlue,
-    '&:hover': {
-      rotate: '-5deg',
-      transform: 'translate(0px, -20px)',
-    },
+    '&:hover': shouldAnimate
+      ? {
+          rotate: '-5deg',
+          transform: 'translate(0px, -20px)',
+        }
+      : undefined,
     svg: {
       '& > *': {
         stroke: '#53777EFF !important',
@@ -269,10 +280,12 @@ const getClasses = (
     right: 0,
     rotate: '10deg',
     backgroundColor: 'grey',
-    '&:hover': {
-      rotate: '5deg',
-      transform: 'translate(0px, -20px)',
-    },
+    '&:hover': shouldAnimate
+      ? {
+          rotate: '5deg',
+          transform: 'translate(0px, -20px)',
+        }
+      : undefined,
     [breakpoints.maxMobile]: {
       top: 45,
       right: -20,
@@ -301,12 +314,46 @@ const Home: NextPage = () => {
   const [showingSection, setShowingSection] = useState<
     'presentation' | 'description' | 'work' | 'chat'
   >('presentation');
+  const [shouldAnimate, setShouldAnimate] = useState<boolean>(true);
   const classes = useMemo(() => {
-    return getClasses(showMac, showingSection);
-  }, [showMac, showingSection]);
+    return getClasses(showMac, showingSection, shouldAnimate);
+  }, [showMac, showingSection, shouldAnimate]);
   const descriptionCardRef = useRef<HTMLElement | null>(null);
   const workCardRef = useRef<HTMLElement | null>(null);
   const chatCardRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (isTestEnvironment()) {
+      setShouldAnimate(false);
+      return;
+    }
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setShouldAnimate(!mediaQuery.matches);
+
+    const handleMedia = (e: MediaQueryListEventMap['change']) =>
+      setShouldAnimate(!e.matches);
+    mediaQuery.addEventListener('change', handleMedia);
+
+    return () => {
+      mediaQuery.removeEventListener('change', handleMedia);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!shouldAnimate) {
+      (
+        global?.window?.document
+          ?.getElementsByClassName(`css-${classes.face.name}`)
+          ?.item(0) as SVGSVGElement
+      )?.pauseAnimations();
+
+      (
+        global?.window?.document
+          ?.getElementsByClassName(`css-${classes.smileyFace.name}`)
+          ?.item(0) as SVGSVGElement
+      )?.pauseAnimations();
+    }
+  }, [classes.face.name, classes.smileyFace.name, shouldAnimate]);
 
   useEffect(() => {
     function updatePosition() {
@@ -391,7 +438,9 @@ const Home: NextPage = () => {
             />
           </div>
           <h1 css={classes.nameTitle}>Matteo Bertamini</h1>
-          <p css={classes.jobDescription}>Fullstack Developer</p>
+          <p css={classes.jobDescription}>
+            {isTestEnvironment() ? 'Fullstack Developer' : 'No test'}
+          </p>
           {/* todo if not on mobile use blank */}
           <a
             href="https://www.amazon.it/photos/share/qFervNlenYwkjdQ1o26YOsWhld5fnsJ0t89xbcv2Vep"
