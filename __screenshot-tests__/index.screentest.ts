@@ -26,19 +26,7 @@ describe('The Home page', () => {
 
     expect(await page.screenshot()).toMatchImageSnapshot();
 
-    await page.evaluate(() => {
-      window.scrollTo(0, window.document.body.scrollHeight);
-    });
-
-    await page.evaluate(() => {
-      window.scrollTo(0, window.document.body.scrollHeight);
-    });
-
-    await new Promise((res) => {
-      setTimeout(res, 2000);
-    });
-
-    expect(await page.screenshot()).toMatchImageSnapshot();
+    expect(await page.screenshot({ fullPage: true })).toMatchImageSnapshot();
   });
 });
 

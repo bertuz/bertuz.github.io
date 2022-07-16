@@ -1,4 +1,4 @@
-import type { Page } from 'puppeteer/lib/cjs/puppeteer/common/Page';
+import type { Page } from 'puppeteer';
 
 declare global {
   // eslint-disable-next-line no-var
