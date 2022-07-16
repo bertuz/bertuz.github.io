@@ -30,6 +30,10 @@ describe('The Home page', () => {
       window.scrollTo(0, window.document.body.scrollHeight);
     });
 
+    await page.evaluate(() => {
+      window.scrollTo(0, window.document.body.scrollHeight);
+    });
+
     await new Promise((res) => {
       setTimeout(res, 2000);
     });

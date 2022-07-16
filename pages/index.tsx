@@ -431,7 +431,9 @@ const Home: NextPage = () => {
         >
           <div>
             <img
-              src="/smiley-face.svg"
+              src={
+                shouldAnimate ? '/smiley-face.svg' : '/smiley-face-static.svg'
+              }
               css={classes.presentationCardLogo}
               alt="Presentation logo"
               role="presentation"
