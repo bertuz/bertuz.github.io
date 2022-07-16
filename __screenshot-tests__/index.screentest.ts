@@ -8,8 +8,15 @@ describe('The Home page', () => {
   it('should be shown according to the design', async () => {
     await openPage('/', Device.desktop);
 
-    const image = await page.screenshot();
-    expect(image).toMatchImageSnapshot();
+    await page.evaluate(() => {
+      window.scrollTo(0, 50);
+    });
+
+    await page.evaluate(() => {
+      window.scrollTo(0, 0);
+    });
+
+    expect(await page.screenshot()).toMatchImageSnapshot();
 
     await page.evaluate(() => {
       window.scrollTo(0, window.document.body.scrollHeight);

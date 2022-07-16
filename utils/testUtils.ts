@@ -65,6 +65,10 @@ const openPage = async (path: string, device: Device) => {
   if (deviceDetails[device]?.viewPort !== undefined) {
     await page.setViewport(deviceDetails[device]?.viewPort as Viewport);
   }
+
+  await page.evaluate(() => {
+    window.scrollTo(0, 0);
+  });
 };
 
 const closePage = async () => {
