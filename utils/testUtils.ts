@@ -53,6 +53,9 @@ const deviceDetails: Partial<
 };
 
 const openPage = async (path: string, device: Device) => {
+  await page.close();
+  global.page = await page.browser().newPage();
+
   await page.setUserAgent(
     `Mozilla/5.0 (Macintosh; Intel Mac OS X x.y; rv:42.0) Gecko/20100101 Firefox/42.0 ${SUFFIX_USER_AGENT_TEST}`
   );
