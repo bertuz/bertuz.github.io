@@ -19,7 +19,7 @@ import Face from '../public/smiley-face.svg';
 import Laptop from '../public/mac.svg';
 import Balloon from '../public/balloon.svg';
 
-import isTestEnvironment from '../utils/isTestEnvironment';
+import { isRunningAcceptanceTest } from '../utils/testUtils';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { css, keyframes } from '@emotion/react';
@@ -323,7 +323,7 @@ const Home: NextPage = () => {
   const chatCardRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    if (isTestEnvironment()) {
+    if (isRunningAcceptanceTest()) {
       setShouldAnimate(false);
       return;
     }
@@ -438,9 +438,7 @@ const Home: NextPage = () => {
             />
           </div>
           <h1 css={classes.nameTitle}>Matteo Bertamini</h1>
-          <p css={classes.jobDescription}>
-            {isTestEnvironment() ? 'Fullstack Developer' : 'No test'}
-          </p>
+          <p css={classes.jobDescription}>Fullstack Developer</p>
           {/* todo if not on mobile use blank */}
           <a
             href="https://www.amazon.it/photos/share/qFervNlenYwkjdQ1o26YOsWhld5fnsJ0t89xbcv2Vep"
