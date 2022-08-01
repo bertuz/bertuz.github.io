@@ -1,7 +1,7 @@
 import { closePage, Device, openPage } from '../utils/testUtils';
 
 describe('The Home page', () => {
-  afterEach(async () => {
+  beforeEach(async () => {
     await closePage();
   });
 
