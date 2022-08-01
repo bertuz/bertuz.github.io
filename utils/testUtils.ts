@@ -53,7 +53,6 @@ const deviceDetails: Partial<
 };
 
 const openPage = async (path: string, device: Device) => {
-  await page.close();
   global.page = await page.browser().newPage();
 
   await page.setUserAgent(
@@ -74,9 +73,7 @@ const openPage = async (path: string, device: Device) => {
 };
 
 const closePage = async () => {
-  // page.off('load', overrideAnimationCssToStatic);
-  // await page.close({ runBeforeUnload: true });
-  await page.browser().newPage();
+  jestPuppeteer.resetBrowser();
 };
 
 const isRunningAcceptanceTest = () => {
