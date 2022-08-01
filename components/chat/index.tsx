@@ -170,7 +170,13 @@ const getClasses = () => ({
     display: 'block',
     overflow: 'hidden',
   }),
-  chatInput: css({ width: 150, flex: '1 0 100px', marginRight: 10 }),
+  chatInput: css({
+    width: 150,
+    flex: '1 0 100px',
+    marginRight: 10,
+    fontFamily: 'Alegreya-Sans',
+    fontSize: dimensionInRem(-1),
+  }),
   messageReceivedIcon: css({
     height: dimensionInRem(-1),
     verticalAlign: 'baseline',
