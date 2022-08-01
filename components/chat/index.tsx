@@ -937,7 +937,7 @@ const Index = () => {
           disabled={shouldDisableInterface(chatStatus, lastUserMessage)}
           css={classes.chatInput}
           type="text"
-          placeholder={chatHistory.length > 0 ? '' : 'Write me something'}
+          placeholder={chatHistory.length > 0 ? '' : 'Write me something 🌝'}
           onFocusCapture={() => {
             window.setTimeout(() => {
               inputTextRef?.current?.scrollIntoView({ behavior: 'smooth' });
