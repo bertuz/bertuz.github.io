@@ -3,7 +3,7 @@ const colors = {
   pastelVioletDark: '#472C63',
   senape: '#EBB953',
   mountainGrey: '#CFC3B6',
-  sugarPaperBlue: '#B9C2C0',
+  sugarPaperBlue: '#97B5CC',
   grey: '#6e6e6e',
   greyTransparent: 'rgba(110,110,110,0.3)',
   darkerGrey: '#595959',
