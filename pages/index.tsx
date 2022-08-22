@@ -571,7 +571,7 @@ const Home: NextPage<HomeProperties> = ({ galleryPics }) => {
           role={showingSection === 'photos' ? 'img' : 'none'}
           aria-label={"Big version of the photo gallery's selected picture"}
           galleryPics={galleryPics}
-          galleryPicSelectedIndex={galleryPicSelected}
+          selectedPicIndex={galleryPicSelected}
           availableMainPictureSpace={asideDims}
         />
       </aside>
