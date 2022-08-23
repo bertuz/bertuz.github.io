@@ -42,13 +42,15 @@ const getClasses = (shouldAnimate: boolean) => ({
     width: '20%',
   }),
   mainPictureImage: css({
+    display: 'block',
+    border: `7px solid ${colors.almostWhite} !important`,
+    borderRadius: 5,
+  }),
+  mainPictureImageAnimating: css({
     transition: shouldAnimate ? transitionValue : undefined,
     '& *': {
       transition: shouldAnimate ? transitionValue : undefined,
     },
-    display: 'block',
-    border: `7px solid ${colors.almostWhite} !important`,
-    borderRadius: 5,
   }),
   mainPictureImageLoading: css({
     opacity: 0.5,
@@ -77,17 +79,23 @@ const Index = ({
   // todo allow -1 in case of empty gallery pics
   selectedPicIndex = 0,
 }: GalleryMainPictureProps) => {
-  const [isPreloading, setIsPreloading] = useState<boolean>(true);
-  const [changePicAnimationStatus, setChangePicAnimationStatus] = useState<
-    'idle' | 'started' | 'ended'
-  >('started');
-  const [preloadSelectedPicIndex, setPreloadSelectedPicIndex] =
-    useState<number>(0);
+  const [changeSelectedPicPhase, setChangeSelectedPicPhase] = useState<
+    | 'preChangeAnimation'
+    | 'preLoading'
+    | 'loaded'
+    | 'newPicShowed'
+    | 'postChangeAnimation'
+    | 'idle'
+  >('preChangeAnimation');
+  const [preloadSelectedPicIndex, setPreloadSelectedPicIndex] = useState<
+    number | null
+  >(null);
   const [loadedSelectedPicIndex, setLoadedSelectedPicIndex] =
     useState<number>(0);
   const [alreadyLoadedPicIndexes, setAlreadyLoadedPicIndexes] = useState<
     Array<boolean>
   >([]);
+
   const picSelectedDims = useMemo<[number, number]>(() => {
     if (!availableMainPictureSpace.height || !availableMainPictureSpace.width) {
       return [0, 0];
@@ -125,37 +133,89 @@ const Index = ({
   }, [galleryPics]);
 
   useEffect(() => {
-    setIsPreloading(true);
-    setChangePicAnimationStatus('started');
+    setChangeSelectedPicPhase('preChangeAnimation');
   }, [selectedPicIndex]);
 
-  useEffect(() => {
-    if (changePicAnimationStatus !== 'ended') {
-      return;
-    }
+  useEffect(
+    function setPreloadingPhase() {
+      if (changeSelectedPicPhase !== 'preLoading') {
+        return;
+      }
 
-    if (alreadyLoadedPicIndexes[selectedPicIndex]) {
-      setIsPreloading(false);
-      return;
-    }
+      if (alreadyLoadedPicIndexes[selectedPicIndex]) {
+        setLoadedSelectedPicIndex(selectedPicIndex);
+        // setChangeSelectedPicPhase('newPicShowed');
+        return;
+      }
 
-    setPreloadSelectedPicIndex(selectedPicIndex);
-  }, [changePicAnimationStatus, selectedPicIndex]);
+      setPreloadSelectedPicIndex(selectedPicIndex);
+    },
+    [alreadyLoadedPicIndexes, changeSelectedPicPhase, selectedPicIndex]
+  );
 
-  useEffect(() => {
-    if (isPreloading || changePicAnimationStatus !== 'ended') {
-      return;
-    }
+  useEffect(
+    function setLoadedPhase() {
+      if (changeSelectedPicPhase !== 'loaded') {
+        return;
+      }
 
-    setChangePicAnimationStatus('idle');
-    setLoadedSelectedPicIndex(selectedPicIndex);
-    setAlreadyLoadedPicIndexes((previousLoadedPixIndexes) => {
-      const newArray = [...previousLoadedPixIndexes];
-      newArray[selectedPicIndex] = true;
+      setLoadedSelectedPicIndex(preloadSelectedPicIndex as number);
+      // setChangeSelectedPicPhase('newPicShowed');
+      setAlreadyLoadedPicIndexes((previousLoadedPixIndexes) => {
+        const newArray = [...previousLoadedPixIndexes];
+        newArray[preloadSelectedPicIndex as number] = true;
 
-      return newArray;
-    });
-  }, [changePicAnimationStatus, isPreloading, selectedPicIndex]);
+        return newArray;
+      });
+    },
+    [changeSelectedPicPhase, preloadSelectedPicIndex]
+  );
+
+  useEffect(
+    function setPostChangeAnimation() {
+      if (changeSelectedPicPhase !== 'newPicShowed') {
+        return;
+      }
+
+      setAlreadyLoadedPicIndexes((previousLoadedPixIndexes) => {
+        const newArray = [...previousLoadedPixIndexes];
+        newArray[loadedSelectedPicIndex] = true;
+
+        return newArray;
+      });
+
+      requestAnimationFrame(() => {
+        setChangeSelectedPicPhase('postChangeAnimation');
+      });
+    },
+    [changeSelectedPicPhase]
+  );
+
+  // useEffect(
+  //   function setIdleState() {
+  //     if (changeSelectedPicPhase !== 'postChangeAnimation') {
+  //       return;
+  //     }
+  //
+  //     setChangeSelectedPicPhase('idle');
+  //   },
+  //   [changeSelectedPicPhase]
+  // );
+
+  // console.log('isPreloading: ', isPreloading);
+  // console.log('isLoadedTransitionDone: ', isLoadedTransitionDone);
+  // console.log('changePicAnimationStatus: ', changePicPreAnimationStatus);
+  console.log('changeSelectedPicPhase: ', changeSelectedPicPhase);
+  console.log('preloadSelectedPicIndex: ', preloadSelectedPicIndex);
+  console.log('loadedSelectedPicIndex: ', loadedSelectedPicIndex);
+  console.log('alreadyLoadedPicIndexes', alreadyLoadedPicIndexes);
+  console.log(
+    'mainPictureImageLoading: ',
+    changeSelectedPicPhase !== 'idle' &&
+      changeSelectedPicPhase !== 'postChangeAnimation'
+      ? 'yes'
+      : 'no'
+  );
 
   // todo should animate
   const classes = getClasses(true);
@@ -163,11 +223,12 @@ const Index = ({
   return (
     <div className={className} role={role}>
       <div css={classes.galleryMainPicWrapper}>
-        {isPreloading && !alreadyLoadedPicIndexes[selectedPicIndex] && (
-          <figure css={classes.loadingPicFeedback}>
-            <Loading css={classes.loadingPic} />
-          </figure>
-        )}
+        {changeSelectedPicPhase !== 'postChangeAnimation' &&
+          !alreadyLoadedPicIndexes[selectedPicIndex] && (
+            <figure css={classes.loadingPicFeedback}>
+              <Loading css={classes.loadingPic} />
+            </figure>
+          )}
 
         <Image
           key={`MAIN${galleryPics[loadedSelectedPicIndex].src}`}
@@ -175,11 +236,26 @@ const Index = ({
           width={picSelectedDims[1]}
           loading="eager"
           onTransitionEnd={() => {
-            setChangePicAnimationStatus('ended');
+            // todo check if something else has interfered (changed selection of index) and so a new preload cycle has been started
+            if (changeSelectedPicPhase === 'preChangeAnimation') {
+              setChangeSelectedPicPhase('preLoading');
+              return;
+            }
+
+            if (changeSelectedPicPhase === 'postChangeAnimation') {
+              setChangeSelectedPicPhase('idle');
+            }
+          }}
+          onLoadingComplete={() => {
+            setChangeSelectedPicPhase('newPicShowed');
           }}
           css={[
             classes.mainPictureImage,
-            isPreloading ? classes.mainPictureImageLoading : null,
+            classes.mainPictureImageAnimating,
+            changeSelectedPicPhase !== 'idle' &&
+            changeSelectedPicPhase !== 'postChangeAnimation'
+              ? classes.mainPictureImageLoading
+              : null,
           ]}
           layout="fixed"
           src={`${galleryPics[loadedSelectedPicIndex].src}`}
@@ -189,20 +265,23 @@ const Index = ({
         />
       </div>
       <div css={classes.preloadSelectedPicWrapper} role="none">
-        <Image
-          key={`MAINPRELOAD${galleryPics[preloadSelectedPicIndex].src}`}
-          height={picSelectedDims[0]}
-          width={picSelectedDims[1]}
-          loading="eager"
-          layout="fixed"
-          src={galleryPics[preloadSelectedPicIndex].src}
-          sizes="50vw"
-          alt="preloading photo"
-          quality={100}
-          onLoadingComplete={() => {
-            setIsPreloading(false);
-          }}
-        />
+        {preloadSelectedPicIndex && (
+          <Image
+            key={`MAINPRELOAD${galleryPics[preloadSelectedPicIndex].src}`}
+            height={picSelectedDims[0]}
+            width={picSelectedDims[1]}
+            loading="eager"
+            layout="fixed"
+            src={galleryPics[preloadSelectedPicIndex].src}
+            sizes="50vw"
+            alt="preloading photo"
+            quality={100}
+            onLoadingComplete={() => {
+              // todo check if something else has interfered (changed selection of index) and so a new preload cycle has been started
+              setChangeSelectedPicPhase('loaded');
+            }}
+          />
+        )}
       </div>
     </div>
   );

@@ -790,6 +790,7 @@ const Home: NextPage<HomeProperties> = ({ galleryPics }) => {
           </CVExperienceItem>
         </article>
         <article
+          id="photos"
           ref={photoCardRef}
           css={[
             classes.card,
