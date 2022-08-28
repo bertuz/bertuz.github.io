@@ -112,7 +112,7 @@ async function handleOpenBackEnd(
   req: OpenBackEndRequest,
   res: NextApiResponse<Pusher.AuthResponse | string>
 ) {
-  const { id: sessionId } = req.query;
+  const sessionId: string = req.query.id as unknown as string;
 
   if (sessionId === PRIVATE_BACK_SESSION_NAME) {
     res.status(400);
@@ -204,7 +204,7 @@ async function handleAckFirstMessage(
     getHasSessionOrErrorMiddleware('chatSessions/[id]/ack-first-message:post')
   );
 
-  const { id: sessionId } = req.query;
+  const sessionId: string = req.query.id as unknown as string;
   const { messageId } = req.body;
 
   const dbClient = await clientPromise;
@@ -278,7 +278,7 @@ async function handleCloseSessionFromFront(
   res: NextApiResponse<Pusher.AuthResponse | string>
 ) {
   const { message } = req.body;
-  const { id: sessionId } = req.query;
+  const sessionId: string = req.query.id as unknown as string;
 
   try {
     const dbClient = await clientPromise;
@@ -324,7 +324,7 @@ async function handleCloseSessionFromBack(
     getHasSessionOrErrorMiddleware('chatSessions/[id]:post')
   );
 
-  const { id: sessionId } = req.query;
+  const sessionId: string = req.query.id as unknown as string;
 
   try {
     const dbClient = await clientPromise;

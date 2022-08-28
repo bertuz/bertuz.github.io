@@ -2,6 +2,8 @@ import Loading from '../../../public/loading.svg';
 
 import colors from '../../../assets/styles/colors';
 
+import useShouldAnimate from '../../../utils/useShouldAnimate';
+
 import { useEffect, useMemo, useState } from 'react';
 
 import { css } from '@emotion/react';
@@ -27,6 +29,11 @@ const getClasses = (shouldAnimate: boolean) => ({
       transition: shouldAnimate ? transitionValue : undefined,
     },
     boxShadow: '0px 0px 25px 15px rgba(0,0,0,0.3)',
+  }),
+  imageWrapper: css({
+    '& > span': {
+      display: 'block !important',
+    },
   }),
   loadingPicFeedback: css({
     position: 'absolute',
@@ -76,9 +83,10 @@ const Index = ({
   role,
   availableMainPictureSpace,
   galleryPics,
-  // todo allow -1 in case of empty gallery pics
   selectedPicIndex = 0,
 }: GalleryMainPictureProps) => {
+  const shouldAnimate = useShouldAnimate();
+  const [nextPicToShow, setNextPicToShow] = useState(0);
   const [changeSelectedPicPhase, setChangeSelectedPicPhase] = useState<
     | 'preChangeAnimation'
     | 'preLoading'
@@ -87,6 +95,16 @@ const Index = ({
     | 'postChangeAnimation'
     | 'idle'
   >('preChangeAnimation');
+
+  // let's ignore the selected until termiated the latter. Then consider the latest changes
+  useEffect(() => {
+    if (changeSelectedPicPhase !== 'idle') {
+      return;
+    }
+    setNextPicToShow(selectedPicIndex);
+  }, [changeSelectedPicPhase, selectedPicIndex]);
+
+  // when selecting a change in the midst of a change pic
   const [preloadSelectedPicIndex, setPreloadSelectedPicIndex] = useState<
     number | null
   >(null);
@@ -97,13 +115,17 @@ const Index = ({
   >([]);
 
   const picSelectedDims = useMemo<[number, number]>(() => {
+    if (galleryPics.length === 0) {
+      return [0, 0];
+    }
+
     if (!availableMainPictureSpace.height || !availableMainPictureSpace.width) {
       return [0, 0];
     }
 
     const { height: originalHeight, width: originalWidth } =
-      galleryPics[selectedPicIndex].dimensions.original;
-    const { ratio } = galleryPics[selectedPicIndex].dimensions;
+      galleryPics[nextPicToShow].dimensions.original;
+    const { ratio } = galleryPics[nextPicToShow].dimensions;
 
     const maxHeight = availableMainPictureSpace.height - 60;
     const maxWidth = availableMainPictureSpace.width - 60;
@@ -124,7 +146,7 @@ const Index = ({
   }, [
     availableMainPictureSpace.height,
     availableMainPictureSpace.width,
-    selectedPicIndex,
+    nextPicToShow,
     galleryPics,
   ]);
 
@@ -133,8 +155,23 @@ const Index = ({
   }, [galleryPics]);
 
   useEffect(() => {
+    if (galleryPics.length === 0) {
+      return;
+    }
+
     setChangeSelectedPicPhase('preChangeAnimation');
-  }, [selectedPicIndex]);
+  }, [nextPicToShow, galleryPics]);
+
+  useEffect(() => {
+    if (changeSelectedPicPhase !== 'preChangeAnimation') {
+      return;
+    }
+
+    if (shouldAnimate) {
+      return;
+    }
+    setChangeSelectedPicPhase('preLoading');
+  }, [shouldAnimate, changeSelectedPicPhase]);
 
   useEffect(
     function setPreloadingPhase() {
@@ -142,15 +179,22 @@ const Index = ({
         return;
       }
 
+      // shortcut: in case it's loaded already we switch to the next phase
       if (alreadyLoadedPicIndexes[selectedPicIndex]) {
+        if (loadedSelectedPicIndex === selectedPicIndex) {
+          setChangeSelectedPicPhase('newPicShowed');
+        }
         setLoadedSelectedPicIndex(selectedPicIndex);
-        // setChangeSelectedPicPhase('newPicShowed');
         return;
       }
-
-      setPreloadSelectedPicIndex(selectedPicIndex);
+      setPreloadSelectedPicIndex(nextPicToShow);
     },
-    [alreadyLoadedPicIndexes, changeSelectedPicPhase, selectedPicIndex]
+    [
+      alreadyLoadedPicIndexes,
+      changeSelectedPicPhase,
+      loadedSelectedPicIndex,
+      nextPicToShow,
+    ]
   );
 
   useEffect(
@@ -160,7 +204,6 @@ const Index = ({
       }
 
       setLoadedSelectedPicIndex(preloadSelectedPicIndex as number);
-      // setChangeSelectedPicPhase('newPicShowed');
       setAlreadyLoadedPicIndexes((previousLoadedPixIndexes) => {
         const newArray = [...previousLoadedPixIndexes];
         newArray[preloadSelectedPicIndex as number] = true;
@@ -184,100 +227,86 @@ const Index = ({
         return newArray;
       });
 
-      requestAnimationFrame(() => {
-        setChangeSelectedPicPhase('postChangeAnimation');
-      });
+      setChangeSelectedPicPhase('postChangeAnimation');
     },
-    [changeSelectedPicPhase]
+    [changeSelectedPicPhase, loadedSelectedPicIndex]
   );
 
-  // useEffect(
-  //   function setIdleState() {
-  //     if (changeSelectedPicPhase !== 'postChangeAnimation') {
-  //       return;
-  //     }
-  //
-  //     setChangeSelectedPicPhase('idle');
-  //   },
-  //   [changeSelectedPicPhase]
-  // );
+  const classes = getClasses(shouldAnimate);
 
-  // console.log('isPreloading: ', isPreloading);
-  // console.log('isLoadedTransitionDone: ', isLoadedTransitionDone);
-  // console.log('changePicAnimationStatus: ', changePicPreAnimationStatus);
-  console.log('changeSelectedPicPhase: ', changeSelectedPicPhase);
-  console.log('preloadSelectedPicIndex: ', preloadSelectedPicIndex);
-  console.log('loadedSelectedPicIndex: ', loadedSelectedPicIndex);
-  console.log('alreadyLoadedPicIndexes', alreadyLoadedPicIndexes);
-  console.log(
-    'mainPictureImageLoading: ',
-    changeSelectedPicPhase !== 'idle' &&
-      changeSelectedPicPhase !== 'postChangeAnimation'
-      ? 'yes'
-      : 'no'
-  );
-
-  // todo should animate
-  const classes = getClasses(true);
+  if (galleryPics.length === 0) {
+    return null;
+  }
 
   return (
     <div className={className} role={role}>
       <div css={classes.galleryMainPicWrapper}>
         {changeSelectedPicPhase !== 'postChangeAnimation' &&
-          !alreadyLoadedPicIndexes[selectedPicIndex] && (
+          changeSelectedPicPhase !== 'idle' &&
+          !alreadyLoadedPicIndexes[nextPicToShow] &&
+          shouldAnimate && (
             <figure css={classes.loadingPicFeedback}>
               <Loading css={classes.loadingPic} />
             </figure>
           )}
-
-        <Image
-          key={`MAIN${galleryPics[loadedSelectedPicIndex].src}`}
-          height={picSelectedDims[0]}
-          width={picSelectedDims[1]}
-          loading="eager"
-          onTransitionEnd={() => {
-            // todo check if something else has interfered (changed selection of index) and so a new preload cycle has been started
+        <div
+          style={{
+            opacity:
+              changeSelectedPicPhase !== 'postChangeAnimation' &&
+              changeSelectedPicPhase !== 'idle'
+                ? 0.5
+                : 1,
+          }}
+          css={[classes.imageWrapper, classes.mainPictureImageAnimating]}
+          onTransitionEnd={(event) => {
             if (changeSelectedPicPhase === 'preChangeAnimation') {
               setChangeSelectedPicPhase('preLoading');
               return;
             }
 
             if (changeSelectedPicPhase === 'postChangeAnimation') {
+              if (event.propertyName !== 'opacity') {
+                return;
+              }
               setChangeSelectedPicPhase('idle');
+              return;
             }
           }}
-          onLoadingComplete={() => {
-            setChangeSelectedPicPhase('newPicShowed');
-          }}
-          css={[
-            classes.mainPictureImage,
-            classes.mainPictureImageAnimating,
-            changeSelectedPicPhase !== 'idle' &&
-            changeSelectedPicPhase !== 'postChangeAnimation'
-              ? classes.mainPictureImageLoading
-              : null,
-          ]}
-          layout="fixed"
-          src={`${galleryPics[loadedSelectedPicIndex].src}`}
-          sizes="50vw"
-          alt="Selected photo's big version"
-          quality={100}
-        />
+        >
+          <Image
+            key={`MAIN${galleryPics[loadedSelectedPicIndex].src}`}
+            height={picSelectedDims[0]}
+            width={picSelectedDims[1]}
+            loading="eager"
+            onLoadingComplete={() => {
+              if (loadedSelectedPicIndex != nextPicToShow) {
+                return;
+              }
+
+              setChangeSelectedPicPhase('newPicShowed');
+            }}
+            css={classes.mainPictureImage}
+            layout="fixed"
+            src={`${galleryPics[loadedSelectedPicIndex].src}`}
+            sizes="50vw"
+            alt="Selected photo's big version"
+            quality={100}
+          />
+        </div>
       </div>
       <div css={classes.preloadSelectedPicWrapper} role="none">
-        {preloadSelectedPicIndex && (
+        {preloadSelectedPicIndex !== null && (
           <Image
-            key={`MAINPRELOAD${galleryPics[preloadSelectedPicIndex].src}`}
+            key={`MAINPRELOAD-${preloadSelectedPicIndex}`}
             height={picSelectedDims[0]}
             width={picSelectedDims[1]}
             loading="eager"
             layout="fixed"
             src={galleryPics[preloadSelectedPicIndex].src}
             sizes="50vw"
-            alt="preloading photo"
+            alt={`MAINPRELOAD-${preloadSelectedPicIndex}`}
             quality={100}
             onLoadingComplete={() => {
-              // todo check if something else has interfered (changed selection of index) and so a new preload cycle has been started
               setChangeSelectedPicPhase('loaded');
             }}
           />

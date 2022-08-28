@@ -15,7 +15,6 @@ const nextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     deviceSizes: [400, 500, 600, 700, 1000],
   },
-  experimental: { images: { allowFutureImage: true } },
 };
 
 module.exports = nextConfig;

@@ -7,7 +7,7 @@ type Dimensions = {
   height: undefined | number;
 };
 
-const useDimensions = (ref: MutableRefObject<Element | null>) => {
+const useDimensions = (ref: MutableRefObject<Element | null>): Dimensions => {
   const [dimensions, setDimensions] = useState<Dimensions>({
     width: undefined,
     height: undefined,

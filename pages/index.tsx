@@ -19,10 +19,17 @@ import Face from '../public/smiley-face.svg';
 import Laptop from '../public/mac.svg';
 import Balloon from '../public/balloon.svg';
 
-import { isRunningAcceptanceTest } from '../utils/testUtils';
-
+import LoadImageSrc from '../assets/image-load.svg';
 import useDimensions from '../utils/useDimensions';
 import GalleryMainPicture from '../components/gallery/mainPicture';
+
+import useShouldAnimate from '../utils/useShouldAnimate';
+
+import useScreenSize from '../utils/useScreenSize';
+
+import toBase64 from '../utils/toBase64';
+
+import { isRunningAcceptanceTest } from '../utils/testUtils';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { css, keyframes } from '@emotion/react';
@@ -35,11 +42,14 @@ import type { GalleryPic } from 'components/gallery';
 import type { NextPage } from 'next';
 
 const backgroundColors: Record<string, [string, string, string]> = {
-  // todo move magic-number colros into their own proper values in color module
-  presentation: ['#D4910B', '#FFE0A3', '#FFE0A1'],
-  description: ['#711F80', '#FADEFF', colors.almostWhite],
-  work: ['#26701B', '#CAE3BA', colors.almostWhite],
-  photos: ['#252A40', '#E3E9FF', colors.almostWhite],
+  presentation: [colors.senape, colors.senapeMedium, colors.senapeLight],
+  description: [
+    colors.schiapparelli,
+    colors.schiapparelliMedium,
+    colors.almostWhite,
+  ],
+  work: [colors.stivoGreen, colors.stivoGreenLight, colors.almostWhite],
+  photos: [colors.dawnBlue, colors.dawnBlueLighter, colors.almostWhite],
   chat: [colors.vividBlue, colors.mountainGrey, colors.almostWhite],
 };
 
@@ -215,7 +225,7 @@ const getClasses = (
     fontFamily: "'Alegreya', serif",
   }),
   photoCard: css({
-    backgroundColor: '#A2B4FF',
+    backgroundColor: colors.dawnBlueLight,
     fontFamily: "'Alegreya', serif",
   }),
   presentationDescription: css({
@@ -250,6 +260,7 @@ const getClasses = (
   }),
   polaroid: css({
     position: 'absolute',
+    borderRadius: 5,
     height: 45,
     width: 45,
     padding: '20px',
@@ -269,6 +280,7 @@ const getClasses = (
     bottom: -10,
     right: 80,
     rotate: '-15deg',
+
     backgroundColor: colors.pastelViolet,
     '&:hover': shouldAnimate
       ? {
@@ -367,7 +379,7 @@ const getClasses = (
     },
   }),
   galleryArticleImageSelected: css({
-    border: '4px solid #7F90DB !important',
+    border: `4px solid ${colors.dawnBlueMedium} !important`,
   }),
   galleryMainPicCanvas: css({
     transition: shouldAnimate ? 'all 0.4s ease-in-out' : undefined,
@@ -385,54 +397,12 @@ type HomeProperties = {
   galleryPics: Array<GalleryPic>;
 };
 
-const toBase64 = (str: string) =>
-  typeof window === 'undefined'
-    ? Buffer.from(str).toString('base64')
-    : window.btoa(str);
-
-const convertImage =
-  () => `<?xml version="1.0" encoding="UTF-8" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
-        "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg width="100px" height="100px" viewBox="0 0 148 48" version="1.1" xmlns="http://www.w3.org/2000/svg"
-     xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/"
-     style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
-
-
-    <path>
-        <animate
-                attributeName="d"
-                keyTimes="0; 0.166667; 0.33; 1"
-                values="m 23.908683,31.80871 c 0.186066,0.238949 0.380946,0.467124 0.584639,0.683549 0.157667,0.191942 0.327085,0.377029 0.505317,0.55624 1.484611,1.483631 3.399133,2.276861 5.344014,2.376748 0.935226,0.09695 1.907666,0.05288 2.897733,-0.144935 4.723141,-0.94404 8.591357,-5.647595 8.948799,-11.176695 0.391719,-6.067713 -3.331562,-11.202157 -8.533577,-12.229438 -3.053442,-0.602266 -5.352827,-0.07834 -7.094014,0.7237 -3.422636,1.576665 -5.45957,4.617376 -5.997203,8.298546 -0.509234,3.48825 0.767767,7.414243 1.647174,8.843035 0.521965,0.847091 1.095831,1.526721 1.697118,2.06925 z M 21.77382,22.909856 c -0.115557,0.36234 -0.211528,0.760913 -0.279099,1.199637 0.06365,-0.412283 0.157666,-0.812815 0.279099,-1.199637 z m 0.09499,-0.284975 -0.06659,0.199776 0.08031,-0.23601 z;m 17.34192,39.106159 c 0.331891,0.426218 0.679504,0.833219 1.042836,1.219264 0.281235,0.342371 0.58343,0.672517 0.901346,0.992178 2.648137,2.64639 6.063116,4.061292 9.532248,4.239463 1.668186,0.172931 3.40275,0.09433 5.168758,-0.258524 8.42478,-1.683905 15.32461,-10.073752 15.962189,-19.936144 C 50.648015,14.53927 44.006709,5.3808368 34.727748,3.5484509 29.28125,2.4741747 25.17978,3.4087147 22.073982,4.8393327 15.968943,7.6516686 12.335616,13.075459 11.376626,19.641651 c -0.908332,6.222077 1.369484,13.224966 2.938105,15.773535 0.931041,1.510979 1.954659,2.723253 3.027189,3.690973 z M 13.533914,23.233056 c -0.206122,0.646314 -0.377308,1.357259 -0.497835,2.139823 0.113535,-0.735399 0.281231,-1.449839 0.497835,-2.139823 z m 0.169434,-0.508315 -0.118776,0.356345 0.143249,-0.420977 z;m 23.908683,31.80871 c 0.186066,0.238949 0.380946,0.467124 0.584639,0.683549 0.157667,0.191942 0.327085,0.377029 0.505317,0.55624 1.484611,1.483631 3.399133,2.276861 5.344014,2.376748 0.935226,0.09695 1.907666,0.05288 2.897733,-0.144935 4.723141,-0.94404 8.591357,-5.647595 8.948799,-11.176695 0.391719,-6.067713 -3.331562,-11.202157 -8.533577,-12.229438 -3.053442,-0.602266 -5.352827,-0.07834 -7.094014,0.7237 -3.422636,1.576665 -5.45957,4.617376 -5.997203,8.298546 -0.509234,3.48825 0.767767,7.414243 1.647174,8.843035 0.521965,0.847091 1.095831,1.526721 1.697118,2.06925 z M 21.77382,22.909856 c -0.115557,0.36234 -0.211528,0.760913 -0.279099,1.199637 0.06365,-0.412283 0.157666,-0.812815 0.279099,-1.199637 z m 0.09499,-0.284975 -0.06659,0.199776 0.08031,-0.23601 z;m 23.908683,31.80871 c 0.186066,0.238949 0.380946,0.467124 0.584639,0.683549 0.157667,0.191942 0.327085,0.377029 0.505317,0.55624 1.484611,1.483631 3.399133,2.276861 5.344014,2.376748 0.935226,0.09695 1.907666,0.05288 2.897733,-0.144935 4.723141,-0.94404 8.591357,-5.647595 8.948799,-11.176695 0.391719,-6.067713 -3.331562,-11.202157 -8.533577,-12.229438 -3.053442,-0.602266 -5.352827,-0.07834 -7.094014,0.7237 -3.422636,1.576665 -5.45957,4.617376 -5.997203,8.298546 -0.509234,3.48825 0.767767,7.414243 1.647174,8.843035 0.521965,0.847091 1.095831,1.526721 1.697118,2.06925 z M 21.77382,22.909856 c -0.115557,0.36234 -0.211528,0.760913 -0.279099,1.199637 0.06365,-0.412283 0.157666,-0.812815 0.279099,-1.199637 z m 0.09499,-0.284975 -0.06659,0.199776 0.08031,-0.23601 z;"
-                dur="3s"
-                repeatCount="indefinite" />
-    </path>
-    <path d="m 66.959506,18.733695 c -2.046,1.978 -2.929,4.474 -2.982,6.529 -0.055,2.134 0.331,5.133 3.333,7.362 0.277,0.312 0.579,0.608 0.904,0.889 1.452,1.255 3.573,2.429 6.846,2.429 4.25,0 7.495,-2.393 9.001,-6.292 1.433,-2.95 1.376,-7.927 0.682,-10.009 -0.764,-2.293 -1.976,-3.793 -3.435,-4.733 -0.363,-0.39 -0.671,-0.632 -0.838,-0.766 -2.395,-1.924 -4.945,-2.269 -7.53,-1.55 -1.421,0.396 -3.368,1.28 -4.879,3.605 -0.3,0.461 -0.727,1.369 -1.102,2.536 z;">
-        <animate
-                attributeName="d"
-                keyTimes="0; 0.166667; 0.33; 1"
-                values="m 66.959506,18.733695 c -2.046,1.978 -2.929,4.474 -2.982,6.529 -0.055,2.134 0.331,5.133 3.333,7.362 0.277,0.312 0.579,0.608 0.904,0.889 1.452,1.255 3.573,2.429 6.846,2.429 4.25,0 7.495,-2.393 9.001,-6.292 1.433,-2.95 1.376,-7.927 0.682,-10.009 -0.764,-2.293 -1.976,-3.793 -3.435,-4.733 -0.363,-0.39 -0.671,-0.632 -0.838,-0.766 -2.395,-1.924 -4.945,-2.269 -7.53,-1.55 -1.421,0.396 -3.368,1.28 -4.879,3.605 -0.3,0.461 -0.727,1.369 -1.102,2.536 z;m 60.910558,13.95244 c -3.745633,3.621144 -5.36215,8.190595 -5.459177,11.952705 -0.100689,3.906734 0.605964,9.397032 6.101756,13.477685 0.507107,0.571184 1.059981,1.113073 1.654962,1.627503 2.65819,2.297541 6.541126,4.446794 12.53304,4.446794 7.780518,0 13.721171,-4.38089 16.478219,-11.518828 2.623409,-5.400595 2.519058,-14.512036 1.248545,-18.323575 C 92.069241,11.416907 89.85042,8.6708405 87.179416,6.9499745 86.514868,6.2359964 85.951008,5.7929645 85.645281,5.547649 81.260729,2.0253638 76.592419,1.3937688 71.860035,2.7100488 69.258596,3.4350096 65.694203,5.0533573 62.928,9.3097577 62.378787,10.153716 61.597075,11.816001 60.910558,13.95244 Z;m 66.959506,18.733695 c -2.046,1.978 -2.929,4.474 -2.982,6.529 -0.055,2.134 0.331,5.133 3.333,7.362 0.277,0.312 0.579,0.608 0.904,0.889 1.452,1.255 3.573,2.429 6.846,2.429 4.25,0 7.495,-2.393 9.001,-6.292 1.433,-2.95 1.376,-7.927 0.682,-10.009 -0.764,-2.293 -1.976,-3.793 -3.435,-4.733 -0.363,-0.39 -0.671,-0.632 -0.838,-0.766 -2.395,-1.924 -4.945,-2.269 -7.53,-1.55 -1.421,0.396 -3.368,1.28 -4.879,3.605 -0.3,0.461 -0.727,1.369 -1.102,2.536 z;m 66.959506,18.733695 c -2.046,1.978 -2.929,4.474 -2.982,6.529 -0.055,2.134 0.331,5.133 3.333,7.362 0.277,0.312 0.579,0.608 0.904,0.889 1.452,1.255 3.573,2.429 6.846,2.429 4.25,0 7.495,-2.393 9.001,-6.292 1.433,-2.95 1.376,-7.927 0.682,-10.009 -0.764,-2.293 -1.976,-3.793 -3.435,-4.733 -0.363,-0.39 -0.671,-0.632 -0.838,-0.766 -2.395,-1.924 -4.945,-2.269 -7.53,-1.55 -1.421,0.396 -3.368,1.28 -4.879,3.605 -0.3,0.461 -0.727,1.369 -1.102,2.536 z;"
-                dur="3s"
-                begin="1s"
-                repeatCount="indefinite" />
-    </path>
-    <path
-    d="m 113.14351,15.290695 c -1.77,0.606 -3.176,1.641 -4.27,2.785 -5.893,6.167 -2.207,18.311 7.511,18.311 3.758,0 7.17,-1.978 9.224,-5.481 0.698,-1.063 1.258,-2.249 1.575,-3.431 0.524,-1.954 0.476,-3.895 -0.062,-5.653 -0.269,-1.552 -0.801,-2.996 -1.581,-4.167 -1.096,-1.643 -2.644,-2.855 -4.702,-3.471 -1.57,-0.47 -4.675,-0.617 -7.695,1.107 z">
-        <animate
-                attributeName="d"
-                keyTimes="0; 0.166667; 0.33; 1"
-                values="m 113.14351,15.290695 c -1.77,0.606 -3.176,1.641 -4.27,2.785 -5.893,6.167 -2.207,18.311 7.511,18.311 3.758,0 7.17,-1.978 9.224,-5.481 0.698,-1.063 1.258,-2.249 1.575,-3.431 0.524,-1.954 0.476,-3.895 -0.062,-5.653 -0.269,-1.552 -0.801,-2.996 -1.581,-4.167 -1.096,-1.643 -2.644,-2.855 -4.702,-3.471 -1.57,-0.47 -4.675,-0.617 -7.695,1.107 z;m 110.57344,5.4376018 c -3.39497,1.1623483 -6.09178,3.1475474 -8.19016,5.3418152 -11.303152,11.828715 -4.233146,35.121709 14.40662,35.121709 7.20807,0 13.75253,-3.793935 17.69221,-10.51292 1.33882,-2.038904 2.41295,-4.313732 3.02096,-6.580885 1.00507,-3.747902 0.91302,-7.470869 -0.11886,-10.842827 -0.51596,-2.97684 -1.53637,-5.746527 -3.03246,-7.9925823 -2.10219,-3.1513848 -5.07139,-5.4760799 -9.01876,-6.6576092 -3.01134,-0.9014911 -8.96695,-1.1834448 -14.75952,2.1232993 z;m 113.14351,15.290695 c -1.77,0.606 -3.176,1.641 -4.27,2.785 -5.893,6.167 -2.207,18.311 7.511,18.311 3.758,0 7.17,-1.978 9.224,-5.481 0.698,-1.063 1.258,-2.249 1.575,-3.431 0.524,-1.954 0.476,-3.895 -0.062,-5.653 -0.269,-1.552 -0.801,-2.996 -1.581,-4.167 -1.096,-1.643 -2.644,-2.855 -4.702,-3.471 -1.57,-0.47 -4.675,-0.617 -7.695,1.107 z;m 113.14351,15.290695 c -1.77,0.606 -3.176,1.641 -4.27,2.785 -5.893,6.167 -2.207,18.311 7.511,18.311 3.758,0 7.17,-1.978 9.224,-5.481 0.698,-1.063 1.258,-2.249 1.575,-3.431 0.524,-1.954 0.476,-3.895 -0.062,-5.653 -0.269,-1.552 -0.801,-2.996 -1.581,-4.167 -1.096,-1.643 -2.644,-2.855 -4.702,-3.471 -1.57,-0.47 -4.675,-0.617 -7.695,1.107 z;"
-                dur="3s"
-                begin="2s"
-                repeatCount="indefinite" />
-    </path>
-</svg>`;
-
 const Home: NextPage<HomeProperties> = ({ galleryPics }) => {
   const [showMac, setShowMac] = useState(false);
   const [showingSection, setShowingSection] = useState<
     'presentation' | 'description' | 'work' | 'photos' | 'chat'
   >('presentation');
-  const [shouldAnimate, setShouldAnimate] = useState<boolean>(true);
+  const shouldAnimate = useShouldAnimate();
   const classes = useMemo(() => {
     return getClasses(showMac, showingSection, shouldAnimate);
   }, [showMac, showingSection, shouldAnimate]);
@@ -442,26 +412,8 @@ const Home: NextPage<HomeProperties> = ({ galleryPics }) => {
   const photoCardRef = useRef<HTMLElement | null>(null);
   const asideRef = useRef<HTMLElement | null>(null);
   const asideDims = useDimensions(asideRef);
-
+  const { isDesktopOrBigger } = useScreenSize();
   const [galleryPicSelected, setGalleryPicSelected] = useState<number>(0);
-  console.log('galleryPicSelected: ', galleryPicSelected);
-
-  useEffect(() => {
-    if (isRunningAcceptanceTest()) {
-      setShouldAnimate(false);
-      return;
-    }
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setShouldAnimate(!mediaQuery.matches);
-
-    const handleMedia = (e: MediaQueryListEventMap['change']) =>
-      setShouldAnimate(!e.matches);
-    mediaQuery.addEventListener('change', handleMedia);
-
-    return () => {
-      mediaQuery.removeEventListener('change', handleMedia);
-    };
-  }, []);
 
   useEffect(() => {
     if (!shouldAnimate) {
@@ -499,6 +451,7 @@ const Home: NextPage<HomeProperties> = ({ galleryPics }) => {
       ) {
         setShowMac(true);
         setShowingSection('chat');
+
         return;
       }
 
@@ -519,6 +472,7 @@ const Home: NextPage<HomeProperties> = ({ galleryPics }) => {
       ) {
         setShowMac(true);
         setShowingSection('work');
+
         return;
       }
 
@@ -548,33 +502,35 @@ const Home: NextPage<HomeProperties> = ({ galleryPics }) => {
     if (showingSection === 'chat') {
       document.body.style.background = colors.vividBlue;
     } else {
-      document.body.style.background = '#D4910B';
+      document.body.style.background = colors.senape;
     }
   }, [showingSection]);
 
   return (
     <>
-      <aside
-        css={classes.asideColumn}
-        role={showingSection !== 'photos' ? 'presentation' : 'complementary'}
-        ref={asideRef}
-      >
-        <div css={classes.illustrationForSection} role="presentation">
-          <div>
-            <Face css={classes.face} />
-            <Laptop css={classes.laptop} />
-            <Balloon css={classes.balloon} />
+      {isDesktopOrBigger && (
+        <aside
+          css={classes.asideColumn}
+          role={showingSection !== 'photos' ? 'presentation' : 'complementary'}
+          ref={asideRef}
+        >
+          <div css={classes.illustrationForSection} role="presentation">
+            <div>
+              <Face css={classes.face} />
+              <Laptop css={classes.laptop} />
+              <Balloon css={classes.balloon} />
+            </div>
           </div>
-        </div>
-        <GalleryMainPicture
-          css={classes.galleryMainPicCanvas}
-          role={showingSection === 'photos' ? 'img' : 'none'}
-          aria-label={"Big version of the photo gallery's selected picture"}
-          galleryPics={galleryPics}
-          selectedPicIndex={galleryPicSelected}
-          availableMainPictureSpace={asideDims}
-        />
-      </aside>
+          <GalleryMainPicture
+            css={classes.galleryMainPicCanvas}
+            role={showingSection === 'photos' ? 'img' : 'none'}
+            aria-label={"Big version of the photo gallery's selected picture"}
+            galleryPics={galleryPics}
+            selectedPicIndex={galleryPicSelected}
+            availableMainPictureSpace={asideDims}
+          />
+        </aside>
+      )}
       <main css={classes.mainContent}>
         <article
           css={[
@@ -597,12 +553,18 @@ const Home: NextPage<HomeProperties> = ({ galleryPics }) => {
           </div>
           <h1 css={classes.nameTitle}>Matteo Bertamini</h1>
           <p css={classes.jobDescription}>Fullstack Developer</p>
-          {/* todo if not on mobile use blank */}
           <a
-            href="https://www.amazon.it/photos/share/qFervNlenYwkjdQ1o26YOsWhld5fnsJ0t89xbcv2Vep"
+            href="#photos"
             rel="noreferrer"
-            onClick={() => {
+            onClick={(event) => {
               ga.click('photos');
+
+              if (!shouldAnimate) {
+                return;
+              }
+
+              event.preventDefault();
+              photoCardRef.current?.scrollIntoView({ behavior: 'smooth' });
             }}
           >
             <div css={[classes.polaroid, classes.backPolaroid]}>
@@ -820,7 +782,7 @@ const Home: NextPage<HomeProperties> = ({ galleryPics }) => {
                   width={image.dimensions.thumbnail.width}
                   height={image.dimensions.thumbnail.height}
                   onClick={() => {
-                    if (showingSection !== 'photos') {
+                    if (showingSection !== 'photos' || !isDesktopOrBigger) {
                       return;
                     }
                     setGalleryPicSelected(index);
@@ -834,11 +796,11 @@ const Home: NextPage<HomeProperties> = ({ galleryPics }) => {
                   quality={50}
                   placeholder="blur"
                   blurDataURL={`data:image/svg+xml;base64,${toBase64(
-                    convertImage()
+                    LoadImageSrc
                   )}`}
                   css={[
                     classes.galleryArticleImage,
-                    galleryPicSelected === index
+                    galleryPicSelected === index && isDesktopOrBigger
                       ? classes.galleryArticleImageSelected
                       : null,
                   ]}
@@ -872,6 +834,10 @@ const Home: NextPage<HomeProperties> = ({ galleryPics }) => {
 
 export async function getStaticProps() {
   try {
+    // todo for testing env use
+    if (isRunningAcceptanceTest()) {
+    }
+
     const response = await fetch(
       'https://www.amazon.it/drive/v1/nodes/mmVUOJzUS_KqKRykQrzFPA/children?asset=ALL&filters=kind%3A(FILE*+OR+FOLDER*)+AND+contentProperties.contentType%3A(image*)+AND+status%3A(AVAILABLE*)&limit=15&lowResThumbnail=true&searchOnFamily=true&sort=%5B%27contentProperties.contentDate+DESC%27%5D&tempLink=true&shareId=qFervNlenYwkjdQ1o26YOsWhld5fnsJ0t89xbcv2Vep&offset=0&resourceVersion=V2&ContentType=JSON&_=1660508015523'
     );
