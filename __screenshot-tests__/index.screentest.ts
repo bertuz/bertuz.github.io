@@ -27,6 +27,13 @@ describe('The Home page', () => {
   it('should be shown according to the mobile design', async () => {
     await openPage('/', Device.iPhone13Mini);
 
+    await page.evaluate(() => {
+      window.scrollTo(0, window.document.body.scrollHeight);
+    });
+    await new Promise((res) => {
+      setTimeout(res, 2000);
+    });
+
     expect(await page.screenshot()).toMatchImageSnapshot();
 
     expect(await page.screenshot({ fullPage: true })).toMatchImageSnapshot();

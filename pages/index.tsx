@@ -834,8 +834,28 @@ const Home: NextPage<HomeProperties> = ({ galleryPics }) => {
 
 export async function getStaticProps() {
   try {
-    // todo for testing env use
     if (isRunningAcceptanceTest()) {
+      return {
+        props: {
+          galleryPics: [
+            {
+              src: '/test.jpg',
+              name: 'photo test',
+              dimensions: {
+                ratio: 968 / 1500,
+                thumbnail: {
+                  height: 129.1,
+                  width: 200,
+                },
+                original: {
+                  height: 968,
+                  width: 1500,
+                },
+              },
+            },
+          ],
+        },
+      };
     }
 
     const response = await fetch(
