@@ -1,6 +1,10 @@
 name: dock
 
 on:
+  pull_request:
+    branches: [ new-home-page ]
+  push:
+    branches: [ new-home-page ]
   workflow_dispatch:
     branches: [ docker-jest-test ]
 jobs:
