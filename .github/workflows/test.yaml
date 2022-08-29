@@ -1,12 +1,14 @@
-name: dock
+name: CI
 
 on:
   pull_request:
     branches: [ new-home-page ]
   push:
-    branches: [ new-home-page ]
+    branches: [ photo-gallery-desktop ]
+
+  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-    branches: [ docker-jest-test ]
+
 jobs:
   test:
     # The type of runner that the job will run on
@@ -22,12 +24,6 @@ jobs:
       - run: cd ..
       - run: yarn install --dev
       - run: yarn build
-      - name: Pulling docker testing image with chromium
-        uses: djbender/docker-buildx-pull-or-build@v0.3
-        with:
-          docker_username: ${{ secrets.DOCKERHUB_USER }}
-          docker_password: ${{ secrets.DOCKERHUB_PASSWORD }}
-          image: bertuz/docker-chromium
       - run: echo "🔬 Testing the repo"
       - run: yarn test
       - name: Archive code coverage results
