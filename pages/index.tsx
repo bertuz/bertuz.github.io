@@ -16,6 +16,7 @@ import Camera from '../public/camera.svg';
 import Chat from '../components/chat';
 
 import Face from '../public/smiley-face.svg';
+import FaceStatic from '../public/smiley-face-static.svg';
 import Laptop from '../public/mac.svg';
 import Balloon from '../public/balloon.svg';
 
@@ -516,7 +517,8 @@ const Home: NextPage<HomeProperties> = ({ galleryPics }) => {
         >
           <div css={classes.illustrationForSection} role="presentation">
             <div>
-              <Face css={classes.face} />
+              {shouldAnimate && <Face css={classes.face} />}
+              {!shouldAnimate && <FaceStatic css={classes.face} />}
               <Laptop css={classes.laptop} />
               <Balloon css={classes.balloon} />
             </div>

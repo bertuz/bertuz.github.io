@@ -846,6 +846,7 @@ const Index = () => {
               ? promptHeight || 'auto'
               : 0,
         }}
+        // todo this makes measure description badly?
         css={classes.chatPromptDescription}
       >
         Yep, a 1:1 live chat with me. Keep in mind it&apos;s experimental, but
