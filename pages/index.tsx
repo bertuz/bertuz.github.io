@@ -42,16 +42,32 @@ import type { GalleryPic } from 'components/gallery';
 
 import type { NextPage } from 'next';
 
-const backgroundColors: Record<string, [string, string, string]> = {
+const asideBackgroundColors: Record<string, [string, string, string]> = {
   presentation: [colors.senape, colors.senapeMedium, colors.senapeLight],
   description: [
     colors.schiapparelli,
-    colors.schiapparelliMedium,
+    colors.schiapparelliLight,
     colors.almostWhite,
   ],
   work: [colors.stivoGreen, colors.stivoGreenLight, colors.almostWhite],
   photos: [colors.dawnBlue, colors.dawnBlueLighter, colors.almostWhite],
   chat: [colors.vividBlue, colors.mountainGrey, colors.almostWhite],
+};
+
+const bodyBackgroundColors: Record<string, [string, string]> = {
+  presentation: [colors.senape, colors.senapeLight],
+  description: [colors.schiapparelli, colors.schiapparelliLight],
+  work: [colors.stivoGreen, colors.stivoGreenLight],
+  photos: [colors.dawnBlue, colors.dawnBlueLighter],
+  chat: [colors.vividBlue, colors.senape],
+};
+
+const cardBackgroundColors: Record<string, string> = {
+  presentation: colors.senapeLight,
+  description: colors.schiapparelliLight,
+  work: colors.stivoGreenLight,
+  photos: colors.dawnBlueLighter,
+  chat: colors.mountainGrey,
 };
 
 const nodFaceKeyframes = keyframes({
@@ -98,8 +114,8 @@ const getClasses = (
     width: '50vw',
     background:
       showingSection !== 'photos'
-        ? `transparent radial-gradient(ellipse 220% 95% at 120% center,  ${backgroundColors[showingSection][1]} 2%, ${backgroundColors[showingSection][0]} 40%)`
-        : backgroundColors[showingSection][0],
+        ? `transparent radial-gradient(ellipse 220% 95% at 120% center,  ${asideBackgroundColors[showingSection][1]} 2%, ${asideBackgroundColors[showingSection][0]} 40%)`
+        : asideBackgroundColors[showingSection][0],
     [breakpoints.maxMobile]: {
       display: 'none',
     },
@@ -130,9 +146,9 @@ const getClasses = (
     height: '100%',
     transform: showMac ? 'translate(-100%, 25%)' : 'translate(-100vw, 100vh)',
     transition: shouldAnimate ? 'all 0.2s ease-in-out' : undefined,
-    stroke: `${backgroundColors[showingSection][2]} !important`,
+    stroke: `${asideBackgroundColors[showingSection][2]} !important`,
     strokeWidth: '2',
-    fill: backgroundColors[showingSection][0],
+    fill: asideBackgroundColors[showingSection][0],
     zIndex: '1',
   }),
   balloon: css({
@@ -146,15 +162,15 @@ const getClasses = (
       showingSection === 'chat'
         ? 'translate(-10%, -50%) rotate(20deg)'
         : 'translate(-70%, 20%) rotate(90deg) scaleX(0) scaleY(0)',
-    stroke: `${backgroundColors[showingSection][2]} !important`,
+    stroke: `${asideBackgroundColors[showingSection][2]} !important`,
     strokeWidth: '2',
-    fill: backgroundColors[showingSection][0],
+    fill: asideBackgroundColors[showingSection][0],
     zIndex: '0',
   }),
   face: css({
     height: '100%',
     width: '100%',
-    fill: `${backgroundColors[showingSection][2]} !important`,
+    fill: `${asideBackgroundColors[showingSection][2]} !important`,
     strokeWidth: '3 !important',
     animation: shouldAnimate
       ? `${nodFaceKeyframes} 3s alternate infinite !important`
@@ -179,7 +195,7 @@ const getClasses = (
   cardFocused: {
     opacity: 1,
     paddingLeft: 24,
-    backgroundColor: backgroundColors[showingSection][1] ?? colors.senape,
+    backgroundColor: cardBackgroundColors[showingSection] ?? colors.senape,
   },
   cardUnfocused: css({
     opacity: 0.5,
@@ -236,6 +252,16 @@ const getClasses = (
   }),
   workCard: css({
     fontFamily: "'Alegreya', serif",
+  }),
+  gallery: css({
+    minHeight: 400,
+    overflow: 'hidden',
+    display: 'grid',
+    gridTemplateColumns: 'auto auto auto',
+    gridAutoRows: '150px',
+    columnGap: 10,
+    rowGap: 10,
+    marginTop: dimensionInRem(1),
   }),
   chatCard: css({
     backgroundColor: colors.mountainGrey,
@@ -500,12 +526,9 @@ const Home: NextPage<HomeProperties> = ({ galleryPics }) => {
   }, []);
 
   useEffect(() => {
-    if (showingSection === 'chat') {
-      document.body.style.background = colors.vividBlue;
-    } else {
-      document.body.style.background = colors.senape;
-    }
-  }, [showingSection]);
+    document.body.style.background =
+      bodyBackgroundColors[showingSection][isDesktopOrBigger ? 0 : 1];
+  }, [isDesktopOrBigger, showingSection]);
 
   return (
     <>
@@ -554,9 +577,7 @@ const Home: NextPage<HomeProperties> = ({ galleryPics }) => {
             />
           </div>
           <h1 css={classes.nameTitle}>Matteo Bertamini</h1>
-          <p css={classes.jobDescription}>
-            Fullstack Developer {JSON.stringify(shouldAnimate)}
-          </p>
+          <p css={classes.jobDescription}>Fullstack Developer</p>
           <a
             href="#photos"
             rel="noreferrer"
@@ -767,19 +788,7 @@ const Home: NextPage<HomeProperties> = ({ galleryPics }) => {
           ]}
         >
           <h2>Photos</h2>
-          <div
-            // todo study grid properly
-            style={{
-              minHeight: 400,
-              overflow: 'hidden',
-              display: 'grid',
-              gridTemplateColumns: 'auto auto auto',
-              gridAutoRows: '150px',
-              columnGap: 10,
-              rowGap: 10,
-              marginTop: dimensionInRem(1),
-            }}
-          >
+          <div css={classes.gallery}>
             {galleryPics.map((image, index: number) => (
               <article key={image.name} css={classes.galleryArticle}>
                 <Image
@@ -836,7 +845,7 @@ const Home: NextPage<HomeProperties> = ({ galleryPics }) => {
   );
 };
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
   try {
     if (isRunningAcceptanceTest()) {
       return {

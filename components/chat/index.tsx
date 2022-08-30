@@ -166,9 +166,11 @@ const getClasses = () => ({
     boxSizing: 'border-box',
   }),
   chatPromptDescription: css({
-    transition: 'all 0.5s ease-in-out',
     display: 'block',
     overflow: 'hidden',
+  }),
+  chatPromptTransition: css({
+    transition: 'all 0.5s ease-in-out',
   }),
   chatInput: css({
     width: 150,
@@ -847,7 +849,12 @@ const Index = () => {
               : 0,
         }}
         // todo this makes measure description badly?
-        css={classes.chatPromptDescription}
+        css={[
+          chatStatus == ChatState.WaitingForFirstMessageToBoot
+            ? null
+            : classes.chatPromptTransition,
+          classes.chatPromptDescription,
+        ]}
       >
         Yep, a 1:1 live chat with me. Keep in mind it&apos;s experimental, but
         everything should be working good!

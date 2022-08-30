@@ -5,7 +5,7 @@ const colors = {
   senapeMedium: '#FFE0A3',
   senapeLight: '#FFE0A1',
   schiapparelli: '#711F80',
-  schiapparelliMedium: '#FADEFF',
+  schiapparelliLight: '#FADEFF',
   stivoGreen: '#26701B',
   stivoGreenLight: '#CAE3BA',
   dawnBlue: '#252A40',
