@@ -554,7 +554,9 @@ const Home: NextPage<HomeProperties> = ({ galleryPics }) => {
             />
           </div>
           <h1 css={classes.nameTitle}>Matteo Bertamini</h1>
-          <p css={classes.jobDescription}>Fullstack Developer</p>
+          <p css={classes.jobDescription}>
+            Fullstack Developer {JSON.stringify(shouldAnimate)}
+          </p>
           <a
             href="#photos"
             rel="noreferrer"

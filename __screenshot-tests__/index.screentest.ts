@@ -28,13 +28,17 @@ describe('The Home page', () => {
     await openPage('/', Device.iPhone13Mini);
 
     await page.evaluate(() => {
+      window.scrollTo(0, 0);
+    });
+
+    // in order to load the lazy photos
+    await page.evaluate(() => {
       window.scrollTo(0, window.document.body.scrollHeight);
     });
+
     await new Promise((res) => {
       setTimeout(res, 2000);
     });
-
-    expect(await page.screenshot()).toMatchImageSnapshot();
 
     expect(await page.screenshot({ fullPage: true })).toMatchImageSnapshot();
   });

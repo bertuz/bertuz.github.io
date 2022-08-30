@@ -8,12 +8,13 @@ const useShouldAnimate = (): boolean => {
   useEffect(() => {
     if (isRunningAcceptanceTest()) {
       setShouldAnimate(false);
+      return;
     }
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setShouldAnimate(!mediaQuery.matches);
+    setShouldAnimate(!isRunningAcceptanceTest() && !mediaQuery.matches);
 
     const handleMedia = (e: MediaQueryListEventMap['change']) =>
-      setShouldAnimate(!e.matches);
+      !isRunningAcceptanceTest() && setShouldAnimate(!e.matches);
     mediaQuery.addEventListener('change', handleMedia);
 
     return () => {
