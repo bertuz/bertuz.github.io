@@ -40,6 +40,10 @@ describe('The Home page', () => {
       setTimeout(res, 2000);
     });
 
+    await page.evaluate(() => {
+      window.scrollTo(0, 0);
+    });
+
     expect(await page.screenshot({ fullPage: true })).toMatchImageSnapshot();
   });
 });
