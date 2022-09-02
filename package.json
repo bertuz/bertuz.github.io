@@ -8,7 +8,6 @@
     "start": "next start",
     "lint": "next lint",
     "test": "export TEST_ENV='acceptance' && export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true && export DOCKER_CHROMIUM_USE_IMAGE='bertuz/docker-chromium:chromium103.0.5060.53' && export TEST_URL=$(hostname | awk '{print $1}') && yarn build && jest",
-    "prepare": "husky install"
   },
   "dependencies": {
     "@emotion/react": "^11.8.2",
