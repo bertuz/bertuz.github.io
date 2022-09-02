@@ -7,7 +7,7 @@ import {
 
 import { ACK_TIMEOUT_IN_MS, ApiEvent, BackEvent } from './channelModel';
 
-import Button from '../button';
+import Button from '../Button';
 
 import colors from '../../assets/styles/colors';
 
@@ -166,9 +166,11 @@ const getClasses = () => ({
     boxSizing: 'border-box',
   }),
   chatPromptDescription: css({
-    transition: 'all 0.5s ease-in-out',
     display: 'block',
     overflow: 'hidden',
+  }),
+  chatPromptTransition: css({
+    transition: 'all 0.5s ease-in-out',
   }),
   chatInput: css({
     width: 150,
@@ -846,7 +848,13 @@ const Index = () => {
               ? promptHeight || 'auto'
               : 0,
         }}
-        css={classes.chatPromptDescription}
+        // todo this makes measure description badly?
+        css={[
+          chatStatus == ChatState.WaitingForFirstMessageToBoot
+            ? null
+            : classes.chatPromptTransition,
+          classes.chatPromptDescription,
+        ]}
       >
         Yep, a 1:1 live chat with me. Keep in mind it&apos;s experimental, but
         everything should be working good!

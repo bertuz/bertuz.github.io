@@ -4,7 +4,7 @@ import breakpoints, { MAX_MOBILE_WIDTH_PX } from '../assets/styles/breakpoints';
 
 import { dimensionInRem } from '../assets/styles/dimensions';
 
-import Button from '../components/button';
+import Button from '../components/Button';
 
 import CVExperienceItem from '../components/CVExperienceItem';
 import * as ga from '../lib/google-analytics';
@@ -16,23 +16,64 @@ import Camera from '../public/camera.svg';
 import Chat from '../components/chat';
 
 import Face from '../public/smiley-face.svg';
+import FaceStatic from '../public/smiley-face-static.svg';
 import Laptop from '../public/mac.svg';
 import Balloon from '../public/balloon.svg';
 
+import LoadImageSrc from '../assets/image-load.svg';
+import useDimensions from '../utils/useDimensions';
+import GalleryMainPicture from '../components/gallery/mainPicture';
+import GalleryPopup from '../components/gallery/mainPicture/popup';
+
+import useShouldAnimate from '../utils/useShouldAnimate';
+
+import useScreenSize from '../utils/useScreenSize';
+
+import toBase64 from '../utils/toBase64';
 import { isRunningAcceptanceTest } from '../utils/testUtils';
+
+import { Transition } from 'react-transition-group';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { css, keyframes } from '@emotion/react';
 
 import Link from 'next/link';
+import Image from 'next/image';
+
+import * as Transitions from 'react-transition-group/Transition';
+
+import type { GalleryPic } from 'components/gallery';
 
 import type { NextPage } from 'next';
 
-const backgroundColors: Record<string, [string, string, string]> = {
-  presentation: [colors.pastelViolet, colors.senape, colors.pastelVioletDark],
-  description: [colors.vividBlue, colors.mountainGrey, colors.almostWhite],
-  work: [colors.vividRed, colors.sugarPaperBlue, colors.almostWhite],
+const GALLERY_TRANSITION_DURATION = 300;
+
+const asideBackgroundColors: Record<string, [string, string, string]> = {
+  presentation: [colors.senape, colors.senapeMedium, colors.senapeLight],
+  description: [
+    colors.schiapparelli,
+    colors.schiapparelliLight,
+    colors.almostWhite,
+  ],
+  work: [colors.stivoGreen, colors.stivoGreenLight, colors.almostWhite],
+  photos: [colors.dawnBlue, colors.dawnBlueLighter, colors.almostWhite],
   chat: [colors.vividBlue, colors.mountainGrey, colors.almostWhite],
+};
+
+const bodyBackgroundColors: Record<string, [string, string]> = {
+  presentation: [colors.senape, colors.senapeLight],
+  description: [colors.schiapparelli, colors.schiapparelliLight],
+  work: [colors.stivoGreen, colors.stivoGreenLight],
+  photos: [colors.dawnBlue, colors.dawnBlueLighter],
+  chat: [colors.vividBlue, colors.senape],
+};
+
+const cardBackgroundColors: Record<string, string> = {
+  presentation: colors.senapeLight,
+  description: colors.schiapparelliLight,
+  work: colors.stivoGreenLight,
+  photos: colors.dawnBlueLighter,
+  chat: colors.mountainGrey,
 };
 
 const nodFaceKeyframes = keyframes({
@@ -43,35 +84,66 @@ const nodFaceKeyframes = keyframes({
 // todo adopt csslint when available https://github.com/emotion-js/emotion/issues/2695
 const getClasses = (
   showMac: boolean,
-  showingSection: 'presentation' | 'description' | 'work' | 'chat',
+  showingSection: 'presentation' | 'description' | 'work' | 'photos' | 'chat',
   shouldAnimate: boolean
 ) => ({
+  imageTest: css({
+    width: '100%',
+    height: '100%',
+    position: 'relative',
+  }),
+  imageClassLoading: css({
+    opacity: 0.5,
+  }),
+  loadButHide: css({
+    display: 'none !important',
+    '& > div': {
+      display: 'none !important',
+    },
+  }),
+  imageClass: css({
+    transition: shouldAnimate ? 'all 0.4s ease-in-out' : undefined,
+    '& *': {
+      transition: shouldAnimate ? 'all 0.4s ease-in-out' : undefined,
+    },
+    display: 'block',
+    border: `7px solid ${colors.almostWhite} !important`,
+    borderRadius: 5,
+  }),
   asideColumn: css({
     transition: shouldAnimate ? 'all 0.4s ease-in-out' : undefined,
     position: 'fixed',
+    overflow: 'hidden',
     bottom: 0,
     left: 0,
     top: 0,
     width: '50vw',
-    backgroundColor: backgroundColors[showingSection][0] ?? colors.senape,
+    background:
+      showingSection !== 'photos'
+        ? `transparent radial-gradient(ellipse 220% 95% at 120% center,  ${asideBackgroundColors[showingSection][1]} 2%, ${asideBackgroundColors[showingSection][0]} 40%)`
+        : asideBackgroundColors[showingSection][0],
     [breakpoints.maxMobile]: {
       display: 'none',
     },
   }),
-  centralScene: css({
+  illustrationForSection: css({
+    transition: shouldAnimate ? 'all 0.4s ease-in-out' : undefined,
+    // todo wait transform and remove it from the DOM
+    transform: showingSection !== 'photos' ? 'none' : 'translate(-200%, 0%)',
     position: 'absolute',
     width: showMac ? '35%' : '45%',
     height: showMac ? '35%' : '45%',
     left: showMac ? '33%' : '25%',
     top: '35%',
-    transition: shouldAnimate ? 'all 0.2s ease-in-out' : undefined,
     '& > div': {
       position: 'relative',
+      width: '100%',
+      height: '100%',
     },
   }),
   smileyFace: css({
     width: '100%',
-    color: 'white',
+    color: colors.almostWhite,
     zIndex: '1',
   }),
   laptop: css({
@@ -80,9 +152,9 @@ const getClasses = (
     height: '100%',
     transform: showMac ? 'translate(-100%, 25%)' : 'translate(-100vw, 100vh)',
     transition: shouldAnimate ? 'all 0.2s ease-in-out' : undefined,
-    stroke: `${backgroundColors[showingSection][2]} !important`,
+    stroke: `${asideBackgroundColors[showingSection][2]} !important`,
     strokeWidth: '2',
-    fill: backgroundColors[showingSection][0],
+    fill: asideBackgroundColors[showingSection][0],
     zIndex: '1',
   }),
   balloon: css({
@@ -96,15 +168,15 @@ const getClasses = (
       showingSection === 'chat'
         ? 'translate(-10%, -50%) rotate(20deg)'
         : 'translate(-70%, 20%) rotate(90deg) scaleX(0) scaleY(0)',
-    stroke: `${backgroundColors[showingSection][2]} !important`,
+    stroke: `${asideBackgroundColors[showingSection][2]} !important`,
     strokeWidth: '2',
-    fill: backgroundColors[showingSection][0],
+    fill: asideBackgroundColors[showingSection][0],
     zIndex: '0',
   }),
   face: css({
     height: '100%',
     width: '100%',
-    fill: `${backgroundColors[showingSection][2]} !important`,
+    fill: `${asideBackgroundColors[showingSection][2]} !important`,
     strokeWidth: '3 !important',
     animation: shouldAnimate
       ? `${nodFaceKeyframes} 3s alternate infinite !important`
@@ -129,8 +201,15 @@ const getClasses = (
   cardFocused: {
     opacity: 1,
     paddingLeft: 24,
-    backgroundColor: backgroundColors[showingSection][1] ?? colors.senape,
+    backgroundColor: cardBackgroundColors[showingSection] ?? colors.senape,
   },
+  cardUnfocused: css({
+    opacity: 0.5,
+    padding: 24,
+    paddingLeft: 48,
+    paddingRight: 0,
+    backgroundColor: colors.almostWhite,
+  }),
   presentationCard: css({
     position: 'relative',
     overflow: 'hidden',
@@ -168,6 +247,10 @@ const getClasses = (
     backgroundColor: colors.mountainGrey,
     fontFamily: "'Alegreya', serif",
   }),
+  photoCard: css({
+    backgroundColor: colors.dawnBlueLight,
+    fontFamily: "'Alegreya', serif",
+  }),
   presentationDescription: css({
     textAlign: 'justify',
     textjustify: 'inter-word',
@@ -175,6 +258,16 @@ const getClasses = (
   }),
   workCard: css({
     fontFamily: "'Alegreya', serif",
+  }),
+  gallery: css({
+    minHeight: 400,
+    overflow: 'hidden',
+    display: 'grid',
+    gridTemplateColumns: 'auto auto auto',
+    gridAutoRows: '150px',
+    columnGap: 10,
+    rowGap: 10,
+    marginTop: dimensionInRem(1),
   }),
   chatCard: css({
     backgroundColor: colors.mountainGrey,
@@ -200,6 +293,7 @@ const getClasses = (
   }),
   polaroid: css({
     position: 'absolute',
+    borderRadius: 5,
     height: 45,
     width: 45,
     padding: '20px',
@@ -219,6 +313,7 @@ const getClasses = (
     bottom: -10,
     right: 80,
     rotate: '-15deg',
+
     backgroundColor: colors.pastelViolet,
     '&:hover': shouldAnimate
       ? {
@@ -307,37 +402,66 @@ const getClasses = (
     height: '100%',
     width: '100%',
   },
+  galleryArticle: css({
+    position: 'relative',
+  }),
+  galleryArticleImage: css({
+    borderRadius: 3,
+    '&: hover': {
+      cursor: 'pointer',
+    },
+  }),
+  galleryArticleImageSelected: css({
+    border: `4px solid ${colors.dawnBlueMedium} !important`,
+  }),
+  galleryMainPicCanvas: css({
+    transition: shouldAnimate ? 'all 0.4s ease-in-out' : undefined,
+    transform: showingSection === 'photos' ? 'none' : 'translate(200%, 0%)',
+    height: 'calc(100% - 60px)',
+    width: 'calc(100% - 60px)',
+    margin: 30,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+  }),
+  galleryPopup: css({
+    transition: shouldAnimate
+      ? `opacity ${GALLERY_TRANSITION_DURATION}ms ease-in-out`
+      : undefined,
+    zIndex: 1,
+    position: 'fixed',
+  }),
+  galleryPopupTransitions: {
+    [Transitions.ENTERING]: css({ opacity: 1 }),
+    [Transitions.ENTERED]: css({ opacity: 1 }),
+    [Transitions.EXITING]: css({ opacity: 0 }),
+    [Transitions.EXITED]: css({ opacity: 0 }),
+    [Transitions.UNMOUNTED]: css({ opacity: 0 }),
+  },
 });
 
-const Home: NextPage = () => {
+type HomeProperties = {
+  galleryPics: Array<GalleryPic>;
+};
+
+const Home: NextPage<HomeProperties> = ({ galleryPics }) => {
   const [showMac, setShowMac] = useState(false);
   const [showingSection, setShowingSection] = useState<
-    'presentation' | 'description' | 'work' | 'chat'
+    'presentation' | 'description' | 'work' | 'photos' | 'chat'
   >('presentation');
-  const [shouldAnimate, setShouldAnimate] = useState<boolean>(true);
+  const shouldAnimate = useShouldAnimate();
+  const [showGalleryPopup, setShowGalleryPopup] = useState(false);
   const classes = useMemo(() => {
     return getClasses(showMac, showingSection, shouldAnimate);
   }, [showMac, showingSection, shouldAnimate]);
   const descriptionCardRef = useRef<HTMLElement | null>(null);
   const workCardRef = useRef<HTMLElement | null>(null);
   const chatCardRef = useRef<HTMLElement | null>(null);
-
-  useEffect(() => {
-    if (isRunningAcceptanceTest()) {
-      setShouldAnimate(false);
-      return;
-    }
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setShouldAnimate(!mediaQuery.matches);
-
-    const handleMedia = (e: MediaQueryListEventMap['change']) =>
-      setShouldAnimate(!e.matches);
-    mediaQuery.addEventListener('change', handleMedia);
-
-    return () => {
-      mediaQuery.removeEventListener('change', handleMedia);
-    };
-  }, []);
+  const photoCardRef = useRef<HTMLElement | null>(null);
+  const asideRef = useRef<HTMLElement | null>(null);
+  const asideDims = useDimensions(asideRef);
+  const { isDesktopOrBigger, isMobile } = useScreenSize();
+  const [galleryPicSelected, setGalleryPicSelected] = useState<number>(0);
 
   useEffect(() => {
     if (!shouldAnimate) {
@@ -356,7 +480,7 @@ const Home: NextPage = () => {
   }, [classes.face.name, classes.smileyFace.name, shouldAnimate]);
 
   useEffect(() => {
-    function updatePosition() {
+    function updatePosition(): void {
       const windowHeight: number = isNaN(window.innerHeight)
         ? // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
@@ -367,6 +491,7 @@ const Home: NextPage = () => {
           // @ts-ignore
           window.clientWidth
         : window.innerWidth;
+
       if (
         windowHeight -
           (chatCardRef?.current?.getBoundingClientRect()?.top ?? 0) >
@@ -374,6 +499,17 @@ const Home: NextPage = () => {
       ) {
         setShowMac(true);
         setShowingSection('chat');
+
+        return;
+      }
+
+      if (
+        windowHeight -
+          (photoCardRef?.current?.getBoundingClientRect()?.top ?? 0) >
+        windowHeight / 3
+      ) {
+        setShowMac(true);
+        setShowingSection('photos');
         return;
       }
 
@@ -384,6 +520,7 @@ const Home: NextPage = () => {
       ) {
         setShowMac(true);
         setShowingSection('work');
+
         return;
       }
 
@@ -409,24 +546,73 @@ const Home: NextPage = () => {
     return () => window.removeEventListener('scroll', updatePosition);
   }, []);
 
+  useEffect(() => {
+    document.body.style.background =
+      bodyBackgroundColors[showingSection][isDesktopOrBigger ? 0 : 1];
+  }, [isDesktopOrBigger, showingSection]);
+
   return (
     <>
-      <aside css={classes.asideColumn} role="presentation">
-        {/*/!* todo https://stackoverflow.com/questions/71719915/how-to-make-next-js-load-images-from-public-source-with-default-img-element *!/*/}
-        <div css={classes.centralScene}>
-          <div css={{ position: 'relative', width: '100%', height: '100%' }}>
-            <Face css={classes.face}></Face>
-            <Laptop css={classes.laptop} />
-            <Balloon css={classes.balloon} />
+      {isDesktopOrBigger && (
+        <aside
+          css={classes.asideColumn}
+          role={showingSection !== 'photos' ? 'presentation' : 'complementary'}
+          ref={asideRef}
+        >
+          <div css={classes.illustrationForSection} role="presentation">
+            <div>
+              {shouldAnimate && <Face css={classes.face} />}
+              {!shouldAnimate && <FaceStatic css={classes.face} />}
+              <Laptop css={classes.laptop} />
+              <Balloon css={classes.balloon} />
+            </div>
           </div>
-        </div>
-      </aside>
+          <GalleryMainPicture
+            css={classes.galleryMainPicCanvas}
+            role={showingSection === 'photos' ? 'img' : 'none'}
+            aria-label={"Big version of the photo gallery's selected picture"}
+            galleryPics={galleryPics}
+            selectedPicIndex={galleryPicSelected}
+            availableMainPictureSpace={asideDims}
+          />
+        </aside>
+      )}
+      {isMobile && (
+        <Transition
+          enter={shouldAnimate}
+          exit={shouldAnimate}
+          in={showGalleryPopup}
+          timeout={GALLERY_TRANSITION_DURATION}
+          mountOnEnter={true}
+          unmountOnExit={true}
+        >
+          {(state) => (
+            <div
+              css={[
+                classes.galleryPopup,
+                classes.galleryPopupTransitions[state],
+              ]}
+            >
+              <GalleryPopup
+                onClose={() => {
+                  setShowGalleryPopup(false);
+                  ga.click('gallery-pic-popup-open');
+                }}
+                galleryPics={galleryPics}
+                selectedPicIndex={galleryPicSelected}
+              />
+            </div>
+          )}
+        </Transition>
+      )}
       <main css={classes.mainContent}>
         <article
           css={[
             classes.card,
             classes.presentationCard,
-            showingSection === 'presentation' ? classes.cardFocused : null,
+            showingSection === 'presentation'
+              ? classes.cardFocused
+              : classes.cardUnfocused,
           ]}
         >
           <div>
@@ -441,12 +627,18 @@ const Home: NextPage = () => {
           </div>
           <h1 css={classes.nameTitle}>Matteo Bertamini</h1>
           <p css={classes.jobDescription}>Fullstack Developer</p>
-          {/* todo if not on mobile use blank */}
           <a
-            href="https://www.amazon.it/photos/share/qFervNlenYwkjdQ1o26YOsWhld5fnsJ0t89xbcv2Vep"
+            href="#photos"
             rel="noreferrer"
-            onClick={() => {
+            onClick={(event) => {
               ga.click('photos');
+
+              if (!shouldAnimate) {
+                return;
+              }
+
+              event.preventDefault();
+              photoCardRef.current?.scrollIntoView({ behavior: 'smooth' });
             }}
           >
             <div css={[classes.polaroid, classes.backPolaroid]}>
@@ -465,7 +657,9 @@ const Home: NextPage = () => {
           css={[
             classes.card,
             classes.descriptionCard,
-            showingSection === 'description' ? classes.cardFocused : null,
+            showingSection === 'description'
+              ? classes.cardFocused
+              : classes.cardUnfocused,
           ]}
         >
           <h2>Toolbox</h2>
@@ -512,7 +706,9 @@ const Home: NextPage = () => {
           css={[
             classes.card,
             classes.workCard,
-            showingSection === 'work' ? classes.cardFocused : null,
+            showingSection === 'work'
+              ? classes.cardFocused
+              : classes.cardUnfocused,
           ]}
         >
           <h2 id="work-experience">Work Experience</h2>
@@ -629,13 +825,68 @@ const Home: NextPage = () => {
             </ul>
           </CVExperienceItem>
         </article>
+        <article
+          id="photos"
+          ref={photoCardRef}
+          css={[
+            classes.card,
+            classes.photoCard,
+            showingSection === 'photos'
+              ? classes.cardFocused
+              : classes.cardUnfocused,
+          ]}
+        >
+          <h2>Photos</h2>
+          <div css={classes.gallery}>
+            {galleryPics.map((image, index: number) => (
+              <article key={image.name} css={classes.galleryArticle}>
+                <Image
+                  width={image.dimensions.thumbnail.width}
+                  height={image.dimensions.thumbnail.height}
+                  onClick={() => {
+                    if (showingSection !== 'photos') {
+                      return;
+                    }
 
+                    ga.click('gallery-pic-selected');
+
+                    setGalleryPicSelected(index);
+
+                    if (isMobile) {
+                      ga.click('gallery-pic-popup-open');
+                      setShowGalleryPopup(true);
+                    }
+                  }}
+                  src={image.src}
+                  layout="fill"
+                  objectFit="cover"
+                  sizes="200px"
+                  objectPosition="50% 50%"
+                  alt={`Image number ${index + 1}`}
+                  quality={50}
+                  placeholder="blur"
+                  blurDataURL={`data:image/svg+xml;base64,${toBase64(
+                    LoadImageSrc
+                  )}`}
+                  css={[
+                    classes.galleryArticleImage,
+                    galleryPicSelected === index && isDesktopOrBigger
+                      ? classes.galleryArticleImageSelected
+                      : null,
+                  ]}
+                />
+              </article>
+            ))}
+          </div>
+        </article>
         <article
           ref={chatCardRef}
           css={[
             classes.card,
             classes.chatCard,
-            showingSection === 'chat' ? classes.cardFocused : null,
+            showingSection === 'chat'
+              ? classes.cardFocused
+              : classes.cardUnfocused,
           ]}
         >
           <h2 id="chat-with-me">Chat with me</h2>
@@ -650,5 +901,88 @@ const Home: NextPage = () => {
     </>
   );
 };
+
+export async function getServerSideProps() {
+  try {
+    if (isRunningAcceptanceTest()) {
+      return {
+        props: {
+          galleryPics: [
+            {
+              src: '/test.jpg',
+              name: 'photo test',
+              dimensions: {
+                ratio: 968 / 1500,
+                thumbnail: {
+                  height: 129.1,
+                  width: 200,
+                },
+                original: {
+                  height: 968,
+                  width: 1500,
+                },
+              },
+            },
+          ],
+        },
+      };
+    }
+
+    const response = await fetch(
+      'https://www.amazon.it/drive/v1/nodes/mmVUOJzUS_KqKRykQrzFPA/children?asset=ALL&filters=kind%3A(FILE*+OR+FOLDER*)+AND+contentProperties.contentType%3A(image*)+AND+status%3A(AVAILABLE*)&limit=15&lowResThumbnail=true&searchOnFamily=true&sort=%5B%27contentProperties.contentDate+DESC%27%5D&tempLink=true&shareId=qFervNlenYwkjdQ1o26YOsWhld5fnsJ0t89xbcv2Vep&offset=0&resourceVersion=V2&ContentType=JSON&_=1660508015523'
+    );
+
+    if (!response?.body) {
+      return [];
+    }
+
+    const data = await response.json();
+
+    const images = data.data.map(
+      (photo: {
+        contentProperties: { image: { height: number; width: number } };
+        tempLink: string;
+        name: string;
+      }) => {
+        const { height: originalHeight, width: originalWidth } =
+          photo.contentProperties.image;
+        const dimensionsRatio = originalHeight / originalWidth;
+        const thumbnailFitWidth =
+          originalHeight > 200
+            ? [200, 200 / dimensionsRatio]
+            : [originalHeight, originalWidth];
+        const thumbnailFit =
+          originalWidth > 150
+            ? [thumbnailFitWidth[0] * dimensionsRatio, 150]
+            : thumbnailFitWidth;
+
+        return {
+          src: photo.tempLink,
+          name: photo.name,
+          dimensions: {
+            ratio: dimensionsRatio,
+            thumbnail: {
+              height: thumbnailFit[0],
+              width: thumbnailFit[1],
+            },
+            original: {
+              height: originalHeight,
+              width: originalWidth,
+            },
+          },
+        };
+      }
+    );
+
+    return {
+      props: {
+        galleryPics: images,
+      },
+    };
+  } catch (err) {
+    console.error(err);
+    return [];
+  }
+}
 
 export default Home;

@@ -17,6 +17,7 @@ const getClasses = (disabled: boolean) => {
   return {
     wrapper: css({
       display: 'inline-block',
+      userSelect: 'none',
       boxSizing: 'border-box',
       border: `0px solid ${colors.almostBlack}`,
       borderBottom: `3px solid ${colors.almostBlack}`,
@@ -60,7 +61,7 @@ const Button = ({ caption, iconPath, disabled = false }: ButtonProperties) => {
   }, [disabled]);
 
   return (
-    <span css={css(classes.wrapper)}>
+    <span css={css(classes.wrapper)} role="button">
       {/* todo change path with element so as to load svg within the HTML from SSR */}
       {iconPath && (
         <img

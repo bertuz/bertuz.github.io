@@ -10,6 +10,11 @@ const nextConfig = {
 
     return config;
   },
+  images: {
+    domains: ['content-eu.drive.amazonaws.com'],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    deviceSizes: [400, 500, 600, 700, 1000],
+  },
 };
 
 module.exports = nextConfig;
