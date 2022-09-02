@@ -60,6 +60,9 @@ describe('The Home page', () => {
     });
 
     await page.click('img[alt="Image number 1"]');
+    await page.evaluate(() => {
+      window.scrollTo(0, 0);
+    });
     await page.waitForNetworkIdle({ idleTime: 10000 });
 
     expect(await page.screenshot()).toMatchImageSnapshot();
