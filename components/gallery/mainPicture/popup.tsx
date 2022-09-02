@@ -151,6 +151,29 @@ const Popup = ({
       }
 
       popupWrapper.removeEventListener('wheel', avoidScrollingBelow);
+      popupWrapper.removeEventListener('scroll', avoidScrollingBelow);
+    };
+  });
+
+  useEffect(() => {
+    const popupWrapper = stopPropagationRef.current;
+    const closeOnMove = (e: Event): void => {
+      e.preventDefault();
+      onClose();
+    };
+
+    if (popupWrapper === null) {
+      return;
+    }
+
+    stopPropagationRef.current?.addEventListener('touchmove', closeOnMove);
+
+    return () => {
+      if (popupWrapper === null) {
+        return;
+      }
+
+      popupWrapper.removeEventListener('touchmove', closeOnMove);
     };
   });
 
