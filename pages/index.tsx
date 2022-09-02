@@ -4,7 +4,7 @@ import breakpoints, { MAX_MOBILE_WIDTH_PX } from '../assets/styles/breakpoints';
 
 import { dimensionInRem } from '../assets/styles/dimensions';
 
-import Button from '../components/button';
+import Button from '../components/Button';
 
 import CVExperienceItem from '../components/CVExperienceItem';
 import * as ga from '../lib/google-analytics';
@@ -23,14 +23,16 @@ import Balloon from '../public/balloon.svg';
 import LoadImageSrc from '../assets/image-load.svg';
 import useDimensions from '../utils/useDimensions';
 import GalleryMainPicture from '../components/gallery/mainPicture';
+import GalleryPopup from '../components/gallery/mainPicture/popup';
 
 import useShouldAnimate from '../utils/useShouldAnimate';
 
 import useScreenSize from '../utils/useScreenSize';
 
 import toBase64 from '../utils/toBase64';
-
 import { isRunningAcceptanceTest } from '../utils/testUtils';
+
+import { Transition } from 'react-transition-group';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { css, keyframes } from '@emotion/react';
@@ -38,9 +40,13 @@ import { css, keyframes } from '@emotion/react';
 import Link from 'next/link';
 import Image from 'next/image';
 
+import * as Transitions from 'react-transition-group/Transition';
+
 import type { GalleryPic } from 'components/gallery';
 
 import type { NextPage } from 'next';
+
+const GALLERY_TRANSITION_DURATION = 300;
 
 const asideBackgroundColors: Record<string, [string, string, string]> = {
   presentation: [colors.senape, colors.senapeMedium, colors.senapeLight],
@@ -418,6 +424,20 @@ const getClasses = (
     alignItems: 'center',
     justifyContent: 'space-around',
   }),
+  galleryPopup: css({
+    transition: shouldAnimate
+      ? `opacity ${GALLERY_TRANSITION_DURATION}ms ease-in-out`
+      : undefined,
+    zIndex: 1,
+    position: 'fixed',
+  }),
+  galleryPopupTransitions: {
+    [Transitions.ENTERING]: css({ opacity: 1 }),
+    [Transitions.ENTERED]: css({ opacity: 1 }),
+    [Transitions.EXITING]: css({ opacity: 0 }),
+    [Transitions.EXITED]: css({ opacity: 0 }),
+    [Transitions.UNMOUNTED]: css({ opacity: 0 }),
+  },
 });
 
 type HomeProperties = {
@@ -430,6 +450,7 @@ const Home: NextPage<HomeProperties> = ({ galleryPics }) => {
     'presentation' | 'description' | 'work' | 'photos' | 'chat'
   >('presentation');
   const shouldAnimate = useShouldAnimate();
+  const [showGalleryPopup, setShowGalleryPopup] = useState(false);
   const classes = useMemo(() => {
     return getClasses(showMac, showingSection, shouldAnimate);
   }, [showMac, showingSection, shouldAnimate]);
@@ -439,7 +460,7 @@ const Home: NextPage<HomeProperties> = ({ galleryPics }) => {
   const photoCardRef = useRef<HTMLElement | null>(null);
   const asideRef = useRef<HTMLElement | null>(null);
   const asideDims = useDimensions(asideRef);
-  const { isDesktopOrBigger } = useScreenSize();
+  const { isDesktopOrBigger, isMobile } = useScreenSize();
   const [galleryPicSelected, setGalleryPicSelected] = useState<number>(0);
 
   useEffect(() => {
@@ -459,7 +480,7 @@ const Home: NextPage<HomeProperties> = ({ galleryPics }) => {
   }, [classes.face.name, classes.smileyFace.name, shouldAnimate]);
 
   useEffect(() => {
-    function updatePosition() {
+    function updatePosition(): void {
       const windowHeight: number = isNaN(window.innerHeight)
         ? // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
@@ -555,6 +576,34 @@ const Home: NextPage<HomeProperties> = ({ galleryPics }) => {
             availableMainPictureSpace={asideDims}
           />
         </aside>
+      )}
+      {isMobile && (
+        <Transition
+          enter={shouldAnimate}
+          exit={shouldAnimate}
+          in={showGalleryPopup}
+          timeout={GALLERY_TRANSITION_DURATION}
+          mountOnEnter={true}
+          unmountOnExit={true}
+        >
+          {(state) => (
+            <div
+              css={[
+                classes.galleryPopup,
+                classes.galleryPopupTransitions[state],
+              ]}
+            >
+              <GalleryPopup
+                onClose={() => {
+                  setShowGalleryPopup(false);
+                  ga.click('gallery-pic-popup-open');
+                }}
+                galleryPics={galleryPics}
+                selectedPicIndex={galleryPicSelected}
+              />
+            </div>
+          )}
+        </Transition>
       )}
       <main css={classes.mainContent}>
         <article
@@ -795,10 +844,18 @@ const Home: NextPage<HomeProperties> = ({ galleryPics }) => {
                   width={image.dimensions.thumbnail.width}
                   height={image.dimensions.thumbnail.height}
                   onClick={() => {
-                    if (showingSection !== 'photos' || !isDesktopOrBigger) {
+                    if (showingSection !== 'photos') {
                       return;
                     }
+
+                    ga.click('gallery-pic-selected');
+
                     setGalleryPicSelected(index);
+
+                    if (isMobile) {
+                      ga.click('gallery-pic-popup-open');
+                      setShowGalleryPopup(true);
+                    }
                   }}
                   src={image.src}
                   layout="fill"
@@ -889,15 +946,15 @@ export async function getServerSideProps() {
       }) => {
         const { height: originalHeight, width: originalWidth } =
           photo.contentProperties.image;
-        const dimensionsRatio =
-          originalHeight > originalWidth
-            ? originalWidth / originalHeight
-            : originalHeight / originalWidth;
-
-        const width =
-          originalWidth > originalHeight ? 200 : 150 * dimensionsRatio;
-        const height =
-          originalHeight > originalWidth ? 150 : 200 * dimensionsRatio;
+        const dimensionsRatio = originalHeight / originalWidth;
+        const thumbnailFitWidth =
+          originalHeight > 200
+            ? [200, 200 / dimensionsRatio]
+            : [originalHeight, originalWidth];
+        const thumbnailFit =
+          originalWidth > 150
+            ? [thumbnailFitWidth[0] * dimensionsRatio, 150]
+            : thumbnailFitWidth;
 
         return {
           src: photo.tempLink,
@@ -905,8 +962,8 @@ export async function getServerSideProps() {
           dimensions: {
             ratio: dimensionsRatio,
             thumbnail: {
-              height,
-              width,
+              height: thumbnailFit[0],
+              width: thumbnailFit[1],
             },
             original: {
               height: originalHeight,

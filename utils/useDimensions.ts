@@ -13,10 +13,8 @@ const useDimensions = (ref: MutableRefObject<Element | null>): Dimensions => {
     height: undefined,
   });
 
-  const current = ref?.current;
-
   useEffect(() => {
-    const element = current;
+    const element = ref?.current;
 
     if (element) {
       const checkResize = (entries: ResizeObserverEntry[]) => {
@@ -35,7 +33,7 @@ const useDimensions = (ref: MutableRefObject<Element | null>): Dimensions => {
         observer.disconnect();
       };
     }
-  }, [current]);
+  }, [ref]);
 
   return dimensions;
 };

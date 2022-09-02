@@ -1,10 +1,12 @@
+import useSelectedPicDims from './useSelectedPicDims';
+
 import Loading from '../../../public/loading.svg';
 
 import colors from '../../../assets/styles/colors';
 
 import useShouldAnimate from '../../../utils/useShouldAnimate';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { css } from '@emotion/react';
 
@@ -68,7 +70,6 @@ const getClasses = (shouldAnimate: boolean) => ({
 });
 
 type GalleryMainPictureProps = {
-  css: any;
   className?: string;
   role: AriaRole | undefined;
   galleryPics: Array<GalleryPic>;
@@ -84,7 +85,7 @@ const Index = ({
   availableMainPictureSpace,
   galleryPics,
   selectedPicIndex = 0,
-}: GalleryMainPictureProps) => {
+}: GalleryMainPictureProps): JSX.Element | null => {
   const shouldAnimate = useShouldAnimate();
   const [nextPicToShow, setNextPicToShow] = useState(0);
   const [changeSelectedPicPhase, setChangeSelectedPicPhase] = useState<
@@ -96,7 +97,7 @@ const Index = ({
     | 'idle'
   >('preChangeAnimation');
 
-  // let's ignore the selected until termiated the latter. Then consider the latest changes
+  // let's ignore the selected until terminated the latter. Then consider the latest changes
   useEffect(() => {
     if (changeSelectedPicPhase !== 'idle') {
       return;
@@ -114,41 +115,11 @@ const Index = ({
     Array<boolean>
   >([]);
 
-  const picSelectedDims = useMemo<[number, number]>(() => {
-    if (galleryPics.length === 0) {
-      return [0, 0];
-    }
-
-    if (!availableMainPictureSpace.height || !availableMainPictureSpace.width) {
-      return [0, 0];
-    }
-
-    const { height: originalHeight, width: originalWidth } =
-      galleryPics[nextPicToShow].dimensions.original;
-    const { ratio } = galleryPics[nextPicToShow].dimensions;
-
-    const maxHeight = availableMainPictureSpace.height - 60;
-    const maxWidth = availableMainPictureSpace.width - 60;
-
-    if (originalHeight > maxHeight || originalWidth > maxWidth) {
-      if (maxWidth < maxHeight) {
-        return originalWidth < originalHeight
-          ? [maxHeight, maxHeight * ratio]
-          : [maxWidth * ratio, maxWidth];
-      }
-
-      return originalHeight < originalWidth
-        ? [maxWidth * ratio, maxWidth]
-        : [maxHeight, maxHeight * ratio];
-    }
-
-    return [originalHeight, originalWidth];
-  }, [
-    availableMainPictureSpace.height,
-    availableMainPictureSpace.width,
-    nextPicToShow,
+  const picSelectedDims = useSelectedPicDims({
+    availableSpace: availableMainPictureSpace,
     galleryPics,
-  ]);
+    picIndex: nextPicToShow,
+  });
 
   useEffect(() => {
     setAlreadyLoadedPicIndexes([]);
@@ -194,6 +165,7 @@ const Index = ({
       changeSelectedPicPhase,
       loadedSelectedPicIndex,
       nextPicToShow,
+      selectedPicIndex,
     ]
   );
 

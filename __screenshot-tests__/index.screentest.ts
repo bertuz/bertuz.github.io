@@ -1,5 +1,7 @@
 import { closePage, Device, openPage } from '../utils/testUtils';
 
+jest.setTimeout(15000);
+
 describe('The Home page', () => {
   beforeEach(async () => {
     await closePage();
@@ -7,7 +9,6 @@ describe('The Home page', () => {
 
   it('should be shown according to the design', async () => {
     await openPage('/', Device.desktop);
-
     await new Promise((res) => {
       setTimeout(res, 2000);
     });
@@ -45,6 +46,23 @@ describe('The Home page', () => {
     });
 
     expect(await page.screenshot({ fullPage: true })).toMatchImageSnapshot();
+  });
+
+  it('clicking the pic the gallery popup is opened', async () => {
+    await openPage('/', Device.iPhone13Mini);
+
+    await page.evaluate(() => {
+      window.scrollTo(0, 0);
+    });
+
+    await new Promise((res) => {
+      setTimeout(res, 2000);
+    });
+
+    await page.click('img[alt="Image number 1"]');
+    await page.waitForNetworkIdle({ idleTime: 10000 });
+
+    expect(await page.screenshot()).toMatchImageSnapshot();
   });
 });
 

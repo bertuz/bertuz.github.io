@@ -15,7 +15,7 @@ import colors from '../../../assets/styles/colors';
 
 import { dimensionInRem } from '../../../assets/styles/dimensions';
 
-import Button from '../../../components/button';
+import Button from '../../../components/Button';
 
 import {
   ACK_TIMEOUT_IN_MS_FOR_BACKEND,

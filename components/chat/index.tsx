@@ -7,7 +7,7 @@ import {
 
 import { ACK_TIMEOUT_IN_MS, ApiEvent, BackEvent } from './channelModel';
 
-import Button from '../button';
+import Button from '../Button';
 
 import colors from '../../assets/styles/colors';
 
