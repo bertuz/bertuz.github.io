@@ -87,7 +87,7 @@ const Index = ({
   selectedPicIndex = 0,
 }: GalleryMainPictureProps): JSX.Element | null => {
   const shouldAnimate = useShouldAnimate();
-  const [nextPicToShow, setNextPicToShow] = useState(0);
+  const [nextPicToShow, setNextPicToShow] = useState(selectedPicIndex);
   const [changeSelectedPicPhase, setChangeSelectedPicPhase] = useState<
     | 'preChangeAnimation'
     | 'preLoading'
@@ -110,7 +110,7 @@ const Index = ({
     number | null
   >(null);
   const [loadedSelectedPicIndex, setLoadedSelectedPicIndex] =
-    useState<number>(0);
+    useState<number>(selectedPicIndex);
   const [alreadyLoadedPicIndexes, setAlreadyLoadedPicIndexes] = useState<
     Array<boolean>
   >([]);
@@ -255,7 +255,9 @@ const Index = ({
                 return;
               }
 
-              setChangeSelectedPicPhase('newPicShowed');
+              setChangeSelectedPicPhase((previousState) =>
+                previousState === 'preChangeAnimation' ? 'idle' : 'newPicShowed'
+              );
             }}
             css={classes.mainPictureImage}
             layout="fixed"

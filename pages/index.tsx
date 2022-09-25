@@ -81,6 +81,9 @@ const nodFaceKeyframes = keyframes({
   to: { marginTop: '10px' },
 });
 
+const TRANSITION_TIME_IN_MS = 400;
+const TRANSITION_TIME_IN_SEC = 0.4;
+
 // todo adopt csslint when available https://github.com/emotion-js/emotion/issues/2695
 const getClasses = (
   showMac: boolean,
@@ -415,8 +418,9 @@ const getClasses = (
     border: `4px solid ${colors.dawnBlueMedium} !important`,
   }),
   galleryMainPicCanvas: css({
-    transition: shouldAnimate ? 'all 0.4s ease-in-out' : undefined,
-    transform: showingSection === 'photos' ? 'none' : 'translate(200%, 0%)',
+    transition: shouldAnimate
+      ? `all ${TRANSITION_TIME_IN_SEC}s ease-in-out`
+      : undefined,
     height: 'calc(100% - 60px)',
     width: 'calc(100% - 60px)',
     margin: 30,
@@ -424,6 +428,21 @@ const getClasses = (
     alignItems: 'center',
     justifyContent: 'space-around',
   }),
+  galleryMainPicCanvasTransitions: {
+    [Transitions.ENTERING]: css({
+      transform: shouldAnimate ? 'translate(200%, 0%) !important' : 'none',
+    }),
+    [Transitions.ENTERED]: css({ transform: 'none !important' }),
+    [Transitions.EXITING]: css({
+      transform: shouldAnimate ? 'translate(200%, 0%) !important' : 'none',
+    }),
+    [Transitions.EXITED]: css({
+      transform: shouldAnimate ? 'translate(200%, 0%) !important' : 'none',
+    }),
+    [Transitions.UNMOUNTED]: css({
+      // transform: shouldAnimate ? 'translate(200%, 0%) !important' : 'none',
+    }),
+  },
   galleryPopup: css({
     transition: shouldAnimate
       ? `opacity ${GALLERY_TRANSITION_DURATION}ms ease-in-out`
@@ -567,14 +586,31 @@ const Home: NextPage<HomeProperties> = ({ galleryPics }) => {
               <Balloon css={classes.balloon} />
             </div>
           </div>
-          <GalleryMainPicture
-            css={classes.galleryMainPicCanvas}
-            role={showingSection === 'photos' ? 'img' : 'none'}
-            aria-label={"Big version of the photo gallery's selected picture"}
-            galleryPics={galleryPics}
-            selectedPicIndex={galleryPicSelected}
-            availableMainPictureSpace={asideDims}
-          />
+          <Transition
+            enter={shouldAnimate}
+            exit={shouldAnimate}
+            in={showingSection === 'photos'}
+            appear={shouldAnimate}
+            mountOnEnter={true}
+            unmountOnExit={true}
+            timeout={TRANSITION_TIME_IN_MS}
+          >
+            {(state) => (
+              <GalleryMainPicture
+                css={[
+                  classes.galleryMainPicCanvas,
+                  classes.galleryMainPicCanvasTransitions[state],
+                ]}
+                role={showingSection === 'photos' ? 'img' : 'none'}
+                aria-label={
+                  "Big version of the photo gallery's selected picture"
+                }
+                galleryPics={galleryPics}
+                selectedPicIndex={galleryPicSelected}
+                availableMainPictureSpace={asideDims}
+              />
+            )}
+          </Transition>
         </aside>
       )}
       {isMobile && (
@@ -582,7 +618,7 @@ const Home: NextPage<HomeProperties> = ({ galleryPics }) => {
           enter={shouldAnimate}
           exit={shouldAnimate}
           in={showGalleryPopup}
-          timeout={GALLERY_TRANSITION_DURATION}
+          timeout={TRANSITION_TIME_IN_MS}
           mountOnEnter={true}
           unmountOnExit={true}
         >
