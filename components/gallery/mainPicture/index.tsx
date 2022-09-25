@@ -169,6 +169,15 @@ const Index = ({
     ]
   );
 
+  const updateAlreadyLoadedPicIndexWith = (newLoadedIndex: number): void => {
+    setAlreadyLoadedPicIndexes((previousLoadedPixIndexes) => {
+      const newArray = [...previousLoadedPixIndexes];
+      newArray[newLoadedIndex as number] = true;
+
+      return newArray;
+    });
+  };
+
   useEffect(
     function setLoadedPhase() {
       if (changeSelectedPicPhase !== 'loaded') {
@@ -176,12 +185,7 @@ const Index = ({
       }
 
       setLoadedSelectedPicIndex(preloadSelectedPicIndex as number);
-      setAlreadyLoadedPicIndexes((previousLoadedPixIndexes) => {
-        const newArray = [...previousLoadedPixIndexes];
-        newArray[preloadSelectedPicIndex as number] = true;
-
-        return newArray;
-      });
+      updateAlreadyLoadedPicIndexWith(preloadSelectedPicIndex as number);
     },
     [changeSelectedPicPhase, preloadSelectedPicIndex]
   );
@@ -255,8 +259,12 @@ const Index = ({
                 return;
               }
 
+              if (changeSelectedPicPhase !== 'loaded') {
+                updateAlreadyLoadedPicIndexWith(loadedSelectedPicIndex);
+              }
+
               setChangeSelectedPicPhase((previousState) =>
-                previousState === 'preChangeAnimation' ? 'idle' : 'newPicShowed'
+                previousState !== 'loaded' ? 'idle' : 'newPicShowed'
               );
             }}
             css={classes.mainPictureImage}
