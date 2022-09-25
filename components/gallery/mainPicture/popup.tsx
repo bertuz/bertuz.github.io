@@ -73,7 +73,7 @@ const getClasses = (): Record<string, SerializedStyles> => ({
   }),
 });
 
-const IMAGE_VERTICAL_PADDING_IN_PX = 100;
+const IMAGE_VERTICAL_PADDING_IN_PX = 5;
 
 const Popup = ({
   onClose,
@@ -157,7 +157,10 @@ const Popup = ({
 
   useEffect(() => {
     const popupWrapper = stopPropagationRef.current;
-    const closeOnMove = (e: Event): void => {
+    const closeOnSwipe = (e: TouchEvent): void => {
+      if (e.touches.length > 1) {
+        return;
+      }
       e.preventDefault();
       onClose();
     };
@@ -166,14 +169,14 @@ const Popup = ({
       return;
     }
 
-    stopPropagationRef.current?.addEventListener('touchmove', closeOnMove);
+    stopPropagationRef.current?.addEventListener('touchmove', closeOnSwipe);
 
     return () => {
       if (popupWrapper === null) {
         return;
       }
 
-      popupWrapper.removeEventListener('touchmove', closeOnMove);
+      popupWrapper.removeEventListener('touchmove', closeOnSwipe);
     };
   });
 
