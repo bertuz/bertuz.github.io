@@ -593,7 +593,11 @@ const Home: NextPage<HomeProperties> = ({ galleryPics }) => {
             appear={shouldAnimate}
             mountOnEnter={true}
             unmountOnExit={true}
-            timeout={TRANSITION_TIME_IN_MS}
+            timeout={{
+              appear: 0,
+              enter: 0,
+              exit: TRANSITION_TIME_IN_MS,
+            }}
           >
             {(state) => (
               <GalleryMainPicture
