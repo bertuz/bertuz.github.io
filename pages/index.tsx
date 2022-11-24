@@ -666,7 +666,7 @@ const Home: NextPage<HomeProperties> = ({ galleryPics }) => {
             />
           </div>
           <h1 css={classes.nameTitle}>Matteo Bertamini</h1>
-          <p css={classes.jobDescription}>Test Test</p>
+          <p css={classes.jobDescription}>Fullstack Developer</p>
           <a
             href="#photos"
             rel="noreferrer"
