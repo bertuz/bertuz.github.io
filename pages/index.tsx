@@ -1,4 +1,3 @@
-/** @jsx jsx */
 import colors from '../assets/styles/colors';
 
 import breakpoints, { MAX_MOBILE_WIDTH_PX } from '../assets/styles/breakpoints';
