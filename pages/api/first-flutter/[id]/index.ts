@@ -14,7 +14,7 @@ async function getHandler(
 ) {
   const { id: placeId } = req.query;
 
-  if (!Number.isInteger(placeId)) {
+  if (!Number.isInteger(Number.parseInt(placeId as string))) {
     res.status(400);
     res.send(null);
     return;
