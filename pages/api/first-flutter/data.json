@@ -28,5 +28,20 @@
         "text": "Una iglesia, heladerías, el centro histórico."
       }
     ]
+  },
+  {
+    "id": 2,
+    "name": "Povereto, Trentino AA, Italy",
+    "url": "https://1.bp.blogspot.com/-luF6SCAUo94/VKBZZa81FYI/AAAAAAAAl0M/fE1w7oZF7ec/s1600/Rovereto%2C%2BItaly%2B(10).JPG",
+    "facts": [
+      {
+        "title": "Summary",
+        "text": "Capital del aburrimiento"
+      },
+      {
+        "title": "Cosas que ver",
+        "text": "La Nebbia, el Xavi y poco más."
+      }
+    ]
   }
 ]
