@@ -1,3 +1,4 @@
+/** @jsx jsx */
 import colors from '../assets/styles/colors';
 
 import breakpoints, { MAX_MOBILE_WIDTH_PX } from '../assets/styles/breakpoints';
@@ -593,7 +594,7 @@ const Home: NextPage = () => {
           </div>
         </article>
         <div css={classes.footer}>
-          <p css={classes.footerContent}>Matteo Bertamini 2022</p>
+          <p css={classes.footerContent}>Matteo Bertamini 2023</p>
         </div>
         {/*<article style="height: 70vh; background-color: #DDF4C8; flex-shrink: 0; padding: 20px;">*/}
         {/*    <p style="font-family: 'Alegreya', serif; font-size: 1.2em;">*/}
