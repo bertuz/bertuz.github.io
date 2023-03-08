@@ -1,8 +1,9 @@
 [
   {
     "id": 0,
-    "name": "Pratosaiano, Trentino AA, Italy",
+    "name": "Pratosaiano",
     "url": "http://upload.wikimedia.org/wikipedia/commons/2/23/Pratosaiano_-_Scorcio.jpg",
+    "address": "Alto Garda, Trentino AA - Italy",
     "facts": [
       {
         "title": "Summary",
@@ -16,7 +17,8 @@
   },
   {
     "id": 1,
-    "name": "Arco, Trentino AA, Italy",
+    "name": "Arco",
+    "address": "Alto Garda, Trentino AA, Italy",
     "url": "https://mediaim.expedia.com/destination/2/f94473eb4d094460d156a71bb1be9e89.jpg",
     "facts": [
       {
@@ -31,7 +33,8 @@
   },
   {
     "id": 2,
-    "name": "Povereto, Trentino AA, Italy",
+    "name": "Povereto",
+    "address": "Vallagarina, Trentino AA, Italy",
     "url": "https://1.bp.blogspot.com/-luF6SCAUo94/VKBZZa81FYI/AAAAAAAAl0M/fE1w7oZF7ec/s1600/Rovereto%2C%2BItaly%2B(10).JPG",
     "facts": [
       {
