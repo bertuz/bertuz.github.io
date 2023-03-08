@@ -46,5 +46,22 @@
         "text": "La Nebbia, el Xavi y poco más."
       }
     ]
+  },
+
+  {
+    "id": 3,
+    "name": "Chauchina",
+    "address": "Granada, Andalucía, España",
+    "url": "https://static.ideal.es/www/multimedia/201808/16/media/granada/GALERIA-sorpresas-culturales/cultrua-prov%20(2).jpg",
+    "facts": [
+      {
+        "title": "Summary",
+        "text": "Capital del maurijsmo"
+      },
+      {
+        "title": "Cosas que ver",
+        "text": "Marujas de tertulia, campesinas malafolladas, drogas para un extra, la feria del miércoles para tu estilo extra fino."
+      }
+    ]
   }
 ]
