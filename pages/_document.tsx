@@ -1,6 +1,6 @@
 import colors from '../assets/styles/colors';
 
-import breakpoints from '../assets/styles/breakpoints';
+import breakPoints from '../assets/styles/breakPoints';
 
 import { dimensionInRem, PITCH_IN_PX } from 'assets/styles/dimensions';
 
@@ -73,7 +73,7 @@ const globalStyles = css({
     margin: 0,
     padding: 0,
     backgroundColor: colors.pastelViolet,
-    [breakpoints.maxMobile]: {
+    [breakPoints.maxMobile]: {
       backgroundColor: colors.senape,
     },
   },
@@ -91,7 +91,7 @@ const globalStyles = css({
     lineHeight: '1.5rem',
   },
   input: {
-    [breakpoints.maxMobile]: {
+    [breakPoints.maxMobile]: {
       fontSize: dimensionInRem(0),
     },
   },

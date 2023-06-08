@@ -1,6 +1,6 @@
 import { dimensionInRem } from '../assets/styles/dimensions';
 
-import breakpoints from '../assets/styles/breakpoints';
+import breakPoints from '../assets/styles/breakPoints';
 
 import colors from '../assets/styles/colors';
 
@@ -41,7 +41,7 @@ const getClasses = (disabled: boolean) => {
             paddingBottom: '0.1rem',
             backgroundColor: colors.darkerGrey,
           },
-      [breakpoints.maxMobile]: disabled
+      [breakPoints.maxMobile]: disabled
         ? {}
         : {
             fontSize: dimensionInRem(0),
@@ -73,7 +73,7 @@ const Button = ({ caption, iconPath, disabled = false }: ButtonProperties) => {
             paddingRight: '0.3rem',
             display: 'inline-block',
             verticalAlign: 'middle',
-            [breakpoints.maxMobile]: {
+            [breakPoints.maxMobile]: {
               height: dimensionInRem(0),
             },
           })}

@@ -1,0 +1,39 @@
+{
+  "extends": [
+    "stylelint-config-standard"
+  ],
+  "customSyntax": "@stylelint/postcss-css-in-js",
+  "rules": {
+    "annotation-no-unknown": [true,{
+      "ignoreAnnotations": ["/.*!important./'$", "3 !important"]
+    }],
+    "selector-class-pattern": "[a-z][a-zA-Z0-9]+",
+    "value-keyword-case": null,
+    "selector-type-case": ["lower",{
+      "ignoreTypes": [
+        "/breakPoints/"
+      ]
+    }],
+
+    "selector-type-no-unknown": [true,{
+      "ignoreTypes": [
+        "/breakPoints/"
+      ]
+    }],
+    "function-name-case": ["lower",{
+      "ignoreFunctions": [
+        "/dimensionInRem/"
+      ]
+    }],
+    "function-no-unknown": [true,{
+      "ignoreFunctions": [
+        "/dimensionInRem/"
+      ]
+    }],
+    "property-no-unknown":[true,{
+      "ignoreProperties": [
+        "/&:.+/"
+      ]
+    }]
+  }
+}
