@@ -58,6 +58,7 @@
     "jest": "^28.1.1",
     "jest-image-snapshot": "^5.1.0",
     "jest-puppeteer-docker": "https://github.com/bertuz/jest-puppeteer-docker.git#specify-docker-build",
+    "postcss-syntax": "^0.36.2",
     "pptr-testing-library": "^0.7.0",
     "prettier": "^2.6.1",
     "puppeteer": "^15.1.0",
