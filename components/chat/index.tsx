@@ -119,7 +119,7 @@ const getClasses = () => ({
     flex: '0 0 auto',
     marginBottom: 5,
     textAlign: 'justify',
-    textjustify: 'inter-word',
+    textJustify: 'inter-word',
     hyphens: 'auto',
   }),
   userMessage: css({
@@ -139,7 +139,7 @@ const getClasses = () => ({
     padding: 5,
   }),
   messageMeta: css({
-    fontFamily: 'Alegreya-Sans',
+    fontFamily: 'Alegreya-Sans, sans-serif',
     fontSize: dimensionInRem(-1),
     textAlign: 'right',
     color: colors.darkerGrey,
@@ -147,7 +147,7 @@ const getClasses = () => ({
   }),
   userMessageContent: css({
     backgroundColor: colors.sugarPaperBlue,
-    borderRadius: '18px 18px 3px 18px',
+    borderRadius: '18px 18px 3px',
   }),
   backMessageContent: css({
     backgroundColor: colors.pastelViolet,
@@ -155,7 +155,7 @@ const getClasses = () => ({
   }),
   systemMessageContent: css({
     color: colors.darkerGrey,
-    fontFamily: 'Alegreya-Sans',
+    fontFamily: 'Alegreya-Sans, sans-serif',
   }),
   chatUserControl: css({
     width: '100%',
@@ -176,7 +176,7 @@ const getClasses = () => ({
     width: 150,
     flex: '1 0 100px',
     marginRight: 10,
-    fontFamily: 'Alegreya-Sans',
+    fontFamily: 'Alegreya-Sans, sans-serif',
     fontSize: dimensionInRem(-1),
   }),
   messageReceivedIcon: css({

@@ -65,31 +65,38 @@ const globalStyles = css({
     fontSize: PITCH_IN_PX,
     color: colors.almostBlack,
   },
+
   a: {
     color: colors.almostBlack,
   },
+
   body: {
     fontSize: dimensionInRem(0),
     margin: 0,
     padding: 0,
     backgroundColor: colors.pastelViolet,
+
     [breakPoints.maxMobile]: {
       backgroundColor: colors.senape,
     },
   },
+
   p: {
     fontSize: dimensionInRem(0),
   },
+
   h1: {
     fontSize: dimensionInRem(3),
     lineHeight: '2rem',
     margin: 0,
   },
+
   h2: {
     margin: 0,
     fontSize: dimensionInRem(2),
     lineHeight: '1.5rem',
   },
+
   input: {
     [breakPoints.maxMobile]: {
       fontSize: dimensionInRem(0),

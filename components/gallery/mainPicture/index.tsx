@@ -23,18 +23,20 @@ const getClasses = (shouldAnimate: boolean) => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+
     '& *': {
       transition: shouldAnimate ? transitionValue : undefined,
     },
+
     '& > span': {
-      display: 'block !important',
+      display: `block !important`,
       transition: shouldAnimate ? transitionValue : undefined,
     },
-    boxShadow: '0px 0px 25px 15px rgba(0,0,0,0.3)',
+    boxShadow: '0 0 25px 15px rgb(0 0 0 / 30%)',
   }),
   imageWrapper: css({
     '& > span': {
-      display: 'block !important',
+      display: `block !important`,
     },
   }),
   loadingPicFeedback: css({
@@ -57,6 +59,7 @@ const getClasses = (shouldAnimate: boolean) => ({
   }),
   mainPictureImageAnimating: css({
     transition: shouldAnimate ? transitionValue : undefined,
+
     '& *': {
       transition: shouldAnimate ? transitionValue : undefined,
     },
@@ -227,11 +230,12 @@ const Index = ({
           )}
         <div
           style={{
-            opacity:
+            opacity: `${
               changeSelectedPicPhase !== 'postChangeAnimation' &&
               changeSelectedPicPhase !== 'idle'
                 ? 0.5
-                : 1,
+                : 1
+            }`,
           }}
           css={[classes.imageWrapper, classes.mainPictureImageAnimating]}
           onTransitionEnd={(event) => {

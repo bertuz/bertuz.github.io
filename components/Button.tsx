@@ -19,15 +19,16 @@ const getClasses = (disabled: boolean) => {
       display: 'inline-block',
       userSelect: 'none',
       boxSizing: 'border-box',
-      border: `0px solid ${colors.almostBlack}`,
+      border: `0 solid ${colors.almostBlack}`,
       borderBottom: `3px solid ${colors.almostBlack}`,
       borderTop: '3px solid transparent',
       backgroundColor: disabled ? colors.greyTransparent : colors.grey,
       color: disabled ? colors.grey : colors.almostWhite,
-      fontFamily: 'Alegreya-Sans',
+      fontFamily: 'Alegreya-Sans, sans-serif',
       fontSize: dimensionInRem(-1),
       borderRadius: dimensionInRem(-8),
       padding: `0.2rem 0.5rem`,
+
       '&:hover': {
         cursor: disabled ? 'not-allowed' : 'pointer',
       },
@@ -41,6 +42,7 @@ const getClasses = (disabled: boolean) => {
             paddingBottom: '0.1rem',
             backgroundColor: colors.darkerGrey,
           },
+
       [breakPoints.maxMobile]: disabled
         ? {}
         : {
@@ -73,6 +75,7 @@ const Button = ({ caption, iconPath, disabled = false }: ButtonProperties) => {
             paddingRight: '0.3rem',
             display: 'inline-block',
             verticalAlign: 'middle',
+
             [breakPoints.maxMobile]: {
               height: dimensionInRem(0),
             },

@@ -11,7 +11,6 @@
   },
   "dependencies": {
     "@emotion/react": "^11.8.2",
-    "@stylelint/postcss-css-in-js": "^0.38.0",
     "@types/express-useragent": "^1.0.2",
     "@types/jwk-to-pem": "^2.0.1",
     "@types/node-jose": "^1.1.10",
@@ -33,6 +32,7 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
+    "@stylelint/postcss-css-in-js": "^0.38.0",
     "@babel/plugin-transform-modules-commonjs": "^7.18.2",
     "@emotion/babel-plugin": "^11.7.2",
     "@svgr/webpack": "^6.2.1",
@@ -58,9 +58,6 @@
     "jest": "^28.1.1",
     "jest-image-snapshot": "^5.1.0",
     "jest-puppeteer-docker": "https://github.com/bertuz/jest-puppeteer-docker.git#specify-docker-build",
-    "postcss-styled-components": "^0.2.1",
-    "postcss-styled-syntax": "^0.4.0",
-    "postcss-syntax": "^0.36.2",
     "pptr-testing-library": "^0.7.0",
     "prettier": "^2.6.1",
     "puppeteer": "^15.1.0",

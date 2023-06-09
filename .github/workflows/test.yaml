@@ -20,9 +20,12 @@ jobs:
       - run: npm install -g yarn
       - run: cd ..
       - run: yarn install --dev
+      - run: yarn stylelint pages components
+        name: 🎨 Linting the repo
       - run: yarn build
-      - run: echo "🔬 Testing the repo"
+        name: 🏗️ Building the repo
       - run: yarn test
+        name: 🔬 Testing the repo
       - name: Archive code coverage results
         uses: actions/upload-artifact@v2
         with:

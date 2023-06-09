@@ -29,7 +29,7 @@ type PopupProps = {
 
 const getClasses = (): Record<string, SerializedStyles> => ({
   popup: css({
-    backgroundColor: 'rgba(0,0,0,0.9)',
+    backgroundColor: 'rgba(0 0 0 0.9)',
     zIndex: 1,
     position: 'fixed',
     height: '100%',

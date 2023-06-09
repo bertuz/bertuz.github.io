@@ -5,7 +5,7 @@
   "customSyntax": "@stylelint/postcss-css-in-js",
   "rules": {
     "annotation-no-unknown": [true,{
-      "ignoreAnnotations": ["/.*!important./'$", "3 !important"]
+      "ignoreAnnotations": ["important", "=="]
     }],
     "selector-class-pattern": "[a-z][a-zA-Z0-9]+",
     "value-keyword-case": null,
@@ -32,7 +32,8 @@
     }],
     "property-no-unknown":[true,{
       "ignoreProperties": [
-        "/&:.+/"
+        "/&:.+/",
+        "break-points.max-mobile"
       ]
     }]
   }

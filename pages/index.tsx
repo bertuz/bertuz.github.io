@@ -84,7 +84,6 @@ const nodFaceKeyframes = keyframes({
 const TRANSITION_TIME_IN_MS = 400;
 const TRANSITION_TIME_IN_SEC = 0.4;
 
-// todo adopt csslint when available https://github.com/emotion-js/emotion/issues/2695
 const getClasses = (
   showMac: boolean,
   showingSection: 'presentation' | 'description' | 'work' | 'photos' | 'chat',
@@ -99,10 +98,10 @@ const getClasses = (
     opacity: 0.5,
   }),
   loadButHide: css({
-    display: `'none !important'`,
+    display: 'none !important',
 
     '& > div': {
-      display: `'none !important'`,
+      display: 'none !important',
     },
   }),
   imageClass: css({
@@ -135,9 +134,7 @@ const getClasses = (
     /* stylelint-enable */
   }),
   illustrationForSection: css({
-    transform: `${
-      showingSection !== 'photos' ? 'none' : 'translate(-200%, 0%)'
-    }`,
+    transform: showingSection !== 'photos' ? 'none' : 'translate(-200%, 0%)',
     transition: shouldAnimate ? 'all 0.4s ease-in-out' : undefined,
     // todo wait transform and remove it from the DOM
     position: 'absolute',
