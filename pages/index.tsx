@@ -185,6 +185,7 @@ const getClasses = (
     height: '100%',
     width: '100%',
     fill: `${asideBackgroundColors[showingSection][2]} !important`,
+    strokeWidth: '3 !important',
     animation: shouldAnimate
       ? `${nodFaceKeyframes} 3s alternate infinite !important`
       : undefined,
@@ -333,6 +334,12 @@ const getClasses = (
         }
       : undefined,
 
+    svg: {
+      '& > *': {
+        stroke: '#795E98FF !important',
+      },
+    },
+
     [breakPoints.maxMobile]: {
       top: -10,
       right: -25,
@@ -350,6 +357,11 @@ const getClasses = (
     },
   }),
   middlePolaroid: css({
+    bottom: 0,
+    right: 40,
+    rotate: '-5deg',
+    backgroundColor: colors.sugarPaperBlue,
+
     '&:hover': shouldAnimate
       ? {
           rotate: '-5deg',
@@ -357,10 +369,11 @@ const getClasses = (
         }
       : undefined,
 
-    bottom: 0,
-    right: 40,
-    rotate: '-5deg',
-    backgroundColor: colors.sugarPaperBlue,
+    svg: {
+      '& > *': {
+        stroke: '#53777EFF !important',
+      },
+    },
 
     [breakPoints.maxMobile]: {
       top: 10,
