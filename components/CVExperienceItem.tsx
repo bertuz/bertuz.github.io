@@ -12,14 +12,14 @@ const getClasses = () => {
       display: 'flex',
       flexWrap: 'wrap',
       textAlign: 'justify',
-      textjustify: 'inter-word',
+      textJustify: 'inter-word',
       hyphens: 'auto',
     }),
     cvExperienceItemHeader: css({
       boxSizing: 'border-box',
       flex: '0 0 150px',
       textAlign: 'right',
-      fontFamily: 'Alegreya-Sans SC',
+      fontFamily: '"Alegreya-Sans SC", sans-serif',
     }),
     cvExperienceItemHeaderStacked: css({ textAlign: 'left' }),
     cvExperienceItemHeaderHidden: css({
@@ -32,6 +32,7 @@ const getClasses = () => {
       boxSizing: 'border-box',
       paddingLeft: '1rem',
       flex: '1 1 350px',
+
       '& > div': {
         maxWidth: 614,
       },

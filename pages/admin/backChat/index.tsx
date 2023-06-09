@@ -82,7 +82,7 @@ const getClasses = () => ({
   globalStyles: css({
     body: {
       backgroundColor: colors.sugarPaperBlue,
-      fontFamily: 'Alegreya-Sans',
+      fontFamily: 'Alegreya-Sans, sans-serif',
       fontSize: dimensionInRem(0),
       paddingTop: '70px',
     },
@@ -113,7 +113,7 @@ const getClasses = () => ({
     flex: '0 0 auto',
     marginBottom: 5,
     textAlign: 'justify',
-    textjustify: 'inter-word',
+    textJustify: 'inter-word',
     hyphens: 'auto',
   }),
   frontMessage: css({
@@ -124,7 +124,7 @@ const getClasses = () => ({
   }),
   backMessageContent: css({
     backgroundColor: colors.senape,
-    borderRadius: '18px 18px 3px 18px',
+    borderRadius: '18px 18px 3px',
   }),
   messageContent: css({
     display: 'inline-block',
@@ -136,7 +136,7 @@ const getClasses = () => ({
     borderRadius: '18px 18px 18px 3px',
   }),
   messageMeta: css({
-    fontFamily: 'Alegreya-Sans',
+    fontFamily: 'Alegreya-Sans, sans-serif',
     fontSize: dimensionInRem(-1),
     textAlign: 'right',
     color: colors.darkerGrey,

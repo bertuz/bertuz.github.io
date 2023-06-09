@@ -17,6 +17,7 @@ customConfig.useDockerBuild = {
 customConfig.server = {
   command: 'yarn start',
   port: 3000,
+  launchTimeout: 90000,
 };
 
 customConfig.chromiumFlags = ['–ignore-certificate-errors'];

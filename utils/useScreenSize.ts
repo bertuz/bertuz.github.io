@@ -1,4 +1,4 @@
-import { MAX_MOBILE_WIDTH_PX } from '../assets/styles/breakpoints';
+import { MAX_MOBILE_WIDTH_PX } from '../assets/styles/breakPoints';
 
 import { useEffect, useState } from 'react';
 type ScreenSizes = {

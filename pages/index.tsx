@@ -1,6 +1,6 @@
 import colors from '../assets/styles/colors';
 
-import breakpoints, { MAX_MOBILE_WIDTH_PX } from '../assets/styles/breakpoints';
+import breakPoints, { MAX_MOBILE_WIDTH_PX } from '../assets/styles/breakPoints';
 
 import { dimensionInRem } from '../assets/styles/dimensions';
 
@@ -84,7 +84,6 @@ const nodFaceKeyframes = keyframes({
 const TRANSITION_TIME_IN_MS = 400;
 const TRANSITION_TIME_IN_SEC = 0.4;
 
-// todo adopt csslint when available https://github.com/emotion-js/emotion/issues/2695
 const getClasses = (
   showMac: boolean,
   showingSection: 'presentation' | 'description' | 'work' | 'photos' | 'chat',
@@ -100,12 +99,14 @@ const getClasses = (
   }),
   loadButHide: css({
     display: 'none !important',
+
     '& > div': {
       display: 'none !important',
     },
   }),
   imageClass: css({
     transition: shouldAnimate ? 'all 0.4s ease-in-out' : undefined,
+
     '& *': {
       transition: shouldAnimate ? 'all 0.4s ease-in-out' : undefined,
     },
@@ -125,19 +126,23 @@ const getClasses = (
       showingSection !== 'photos'
         ? `transparent radial-gradient(ellipse 220% 95% at 120% center,  ${asideBackgroundColors[showingSection][1]} 2%, ${asideBackgroundColors[showingSection][0]} 40%)`
         : asideBackgroundColors[showingSection][0],
-    [breakpoints.maxMobile]: {
+
+    [breakPoints.maxMobile]: {
+      /* stylelint-disable */
       display: 'none',
     },
+    /* stylelint-enable */
   }),
   illustrationForSection: css({
+    transform: showingSection !== 'photos' ? 'none' : 'translate(-200%, 0%)',
     transition: shouldAnimate ? 'all 0.4s ease-in-out' : undefined,
     // todo wait transform and remove it from the DOM
-    transform: showingSection !== 'photos' ? 'none' : 'translate(-200%, 0%)',
     position: 'absolute',
     width: showMac ? '35%' : '45%',
     height: showMac ? '35%' : '45%',
     left: showMac ? '33%' : '25%',
     top: '35%',
+
     '& > div': {
       position: 'relative',
       width: '100%',
@@ -190,7 +195,8 @@ const getClasses = (
     padding: 0,
     margin: 0,
     paddingLeft: '50vw',
-    [breakpoints.maxMobile]: {
+
+    [breakPoints.maxMobile]: {
       paddingLeft: 0,
     },
   }),
@@ -222,7 +228,8 @@ const getClasses = (
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
-    [breakpoints.maxMobile]: {
+
+    [breakPoints.maxMobile]: {
       height: '35vh',
     },
   }),
@@ -230,7 +237,8 @@ const getClasses = (
     display: 'none',
     width: '2.5rem',
     height: '3.4rem',
-    [breakpoints.maxMobile]: {
+
+    [breakPoints.maxMobile]: {
       display: 'inline',
     },
   }),
@@ -248,19 +256,19 @@ const getClasses = (
     padding: 24,
     paddingLeft: 48,
     backgroundColor: colors.mountainGrey,
-    fontFamily: "'Alegreya', serif",
+    fontFamily: 'Alegreya, serif',
   }),
   photoCard: css({
     backgroundColor: colors.dawnBlueLight,
-    fontFamily: "'Alegreya', serif",
+    fontFamily: 'Alegreya, serif',
   }),
   presentationDescription: css({
     textAlign: 'justify',
-    textjustify: 'inter-word',
+    textJustify: 'inter-word',
     hyphens: 'auto',
   }),
   workCard: css({
-    fontFamily: "'Alegreya', serif",
+    fontFamily: 'Alegreya, serif',
   }),
   gallery: css({
     minHeight: 400,
@@ -278,7 +286,7 @@ const getClasses = (
     opacity: 0.5,
     padding: 24,
     paddingLeft: 48,
-    fontFamily: "'Alegreya', serif",
+    fontFamily: 'Alegreya, serif',
   }),
   chatWrapper: css({
     marginTop: dimensionInRem(0),
@@ -289,7 +297,7 @@ const getClasses = (
   }),
   footerContent: css({
     textAlign: 'center',
-    fontFamily: "'Alegreya', serif",
+    fontFamily: 'Alegreya, serif',
     textTransform: 'uppercase',
     margin: 0,
     padding: 24,
@@ -302,9 +310,10 @@ const getClasses = (
     padding: '20px',
     border: '15px solid ' + colors.mountainGrey,
     borderBottom: '55px solid ' + colors.mountainGrey,
-    boxShadow: '3px 1px 33px -4px rgba(0,0,0,0.75)',
+    boxShadow: '3px 1px 33px -4px rgb(0 0 0 / 75%)',
     transition: shouldAnimate ? 'all 0.2s ease-in-out' : undefined,
-    [breakpoints.maxMobile]: {
+
+    [breakPoints.maxMobile]: {
       height: 25,
       width: 25,
       padding: 10,
@@ -318,27 +327,32 @@ const getClasses = (
     rotate: '-15deg',
 
     backgroundColor: colors.pastelViolet,
+
     '&:hover': shouldAnimate
       ? {
           transform: 'translate(-10px, -10px)',
         }
       : undefined,
+
     svg: {
       '& > *': {
         stroke: '#795E98FF !important',
       },
     },
-    [breakpoints.maxMobile]: {
+
+    [breakPoints.maxMobile]: {
       top: -10,
       right: -25,
+
       '&:hover': {
         top: 10,
         rotate: '7deg',
-        boxShadow: '3px 1px 33px -4px rgba(0,0,0,1)',
+        boxShadow: '3px 1px 33px -4px rgb(0 0 0 / 100%)',
       },
+
       '&:focus': {
         rotate: '-7deg',
-        boxShadow: '3px 1px 33px -4px rgba(0,0,0,1)',
+        boxShadow: '3px 1px 33px -4px rgb(0 0 0 / 100%)',
       },
     },
   }),
@@ -347,29 +361,34 @@ const getClasses = (
     right: 40,
     rotate: '-5deg',
     backgroundColor: colors.sugarPaperBlue,
+
     '&:hover': shouldAnimate
       ? {
           rotate: '-5deg',
           transform: 'translate(0px, -20px)',
         }
       : undefined,
+
     svg: {
       '& > *': {
         stroke: '#53777EFF !important',
       },
     },
-    [breakpoints.maxMobile]: {
+
+    [breakPoints.maxMobile]: {
       top: 10,
       right: -5,
       rotate: '-50deg',
+
       '&:hover': {
         top: 10,
         rotate: '-35deg',
-        boxShadow: '3px 1px 33px -4px rgba(0,0,0,1)',
+        boxShadow: '3px 1px 33px -4px rgb(0 0 0 / 100%)',
       },
+
       '&:focus': {
         rotate: '-7deg',
-        boxShadow: '3px 1px 33px -4px rgba(0,0,0,1)',
+        boxShadow: '3px 1px 33px -4px rgb(0 0 0 / 100%)',
       },
     },
   }),
@@ -378,26 +397,30 @@ const getClasses = (
     right: 0,
     rotate: '10deg',
     backgroundColor: 'grey',
+
     '&:hover': shouldAnimate
       ? {
           rotate: '5deg',
           transform: 'translate(0px, -20px)',
         }
       : undefined,
-    [breakpoints.maxMobile]: {
+
+    [breakPoints.maxMobile]: {
       top: 45,
       right: -20,
       rotate: '-80deg',
+
       '&:hover': {
         top: 40,
         rotate: '-50deg',
-        boxShadow: '3px 1px 33px -4px rgba(0,0,0,1)',
+        boxShadow: '3px 1px 33px -4px rgb(0 0 0 / 100%)',
       },
+
       '&:focus': {
         top: 40,
         right: 5,
         rotate: '-50deg',
-        boxShadow: '3px 1px 33px -4px rgba(0,0,0,1)',
+        boxShadow: '3px 1px 33px -4px rgb(0 0 0 / 100%)',
       },
     },
   }),
@@ -410,7 +433,8 @@ const getClasses = (
   }),
   galleryArticleImage: css({
     borderRadius: 3,
-    '&: hover': {
+
+    '&:hover': {
       cursor: 'pointer',
     },
   }),
@@ -432,7 +456,9 @@ const getClasses = (
     [Transitions.ENTERING]: css({
       transform: shouldAnimate ? 'translate(200%, 0%) !important' : 'none',
     }),
-    [Transitions.ENTERED]: css({ transform: 'none !important' }),
+    [Transitions.ENTERED]: css({
+      // transform: 'translate(0%, 0%) !important',
+    }),
     [Transitions.EXITING]: css({
       transform: shouldAnimate ? 'translate(200%, 0%) !important' : 'none',
     }),
