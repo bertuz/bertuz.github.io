@@ -23,7 +23,7 @@ const getClasses = () => {
     }),
     cvExperienceItemHeaderStacked: css({ textAlign: 'left' }),
     cvExperienceItemHeaderHidden: css({
-      ['@media (max-width <= 1095px)']: {
+      ['@media (max-width: 1095px)']: {
         display: 'none',
       },
     }),

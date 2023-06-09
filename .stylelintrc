@@ -4,37 +4,58 @@
   ],
   "customSyntax": "@stylelint/postcss-css-in-js",
   "rules": {
-    "annotation-no-unknown": [true,{
-      "ignoreAnnotations": ["important", "=="]
-    }],
+    "media-feature-range-notation": "prefix",
+    "annotation-no-unknown": [
+      true,
+      {
+        "ignoreAnnotations": [
+          "important",
+          "=="
+        ]
+      }
+    ],
     "selector-class-pattern": "[a-z][a-zA-Z0-9]+",
     "value-keyword-case": null,
-    "selector-type-case": ["lower",{
-      "ignoreTypes": [
-        "/breakPoints/"
-      ]
-    }],
-
-    "selector-type-no-unknown": [true,{
-      "ignoreTypes": [
-        "/breakPoints/"
-      ]
-    }],
-    "function-name-case": ["lower",{
-      "ignoreFunctions": [
-        "/dimensionInRem/"
-      ]
-    }],
-    "function-no-unknown": [true,{
-      "ignoreFunctions": [
-        "/dimensionInRem/"
-      ]
-    }],
-    "property-no-unknown":[true,{
-      "ignoreProperties": [
-        "/&:.+/",
-        "break-points.max-mobile"
-      ]
-    }]
+    "selector-type-case": [
+      "lower",
+      {
+        "ignoreTypes": [
+          "/breakPoints/"
+        ]
+      }
+    ],
+    "selector-type-no-unknown": [
+      true,
+      {
+        "ignoreTypes": [
+          "/breakPoints/"
+        ]
+      }
+    ],
+    "function-name-case": [
+      "lower",
+      {
+        "ignoreFunctions": [
+          "/dimensionInRem/"
+        ]
+      }
+    ],
+    "function-no-unknown": [
+      true,
+      {
+        "ignoreFunctions": [
+          "/dimensionInRem/"
+        ]
+      }
+    ],
+    "property-no-unknown": [
+      true,
+      {
+        "ignoreProperties": [
+          "/&:.+/",
+          "break-points.max-mobile"
+        ]
+      }
+    ]
   }
 }
