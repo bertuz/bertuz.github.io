@@ -47,9 +47,9 @@ export const getHasSessionOrErrorMiddleware = (scope?: string) => {
     res: NextApiResponse,
     handleResult: (result: any) => void
   ): Promise<void> => {
-    const session = (await getSession({ req })) as MySession;
+    const session = (await getSession({ req })) as MySession | null;
 
-    if (!session || (scope && !session.scope.includes(scope))) {
+    if (session === null || (scope && !session.scope.includes(scope))) {
       res.status(403);
       res.send({
         error:

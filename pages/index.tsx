@@ -432,6 +432,8 @@ const getClasses = (
     position: 'relative',
   }),
   galleryArticleImage: css({
+    objectFit: 'cover',
+    boxSizing: 'border-box',
     borderRadius: 3,
 
     '&:hover': {
@@ -779,20 +781,20 @@ const Home: NextPage<HomeProperties> = ({ galleryPics }) => {
         >
           <h2 id="work-experience">Work Experience</h2>
           <CVExperienceItem>
-            <Link href="/api/cv" prefetch>
-              <a
-                role="link"
-                download="Curriculum-Matteo-Bertamini.pdf"
-                onKeyPress={() => {
-                  ga.click('cv');
-                }}
-                onClick={() => {
-                  ga.click('cv');
-                }}
-                tabIndex={0}
-              >
-                <Button caption="Download CV" iconPath="/download.svg" />
-              </a>
+            <Link
+              href="/api/cv"
+              prefetch
+              role="link"
+              download="Curriculum-Matteo-Bertamini.pdf"
+              onKeyPress={() => {
+                ga.click('cv');
+              }}
+              onClick={() => {
+                ga.click('cv');
+              }}
+              tabIndex={0}
+            >
+              <Button caption="Download CV" iconPath="/download.svg" />
             </Link>
           </CVExperienceItem>
           <CVExperienceItem
@@ -907,8 +909,8 @@ const Home: NextPage<HomeProperties> = ({ galleryPics }) => {
             {galleryPics.map((image, index: number) => (
               <article key={image.name} css={classes.galleryArticle}>
                 <Image
-                  width={image.dimensions.thumbnail.width}
-                  height={image.dimensions.thumbnail.height}
+                  fill
+                  loading="lazy"
                   onClick={() => {
                     if (showingSection !== 'photos') {
                       return;
@@ -924,10 +926,7 @@ const Home: NextPage<HomeProperties> = ({ galleryPics }) => {
                     }
                   }}
                   src={image.src}
-                  layout="fill"
-                  objectFit="cover"
-                  sizes="200px"
-                  objectPosition="50% 50%"
+                  sizes={`(max-width: ${MAX_MOBILE_WIDTH_PX}px) 247px, 17vw`}
                   alt={`Image number ${index + 1}`}
                   quality={50}
                   placeholder="blur"

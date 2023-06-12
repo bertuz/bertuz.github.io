@@ -94,7 +94,7 @@ const callbacks: Partial<CallbacksOptions> = {
     return true;
   },
   jwt: async function generateJWTClaimsCallback({ token: jwtClaims, account }) {
-    // Persist the OAuth access_token to the token right after signin
+    // Persist the OAuth access_token to the token right after signing in
     if (account) {
       const jwtClaimsToReturn: JWTClaims = jwtClaims as JWTClaims;
       jwtClaimsToReturn.accessToken = account.access_token ?? '';
@@ -139,8 +139,13 @@ const callbacks: Partial<CallbacksOptions> = {
     return await refreshAccessToken(jwtAssertionsToReturn);
   },
   session: async function ({ session, token: jwtClaims }) {
-    session.scope = jwtClaims.scope;
-    session.expires = new Date((jwtClaims.exp as number) * 1000).toISOString();
+    const mySession = session as MySession;
+    const myJWTClaims: JWTClaims = jwtClaims as JWTClaims;
+
+    mySession.scope = myJWTClaims.scope;
+    session.expires = new Date(
+      (myJWTClaims.exp as number) * 1000
+    ).toISOString();
 
     return session;
   },
@@ -160,8 +165,8 @@ async function getKeystore(): Promise<{
 export default NextAuth({
   providers: [
     GithubProvider({
-      clientId: process.env.GITHUB_ID,
-      clientSecret: process.env.GITHUB_SECRET,
+      clientId: process.env.GITHUB_ID!,
+      clientSecret: process.env.GITHUB_SECRET!,
       checks: 'pkce',
     }),
   ],
