@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/setup-node@v1
         with:
-          node-version: 14.19.1
+          node-version: 18.6.0
       - uses: actions/checkout@v1
       - run: npm install -g yarn
       - run: cd ..

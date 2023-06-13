@@ -32,11 +32,9 @@ const TextLink = ({
   }, []);
 
   return (
-    <Link href={href} prefetch={false}>
-      <a target={target} rel="noreferrer">
-        {children}
-        <Extlink css={classes.externalLinkIcon} />
-      </a>
+    <Link href={href} prefetch={false} target={target} rel="noreferrer">
+      {children}
+      <Extlink css={classes.externalLinkIcon} />
     </Link>
   );
 };

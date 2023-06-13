@@ -34,11 +34,6 @@ const getClasses = (shouldAnimate: boolean) => ({
     },
     boxShadow: '0 0 25px 15px rgb(0 0 0 / 30%)',
   }),
-  imageWrapper: css({
-    '& > span': {
-      display: `block !important`,
-    },
-  }),
   loadingPicFeedback: css({
     position: 'absolute',
     margin: 0,
@@ -237,7 +232,7 @@ const Index = ({
                 : 1
             }`,
           }}
-          css={[classes.imageWrapper, classes.mainPictureImageAnimating]}
+          css={classes.mainPictureImageAnimating}
           onTransitionEnd={(event) => {
             if (changeSelectedPicPhase === 'preChangeAnimation') {
               setChangeSelectedPicPhase('preLoading');
@@ -272,7 +267,6 @@ const Index = ({
               );
             }}
             css={classes.mainPictureImage}
-            layout="fixed"
             src={`${galleryPics[loadedSelectedPicIndex].src}`}
             sizes="50vw"
             alt="Selected photo's big version"

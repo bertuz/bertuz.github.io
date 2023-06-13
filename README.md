@@ -12,8 +12,12 @@ things that need to be improved, or are an in-progress test.
 - Vercel for deployment
 
 ### Emotion CSS-in-JS
-Todo: a linter for it https://github.com/emotion-js/emotion/issues/2695
+Stylelint has been used, but with a discontinued parser: https://github.com/emotion-js/emotion/issues/2695
 
+### JWT authentication and authorization
+Next-Auth has been used. It's a great library, but it's not perfect.
+Some caveat:
+- todo (encryption private keys in place of env vars because of vercel's/github env var limits)
 
 ---
 **this readme is a WIP**
