@@ -208,15 +208,14 @@ const Popup = ({
           height={picSelectedDims[0]}
           width={picSelectedDims[1]}
           css={classes.image}
+          quality={100}
+          sizes="100vw"
           loading="eager"
           onLoadingComplete={() => {
             setIsLoading(false);
           }}
-          layout="fixed"
           src={galleryPics[selectedPicIndex].src}
-          sizes="50vw"
           alt={isLoading ? 'Loading' : "Selected photo's big version"}
-          quality={100}
         />
       </div>
     </div>
