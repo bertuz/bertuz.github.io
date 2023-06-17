@@ -960,7 +960,7 @@ const Home: NextPage<HomeProperties> = ({ galleryPics }) => {
           </div>
         </article>
         <div css={classes.footer}>
-          <p css={classes.footerContent}>Matteo Bertamini 2022</p>
+          <p css={classes.footerContent}>Matteo Bertamini 2023</p>
         </div>
       </main>
     </>
