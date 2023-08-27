@@ -1,3 +1,4 @@
+// todo migrate to app router once this has been fixed https://github.com/emotion-js/emotion/issues/2928#issuecomment-1552963155
 import colors from '../assets/styles/colors';
 
 import breakPoints, { MAX_MOBILE_WIDTH_PX } from '../assets/styles/breakPoints';
