@@ -1,0 +1,9 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "net.bertamini.gmadrid.natacion.gmadrid_natacion",
+    "sha256_cert_fingerprints":
+    ["CB:C2:70:A1:B0:40:7A:A8:18:41:76:B3:A7:43:2D:B4:E5:BE:15:B5:68:19:DF:81:6D:04:4B:03:CA:14:4A:2D"]
+  }
+}]
