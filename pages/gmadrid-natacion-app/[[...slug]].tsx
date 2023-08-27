@@ -27,13 +27,13 @@ const Home: NextPage = () => {
   return (
     <main style={{ height: '100vh', width: '100%', backgroundColor: 'white' }}>
       <div css={classes.openApp}>
-        Abre <img src="flecha.png" alt="abre app" />
+        Abre <img src="/flecha.png" alt="abre app" />
       </div>
       <article css={classes.body}>
         <img
           alt="imagen representativa"
           style={{ width: '100%' }}
-          src="osito.png"
+          src="/osito.png"
         />
       </article>
     </main>
