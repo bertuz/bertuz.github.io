@@ -29,6 +29,8 @@ const Home: NextPage = () => {
       <div css={classes.openApp}>
         Abre <img src="/flecha.png" alt="abre app" />
       </div>
+
+      <a href="https://gmadridnatacion.bertamini.net/login-callback">abre</a>
       <article css={classes.body}>
         <img
           alt="imagen representativa"
