@@ -67,5 +67,9 @@
     "stylelint": "^15.7.0",
     "stylelint-config-standard": "^33.0.0",
     "typescript": "4.6.2"
+  },
+  "resolutions": {
+    "**/**/jest-puppeteer-docker": "https://github.com/bertuz/jest-puppeteer-docker.git#specify-docker-build",
+    "**/**/docker-chromium": "https://github.com/bertuz/docker-chromium-img.git#explicit-platform"
   }
 }

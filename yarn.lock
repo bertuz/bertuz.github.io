@@ -3692,15 +3692,7 @@ dir-glob@^3.0.1:
   dependencies:
     path-type "^4.0.0"
 
-"docker-chromium@github:bertuz/docker-chromium#specify-docker-build":
-  version "1.4.2"
-  resolved "https://codeload.github.com/bertuz/docker-chromium/tar.gz/6f237a5576458731310b162695a4068a6ca03a0c"
-  dependencies:
-    colors "^1.4.0"
-    request "^2.88.2"
-    request-promise-native "^1.0.8"
-
-"docker-chromium@https://github.com/bertuz/docker-chromium-img.git#explicit-platform":
+"docker-chromium@github:bertuz/docker-chromium#specify-docker-build", "docker-chromium@https://github.com/bertuz/docker-chromium-img.git#explicit-platform":
   version "1.4.2"
   resolved "https://github.com/bertuz/docker-chromium-img.git#0e70b1de850eccec9fa5a91d50d080aa7b195ea7"
   dependencies:
