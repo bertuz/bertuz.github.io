@@ -14,6 +14,12 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
+        hostname: 'fpbswrebvsmjdwekyznx.supabase.co',
+        port: '',
+        pathname: '**',
+      },
+      {
+        protocol: 'https',
         hostname: 'content-eu.drive.amazonaws.com',
         port: '',
         pathname: '**',

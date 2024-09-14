@@ -1,4 +1,6 @@
 // todo migrate to app router once this has been fixed https://github.com/emotion-js/emotion/issues/2928#issuecomment-1552963155
+import { getImageData } from './api/galleryPhotos';
+
 import colors from '../assets/styles/colors';
 
 import breakPoints, { MAX_MOBILE_WIDTH_PX } from '../assets/styles/breakPoints';
@@ -743,6 +745,17 @@ const Home: NextPage<HomeProperties> = ({ galleryPics }) => {
           </p>
           <ul>
             <li>
+              Mobile
+              <ul>
+                <li>
+                  <TextLink href="https://github.com/gmadridsports/app-natacion">
+                    Flutter
+                  </TextLink>
+                </li>
+                <li>Supabase</li>
+              </ul>
+            </li>
+            <li>
               Frontend
               <ul>
                 <li>ES6: vanilla, Typescript, Flow.js</li>
@@ -764,8 +777,11 @@ const Home: NextPage<HomeProperties> = ({ galleryPics }) => {
               <ul>
                 <li>Agile: kanban and scrum</li>
                 <li>Kubernetes</li>
-                <li>Hexagonal architecture</li>
-                <li>DDD</li>
+                <li>Clean architectures: hexagonal, DDD, even on front</li>
+                <li>
+                  Foster <strong>async</strong> - yet effective - communication
+                  within a team
+                </li>
               </ul>
             </li>
           </ul>
@@ -994,20 +1010,16 @@ export async function getServerSideProps() {
       };
     }
 
-    const response = await fetch(
-      'https://www.amazon.it/drive/v1/nodes/mmVUOJzUS_KqKRykQrzFPA/children?asset=ALL&filters=kind%3A(FILE*+OR+FOLDER*)+AND+contentProperties.contentType%3A(image*)+AND+status%3A(AVAILABLE*)&limit=15&lowResThumbnail=true&searchOnFamily=true&sort=%5B%27contentProperties.contentDate+DESC%27%5D&tempLink=true&shareId=qFervNlenYwkjdQ1o26YOsWhld5fnsJ0t89xbcv2Vep&offset=0&resourceVersion=V2&ContentType=JSON&_=1660508015523'
-    );
+    const response = await getImageData();
 
-    if (!response?.body) {
+    if (!response) {
       return [];
     }
 
-    const data = await response.json();
-
-    const images = data.data.map(
+    const images = response.map(
       (photo: {
         contentProperties: { image: { height: number; width: number } };
-        tempLink: string;
+        url: string;
         name: string;
       }) => {
         const { height: originalHeight, width: originalWidth } =
@@ -1023,7 +1035,7 @@ export async function getServerSideProps() {
             : thumbnailFitWidth;
 
         return {
-          src: photo.tempLink,
+          src: photo.url,
           name: photo.name,
           dimensions: {
             ratio: dimensionsRatio,
