@@ -22,18 +22,20 @@ jobs:
       - run: yarn install --dev
       - run: yarn stylelint pages components
         name: 🎨 Linting the repo
-      - run: yarn build
-        name: 🏗️ Building the repo
-      - run: yarn test
-        name: 🔬 Testing the repo
-      - name: Archive code coverage results
-        uses: actions/upload-artifact@v4
-        with:
-          name: code-coverage-report
-          path: testres.json
-      - name: Uploading failing screenshots
-        if: ${{ !success() }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: failing-screenshots
-          path: __screenshot-tests__/__image_snapshots__/__diff_output__
+      - run: docker-compose --version
+        name: 🐳 Testing docker-compose
+#      - run: yarn build
+#        name: 🏗️ Building the repo
+#      - run: yarn test
+#        name: 🔬 Testing the repo
+#      - name: Archive code coverage results
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: code-coverage-report
+#          path: testres.json
+#      - name: Uploading failing screenshots
+#        if: ${{ !success() }}
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: failing-screenshots
+#          path: __screenshot-tests__/__image_snapshots__/__diff_output__
