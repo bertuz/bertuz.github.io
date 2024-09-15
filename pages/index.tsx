@@ -35,6 +35,8 @@ import useScreenSize from '../utils/useScreenSize';
 import toBase64 from '../utils/toBase64';
 import { isRunningAcceptanceTest } from '../utils/testUtils';
 
+import { createClient } from '@supabase/supabase-js';
+
 import { Transition } from 'react-transition-group';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -1010,47 +1012,55 @@ export async function getServerSideProps() {
       };
     }
 
-    const response = await getImageData();
+    const supabaseUrl = process.env.SUPABASE_NEXT_PUBLIC_SUPABASE_URL || ' ';
+    const supabaseAnonKey =
+      process.env.SUPABASE_NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
-    if (!response) {
-      return [];
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: {
+        headers: {
+          Authorization: `Bearer ${process.env.SUPABASE_SUPABASE_SERVICE_ROLE_KEY}`,
+        },
+      },
+    });
+    const { data, error } = await supabase
+      .from('gallery-images')
+      .select('url, name, height, width')
+      .limit(30)
+      .order('created_at', { ascending: false });
+
+    if (data === null) {
+      throw new Error(error?.message);
     }
 
-    const images = response.map(
-      (photo: {
-        contentProperties: { image: { height: number; width: number } };
-        url: string;
-        name: string;
-      }) => {
-        const { height: originalHeight, width: originalWidth } =
-          photo.contentProperties.image;
-        const dimensionsRatio = originalHeight / originalWidth;
-        const thumbnailFitWidth =
-          originalHeight > 200
-            ? [200, 200 / dimensionsRatio]
-            : [originalHeight, originalWidth];
-        const thumbnailFit =
-          originalWidth > 150
-            ? [thumbnailFitWidth[0] * dimensionsRatio, 150]
-            : thumbnailFitWidth;
+    const images = data.map((photo) => {
+      const { height: originalHeight, width: originalWidth } = photo;
+      const dimensionsRatio = originalHeight / originalWidth;
+      const thumbnailFitWidth =
+        originalHeight > 200
+          ? [200, 200 / dimensionsRatio]
+          : [originalHeight, originalWidth];
+      const thumbnailFit =
+        originalWidth > 150
+          ? [thumbnailFitWidth[0] * dimensionsRatio, 150]
+          : thumbnailFitWidth;
 
-        return {
-          src: photo.url,
-          name: photo.name,
-          dimensions: {
-            ratio: dimensionsRatio,
-            thumbnail: {
-              height: thumbnailFit[0],
-              width: thumbnailFit[1],
-            },
-            original: {
-              height: originalHeight,
-              width: originalWidth,
-            },
+      return {
+        src: photo.url,
+        name: photo.name,
+        dimensions: {
+          ratio: dimensionsRatio,
+          thumbnail: {
+            height: thumbnailFit[0],
+            width: thumbnailFit[1],
           },
-        };
-      }
-    );
+          original: {
+            height: originalHeight,
+            width: originalWidth,
+          },
+        },
+      };
+    });
 
     return {
       props: {
