@@ -9,7 +9,7 @@ on:
 jobs:
   test:
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -27,13 +27,13 @@ jobs:
       - run: yarn test
         name: 🔬 Testing the repo
       - name: Archive code coverage results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: code-coverage-report
           path: testres.json
       - name: Uploading failing screenshots
         if: ${{ !success() }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: failing-screenshots
           path: __screenshot-tests__/__image_snapshots__/__diff_output__

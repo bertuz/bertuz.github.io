@@ -33,6 +33,8 @@ import useScreenSize from '../utils/useScreenSize';
 import toBase64 from '../utils/toBase64';
 import { isRunningAcceptanceTest } from '../utils/testUtils';
 
+import { createClient } from '@supabase/supabase-js';
+
 import { Transition } from 'react-transition-group';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -743,6 +745,17 @@ const Home: NextPage<HomeProperties> = ({ galleryPics }) => {
           </p>
           <ul>
             <li>
+              Mobile
+              <ul>
+                <li>
+                  <TextLink href="https://github.com/gmadridsports/app-natacion">
+                    Flutter
+                  </TextLink>
+                </li>
+                <li>Supabase</li>
+              </ul>
+            </li>
+            <li>
               Frontend
               <ul>
                 <li>ES6: vanilla, Typescript, Flow.js</li>
@@ -764,8 +777,11 @@ const Home: NextPage<HomeProperties> = ({ galleryPics }) => {
               <ul>
                 <li>Agile: kanban and scrum</li>
                 <li>Kubernetes</li>
-                <li>Hexagonal architecture</li>
-                <li>DDD</li>
+                <li>Clean architectures: hexagonal, DDD, even on front</li>
+                <li>
+                  Foster <strong>async</strong> - yet effective - communication
+                  within a team
+                </li>
               </ul>
             </li>
           </ul>
@@ -994,51 +1010,55 @@ export async function getServerSideProps() {
       };
     }
 
-    const response = await fetch(
-      'https://www.amazon.it/drive/v1/nodes/mmVUOJzUS_KqKRykQrzFPA/children?asset=ALL&filters=kind%3A(FILE*+OR+FOLDER*)+AND+contentProperties.contentType%3A(image*)+AND+status%3A(AVAILABLE*)&limit=15&lowResThumbnail=true&searchOnFamily=true&sort=%5B%27contentProperties.contentDate+DESC%27%5D&tempLink=true&shareId=qFervNlenYwkjdQ1o26YOsWhld5fnsJ0t89xbcv2Vep&offset=0&resourceVersion=V2&ContentType=JSON&_=1660508015523'
-    );
+    const supabaseUrl = process.env.SUPABASE_NEXT_PUBLIC_SUPABASE_URL || '';
+    const supabaseAnonKey =
+      process.env.SUPABASE_NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
-    if (!response?.body) {
-      return [];
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: {
+        headers: {
+          Authorization: `Bearer ${process.env.SUPABASE_SUPABASE_SERVICE_ROLE_KEY}`,
+        },
+      },
+    });
+    const { data, error } = await supabase
+      .from('gallery-images')
+      .select('url, name, height, width')
+      .limit(30)
+      .order('created_at', { ascending: false });
+
+    if (data === null) {
+      throw new Error(error?.message);
     }
 
-    const data = await response.json();
+    const images = data.map((photo) => {
+      const { height: originalHeight, width: originalWidth } = photo;
+      const dimensionsRatio = originalHeight / originalWidth;
+      const thumbnailFitWidth =
+        originalHeight > 200
+          ? [200, 200 / dimensionsRatio]
+          : [originalHeight, originalWidth];
+      const thumbnailFit =
+        originalWidth > 150
+          ? [thumbnailFitWidth[0] * dimensionsRatio, 150]
+          : thumbnailFitWidth;
 
-    const images = data.data.map(
-      (photo: {
-        contentProperties: { image: { height: number; width: number } };
-        tempLink: string;
-        name: string;
-      }) => {
-        const { height: originalHeight, width: originalWidth } =
-          photo.contentProperties.image;
-        const dimensionsRatio = originalHeight / originalWidth;
-        const thumbnailFitWidth =
-          originalHeight > 200
-            ? [200, 200 / dimensionsRatio]
-            : [originalHeight, originalWidth];
-        const thumbnailFit =
-          originalWidth > 150
-            ? [thumbnailFitWidth[0] * dimensionsRatio, 150]
-            : thumbnailFitWidth;
-
-        return {
-          src: photo.tempLink,
-          name: photo.name,
-          dimensions: {
-            ratio: dimensionsRatio,
-            thumbnail: {
-              height: thumbnailFit[0],
-              width: thumbnailFit[1],
-            },
-            original: {
-              height: originalHeight,
-              width: originalWidth,
-            },
+      return {
+        src: photo.url,
+        name: photo.name,
+        dimensions: {
+          ratio: dimensionsRatio,
+          thumbnail: {
+            height: thumbnailFit[0],
+            width: thumbnailFit[1],
           },
-        };
-      }
-    );
+          original: {
+            height: originalHeight,
+            width: originalWidth,
+          },
+        },
+      };
+    });
 
     return {
       props: {

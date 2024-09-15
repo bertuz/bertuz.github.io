@@ -3,6 +3,10 @@ const nextConfig = {
   reactStrictMode: true,
   webpack(config) {
     config.module.rules.push({
+      test: /supabase\/.*/,
+      use: 'ignore-loader',
+    });
+    config.module.rules.push({
       test: /\.svg$/i,
       issuer: /\.[jt]sx?$/,
       use: ['@svgr/webpack'],
@@ -12,6 +16,12 @@ const nextConfig = {
   },
   images: {
     remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'fpbswrebvsmjdwekyznx.supabase.co',
+        port: '',
+        pathname: '**',
+      },
       {
         protocol: 'https',
         hostname: 'content-eu.drive.amazonaws.com',
