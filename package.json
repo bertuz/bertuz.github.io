@@ -57,6 +57,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-react": "^7.29.4",
     "eslint-plugin-react-hooks": "^4.3.0",
+    "ignore-loader": "^0.1.2",
     "jest": "^28.1.1",
     "jest-image-snapshot": "^5.1.0",
     "jest-puppeteer-docker": "https://github.com/bertuz/jest-puppeteer-docker.git#specify-docker-build",

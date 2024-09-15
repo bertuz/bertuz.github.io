@@ -1,6 +1,4 @@
 // todo migrate to app router once this has been fixed https://github.com/emotion-js/emotion/issues/2928#issuecomment-1552963155
-import { getImageData } from './api/galleryPhotos';
-
 import colors from '../assets/styles/colors';
 
 import breakPoints, { MAX_MOBILE_WIDTH_PX } from '../assets/styles/breakPoints';
@@ -1012,7 +1010,7 @@ export async function getServerSideProps() {
       };
     }
 
-    const supabaseUrl = process.env.SUPABASE_NEXT_PUBLIC_SUPABASE_URL || ' ';
+    const supabaseUrl = process.env.SUPABASE_NEXT_PUBLIC_SUPABASE_URL || '';
     const supabaseAnonKey =
       process.env.SUPABASE_NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
