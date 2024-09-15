@@ -22,12 +22,6 @@ const nextConfig = {
         port: '',
         pathname: '**',
       },
-      {
-        protocol: 'https',
-        hostname: 'content-eu.drive.amazonaws.com',
-        port: '',
-        pathname: '**',
-      },
     ],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     deviceSizes: [400, 500, 600, 700, 1000],
