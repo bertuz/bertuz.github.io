@@ -3,13 +3,14 @@ import sizeOf from 'npm:buffer-image-size';
 
 import { Buffer } from 'node:buffer';
 
-const SUPABASE_DOMAIN = 'https://fpbswrebvsmjdwekyznx.supabase.co';
+const SUPABASE_DOMAIN = Deno.env.get('SUPABASE_URL');
 const IMAGES_URL = `${SUPABASE_DOMAIN}/storage/v1/object/public/photos`;
 
 Deno.serve(async (req) => {
   const { 'new-image': image } = await req.json();
 
   const { name: nameWithExtension, id } = image;
+  console.log('id', id);
   const name = nameWithExtension.replace(/\.[a-zA-Z0-9]{1,3}$/, '');
   const url = `${IMAGES_URL}/${nameWithExtension}`;
   const contentImage = await fetch(url, {
